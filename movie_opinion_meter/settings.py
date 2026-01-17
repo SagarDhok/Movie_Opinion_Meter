@@ -10,20 +10,25 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATES_DIR = BASE_DIR/'templates'
+STATIC_DIR = BASE_DIR/'static'
+load_dotenv(BASE_DIR / ".env") #load_dotenv() reads .env and does internally
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-pyytyfucb(x69t4d31ihn)m+$m4-qfa!5qne)ivbga0w&4c#h0'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -39,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'users',
+    'movies',
 
 ]
 
@@ -57,7 +63,7 @@ ROOT_URLCONF = 'movie_opinion_meter.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,8 +124,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [STATIC_DIR]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+AUTH_USER_MODEL = 'users.User' #AUTH_USER_MODEL = 'users.User' tells Django to use my custom User model as the global authentication user instead of Django’s default auth.User. it used username default 
+
+BREVO_API_KEY=os.getenv("BREVO_API_KEY")
+DEFAULT_FROM_EMAIL=os.getenv("DEFAULT_FROM_EMAIL")
+
+
+TMDB_API_KEY =os.getenv("TMDB_API_KEY")
