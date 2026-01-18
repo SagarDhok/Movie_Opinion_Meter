@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Opinion Meter</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'movies/home.css' %}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+
+         
+        <!-- LOGO -->
+<a href="{% url 'movies-home' %}" class="logo-link">
+    <h1 class="logo">🎬 Movie<span>Meter</span></h1>
+</a>
+
+       
+
+        <!-- SEARCH + FILTER GROUP -->
+        <form method="get" class="nav-search-group">
+
+            <div class="search-form">
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search movies..."
+                    value="{{ request.GET.search }}"
+                />
+                <button type="submit" class="search-btn">🔍</button>
+            </div>
+
+            <div class="nav-filters">
+                <select name="genre">
+                    <option value="">Genre</option>
+                    {% for genre in genres %}
+                        <option value="{{ genre.name }}"
+                            {% if request.GET.genre == genre.name %}selected{% endif %}>
+                            {{ genre.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select name="released">
+                    <option value="">Status</option>
+                    <option value="true" {% if request.GET.released == "true" %}selected{% endif %}>
+                        Released
+                    </option>
+                    <option value="false" {% if request.GET.released == "false" %}selected{% endif %}>
+                        Upcoming
+                    </option>
+                </select>
+
+                <button type="submit" class="apply-btn">Apply</button>
+            </div>
+
+        </form>
+
+        <!-- AUTH -->
+        <div class="auth">
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="profile-btn">
+
+                    {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}"
+                            alt="Profile"
+                            class="nav-avatar">
+                    {% else %}
+                        <span class="nav-avatar-fallback">👤</span>
+                    {% endif %}
+
+                    <span class="nav-username">{{ user.first_name }} {{ user.last_name }}</span>
+                </a>
+
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link">Login</a>
+                <a href="{% url 'signup' %}" class="btn-primary">Signup</a>
+            {% endif %}
+        </div>
+
+    </div>
+</nav>
+
+<div class="navbar-spacer"></div>
+
+<main class="container">
+
+
+    <!-- ================= MOVIE GRID ================= -->
+    <section class="movie-grid">
+        {% for movie in movies %}
+            <div class="movie-card">
+
+                <div class="poster-container">
+                    {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                    {% else %}
+                        <div class="no-image">No Poster</div>
+                    {% endif %}
+
+                    <div class="overlay">
+                    <a href="{% url 'movie-detail' movie.id %}" class="details-btn">
+                    View Details
+                     </a>
+
+                    </div>
+                </div>
+
+                <div class="card-content">
+                    <span class="badge {% if movie.is_released %}released{% else %}upcoming{% endif %}">
+                        {% if movie.is_released %}Released{% else %}Upcoming{% endif %}
+                    </span>
+
+                    <h3>{{ movie.title }}</h3>
+
+                    <p class="genres">
+                        {% for g in movie.categories.all %}
+                            {{ g.name }}{% if not forloop.last %} • {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+
+            </div>
+        {% empty %}
+            <div class="no-results">
+                <p>No movies found.</p>
+            </div>
+        {% endfor %}
+    </section>
+
+    <!-- ============================================ -->
+
+    <!-- ================= PAGINATION ================= -->
+<div class="pagination">
+
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}
+            {% if request.GET.search %}&search={{ request.GET.search }}{% endif %}
+            {% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}
+            {% if request.GET.released %}&released={{ request.GET.released }}{% endif %}
+        ">
+            ← Prev
+        </a>
+    {% endif %}
+
+    <span class="page-info">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}
+            {% if request.GET.search %}&search={{ request.GET.search }}{% endif %}
+            {% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}
+            {% if request.GET.released %}&released={{ request.GET.released }}{% endif %}
+        ">
+            Next →
+        </a>
+    {% endif %}
+
+</div>
+
+
+</main>
+
+</body>
+</html>

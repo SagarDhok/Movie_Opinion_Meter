@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ movie.title }} | MovieMeter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'movies/detail.css' %}">
+</head>
+<body>
+
+<div class="detail-page">
+
+  <!-- HERO -->
+  <section class="movie-hero">
+    <div class="poster">
+      {% if movie.poster_path %}
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+      {% else %}
+        <div class="no-poster">No Image</div>
+      {% endif %}
+    </div>
+
+    <div class="movie-info">
+      <h1>{{ movie.title }}</h1>
+      <p class="meta">
+        {% if movie.release_date %}{{ movie.release_date }} • {% endif %}
+        {% if movie.is_released %}Released{% else %}Upcoming{% endif %}
+      </p>
+
+      <div class="genres">
+        {% for g in movie.categories.all %}
+          <span>{{ g.name }}</span>
+        {% endfor %}
+      </div>
+
+      {% if user.is_authenticated %}
+        <button class="watchlist-btn {% if in_watchlist %}added{% endif %}">
+          {% if in_watchlist %}✓ In Watchlist{% else %}+ Add to Watchlist{% endif %}
+        </button>
+      {% else %}
+        <p class="login-hint">Login to add to watchlist</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- AUDIENCE OPINION -->
+  <section class="meter-section">
+    <h2>Audience Opinion</h2>
+
+    <div class="meter-container">
+      <div class="meter-bar bad" data-label="Bad" data-percent="5" data-votes="34">
+        <div class="fill"></div>
+        <span class="label">😖 Bad <strong>5%</strong></span>
+      </div>
+      <div class="meter-bar average" data-label="Average" data-percent="20" data-votes="224">
+        <div class="fill"></div>
+        <span class="label">😐 Average <strong>20%</strong></span>
+      </div>
+      <div class="meter-bar good" data-label="Good" data-percent="55" data-votes="765">
+        <div class="fill"></div>
+        <span class="label">😎 Good <strong>55%</strong></span>
+      </div>
+      <div class="meter-bar masterpiece" data-label="Masterpiece" data-percent="20" data-votes="98">
+        <div class="fill"></div>
+        <span class="label">🔥 Masterpiece <strong>20%</strong></span>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="overall-summary" id="overall-summary">
+        🎬 <strong>Overall This Movie → Good (55%)</strong> — 765 votes out of 1121
+      </div>
+      <div class="user-vote" id="user-vote" style="opacity:0;">
+        <!-- dynamically filled when user votes -->
+      </div>
+    </div>
+  </section>
+
+  <!-- CAST -->
+  <section class="cast-section">
+    <h2>Cast</h2>
+    <div class="cast-list">
+      {% for member in movie.cast.all %}
+        <div class="cast-card">
+          {% if member.profile_path %}
+            <img src="https://image.tmdb.org/t/p/w200{{ member.profile_path }}" alt="{{ member.name }}">
+          {% else %}
+            <div class="cast-avatar">🎭</div>
+          {% endif %}
+          <p class="cast-name">{{ member.name }}</p>
+          <span class="cast-role">{{ member.character }}</span>
+        </div>
+      {% empty %}
+        <p>No cast info</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- REVIEW FORM -->
+  <section class="review-form">
+    <h2>Rate & Review</h2>
+    {% if user.is_authenticated %}
+      <form>
+        <div class="stars">
+          {% for i in "12345" %}<span class="star">★</span>{% endfor %}
+        </div>
+        <textarea placeholder="Write your review..."></textarea>
+        <button type="submit">Submit Review</button>
+      </form>
+    {% else %}
+      <p class="login-hint">Login to write a review</p>
+    {% endif %}
+  </section>
+
+</div>
+
+<script>
+  const bars = document.querySelectorAll('.meter-bar');
+  const overallSummary = document.getElementById('overall-summary');
+  const userVote = document.getElementById('user-vote');
+
+  const colors = {
+    Bad: "#fb7185",
+    Average: "#facc15",
+    Good: "#34d399",
+    Masterpiece: "#a855f7"
+  };
+
+  // Animate bars on load
+  window.addEventListener('load', () => {
+    bars.forEach(bar => {
+      const pct = bar.dataset.percent;
+      bar.querySelector('.fill').style.width = pct + '%';
+    });
+
+    // Show default overall info
+    overallSummary.innerHTML = `🎬 <strong>Overall This Movie → Good (55%)</strong> — 765 votes out of 1121`;
+  });
+
+  bars.forEach(bar => {
+    bar.addEventListener('click', () => {
+      bars.forEach(b => b.classList.remove('active'));
+      bar.classList.add('active');
+
+      const label = bar.dataset.label;
+      const votes = bar.dataset.votes;
+      const percent = bar.dataset.percent;
+      const total = 1121;
+
+      // Keep overall at top
+      overallSummary.innerHTML = `🎬 <strong>Overall This Movie → Good (55%)</strong> — 765 votes out of 1121`;
+
+      // Show user's vote below
+      userVote.innerHTML = `🗳️ You voted: <strong style="color:${colors[label]}">${label}</strong> (${percent}%) — ${votes} votes out of ${total}`;
+      userVote.style.opacity = 1;
+    });
+  });
+</script>
+
+</body>
+</html>

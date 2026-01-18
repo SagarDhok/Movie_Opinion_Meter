@@ -36,3 +36,54 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
+
+
+from django.conf import settings
+from django.db import models
+
+User = settings.AUTH_USER_MODEL
+
+
+class MovieVote(models.Model):
+    VOTE_CHOICES = [
+        ("masterpiece", "Masterpiece"),
+        ("good", "Good"),
+        ("average", "Average"),
+        ("bad", "Bad"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey("Movie", on_delete=models.CASCADE, related_name="votes")
+    vote = models.CharField(max_length=20, choices=VOTE_CHOICES)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "movie")  
+
+
+class MovieReview(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey("Movie", on_delete=models.CASCADE, related_name="reviews")
+
+    rating = models.PositiveSmallIntegerField(
+        choices=[(i, i) for i in range(1, 6)],
+        null=True,
+        blank=True
+    )
+    review_text = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "movie")
+
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey("Movie", on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "movie")

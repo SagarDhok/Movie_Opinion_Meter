@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile | MovieMeter{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'movies/home.css' %}">
+<link rel="stylesheet" href="{% static 'users/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <a href="{% url 'movies-home' %}" class="back-home">← Back to Movies</a>
+
+    <div class="profile-card">
+        <div class="card-header">
+            <h2>Account Settings</h2>
+            <p>Manage your profile and preferences</p>
+        </div>
+
+        <div class="avatar-section">
+            <div class="image-wrapper">
+                {% if request.user.profile_image %}
+                    <img src="{{ request.user.profile_image.url }}" alt="Profile" id="avatarPreview">
+                {% else %}
+                    <div class="avatar-placeholder">
+                        <span>{{ request.user.username|slice:":1"|upper }}</span>
+                    </div>
+                {% endif %}
+                
+            </div>
+                <h3 class="username">
+                {{ request.user.first_name }} {{ request.user.last_name }}
+            </h3>
+            <div class="avatar-actions">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label for="fileInput" class="btn-upload">Update Photo</label>
+                    <input type="file" name="profile_image" id="fileInput" accept="image/*" onchange="this.form.submit()">
+                </form>
+
+                {% if request.user.profile_image %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="remove_image" value="1">
+                    <button type="submit" class="btn-danger-outline">Remove</button>
+                </form>
+                {% endif %}
+            </div>
+
+       
+        </div>
+
+        <div class="profile-details">
+         <div class="detail-row">
+    <div class="label-group">
+        <span class="label">Full Name</span>
+        <span class="value">{{ request.user.first_name }} {{ request.user.last_name }}</span>
+    </div>
+
+    <button type="button" class="status-pill edit-pill" onclick="openNameModal()">
+        Edit
+    </button>
+</div>
+
+
+            <div class="detail-row">
+                <div class="label-group">
+                    <span class="label">Email</span>
+                    <span class="value">{{ request.user.email }}</span>
+                </div>
+                <span class="status-pill {% if request.user.is_email_verified %}verified{% else %}unverified{% endif %}">
+                    {{ request.user.is_email_verified|yesno:"Verified,Unverified" }}
+                </span>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-box">
+                <span class="stat-num">0</span>
+                <span class="stat-label">Reviews</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-num">0</span>
+                <span class="stat-label">Watchlist</span>
+            </div>
+        </div>
+
+        <div class="profile-footer">
+            <a href="{% url 'forgot-password' %}" class="btn-secondary">Change Password</a>
+            <a href="{% url 'logout' %}" class="btn-danger" onclick="confirmLogout(event)">Logout</a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== EDIT NAME MODAL ===== -->
+<div id="nameModal" class="modal-overlay" onclick="if(event.target === this) closeNameModal()">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Update Profile Name</h3>
+            <p>Personalize how you appear on MovieMeter</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-container">
+                <div class="input-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" placeholder="Enter first name"
+                           value="{{ request.user.first_name }}" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" placeholder="Enter last name"
+                           value="{{ request.user.last_name }}">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeNameModal()">Cancel</button>
+                <button type="submit" class="btn-primary-glow">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+function confirmLogout(event) {
+    event.preventDefault();
+    const logoutUrl = event.currentTarget.getAttribute('href');
+    Swal.fire({
+        title: 'Logout?',
+        text: "Do you really want to sign out?",
+        icon: 'warning',
+        showCancelButton: true,
+        background: '#0f172a',
+        color: '#f8fafc',
+        confirmButtonColor: '#f87171',
+        cancelButtonColor: '#334155',
+        confirmButtonText: 'Yes, Logout!',
+        cancelButtonText: 'Stay here'
+    }).then((result) => {
+        if (result.isConfirmed) { window.location.href = logoutUrl; }
+    })
+}
+
+function openNameModal() {
+    document.getElementById("nameModal").style.display = "flex";
+}
+
+
+function closeNameModal() {
+    document.getElementById("nameModal").style.display = "none";
+}
+
+
+
+</script>
+{% endblock %}

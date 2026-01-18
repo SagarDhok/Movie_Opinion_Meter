@@ -12,11 +12,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
+    profile_image = models.ImageField(upload_to="profiles/",blank=True,null=True)  #pip install pillow 
+
 
     USERNAME_FIELD = 'email'  #bydefault django username
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = UserManager()   #py manage.py createsuperuser means User.objects.create_superuser(...) internally
+
 
 
 

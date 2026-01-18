@@ -16,9 +16,32 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from django.conf import settings
+from django.conf.urls.static import static
+
+
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('users.urls')), 
+    path('users/', include('users.urls')), 
+     path('', include('movies.urls'))
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT)
+# If DEBUG=True (development mode), Django will serve uploaded files by linking MEDIA_URL (/media/)
+# to the actual folder path MEDIA_ROOT (media/ directory)
+
+#  ✅ we use static() here because it creates URL routes automatically to serve files.
+
+# Why static() is used?
+
+# ✅ It tells Django:
+
+# “If someone opens /media/... then go to MEDIA_ROOT folder and return that file.”
+
+# So without static() your uploaded image/file will not open in browser during development.

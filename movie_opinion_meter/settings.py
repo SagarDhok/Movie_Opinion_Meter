@@ -139,3 +139,7 @@ DEFAULT_FROM_EMAIL=os.getenv("DEFAULT_FROM_EMAIL")
 
 
 TMDB_API_KEY =os.getenv("TMDB_API_KEY")
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

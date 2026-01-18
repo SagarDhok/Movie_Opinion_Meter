@@ -7,7 +7,6 @@
     <title>{% block title %}Movie Opinion Meter{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/password-toggle.css' %}">
-
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -24,6 +23,6 @@
 
 {% block content %}{% endblock %}
  <script src="{% static 'js/password-toggle.js' %}"></script>
-
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

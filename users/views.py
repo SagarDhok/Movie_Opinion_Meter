@@ -8,7 +8,9 @@ from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
 from django.utils.encoding import force_bytes,force_str
 from django.urls import reverse
 from .utils import send_brevo_email
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth.decorators import login_required
+
 
 
 
@@ -187,9 +189,16 @@ def login_view(request):
 # sessionid cookie (browser)
 #    ↓
 # Next requests → request.user available login karych kam nahi ( time limit pan lau shakto) or untill logout
-        return redirect("home")
+        return redirect("movies-home")
 
     return render(request, "users/login.html")
+
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("movies-home")
+
 
 
 def forgot_password_view(request):
@@ -282,3 +291,52 @@ def reset_password_view(request, uid, token):
         return redirect("login")
 
     return render(request, "users/reset_password.html")
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.shortcuts import render, redirect
+
+
+@login_required
+def profile_view(request):
+    if request.method == "POST":
+
+        # 🔴 REMOVE IMAGE
+        if request.POST.get("remove_image") == "1":
+            if request.user.profile_image:
+                request.user.profile_image.delete(save=False)
+                request.user.profile_image = None
+                request.user.save()
+                messages.success(request, "Profile photo removed")
+            return redirect("profile")
+
+        # 🟢 UPDATE PROFILE IMAGE
+        image = request.FILES.get("profile_image")
+        if image:
+            request.user.profile_image = image
+            request.user.save()
+            messages.success(request, "Profile photo updated")
+            return redirect("profile")
+
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+
+        if not first_name:
+            messages.error(request, "First name cannot be empty")
+            return redirect("profile")
+        if not last_name:
+            messages.error(request, "Last name cannot be empty")
+            return redirect("profile")
+
+        request.user.first_name = first_name
+        request.user.last_name = last_name
+        request.user.save()
+
+        messages.success(request, "Profile details updated")
+        return redirect("profile")
+
+    return render(request, "users/profile.html")
+
+
