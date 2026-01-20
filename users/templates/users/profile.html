@@ -4,13 +4,18 @@
 {% block title %}My Profile | MovieMeter{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'movies/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 <link rel="stylesheet" href="{% static 'users/profile.css' %}">
 {% endblock %}
 
+
+{% block navbar %}
+  {% include "includes/navbar.html" with mode="mini" %}
+{% endblock %}
+
+
 {% block content %}
 <div class="profile-container">
-    <a href="{% url 'movies-home' %}" class="back-home">← Back to Movies</a>
 
     <div class="profile-card">
         <div class="card-header">
@@ -24,14 +29,15 @@
                     <img src="{{ request.user.profile_image.url }}" alt="Profile" id="avatarPreview">
                 {% else %}
                     <div class="avatar-placeholder">
-                        <span>{{ request.user.username|slice:":1"|upper }}</span>
+                        <span>{{ request.user.first_name|slice:":1"|upper }}</span>
                     </div>
                 {% endif %}
-                
             </div>
-                <h3 class="username">
+
+            <h3 class="username">
                 {{ request.user.first_name }} {{ request.user.last_name }}
             </h3>
+
             <div class="avatar-actions">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
@@ -47,22 +53,19 @@
                 </form>
                 {% endif %}
             </div>
-
-       
         </div>
 
         <div class="profile-details">
-         <div class="detail-row">
-    <div class="label-group">
-        <span class="label">Full Name</span>
-        <span class="value">{{ request.user.first_name }} {{ request.user.last_name }}</span>
-    </div>
+            <div class="detail-row">
+                <div class="label-group">
+                    <span class="label">Full Name</span>
+                    <span class="value">{{ request.user.first_name }} {{ request.user.last_name }}</span>
+                </div>
 
-    <button type="button" class="status-pill edit-pill" onclick="openNameModal()">
-        Edit
-    </button>
-</div>
-
+                <button type="button" class="status-pill edit-pill" onclick="openNameModal()">
+                    Edit
+                </button>
+            </div>
 
             <div class="detail-row">
                 <div class="label-group">
@@ -75,16 +78,18 @@
             </div>
         </div>
 
-        <div class="profile-stats">
-            <div class="stat-box">
-                <span class="stat-num">0</span>
-                <span class="stat-label">Reviews</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-num">0</span>
-                <span class="stat-label">Watchlist</span>
-            </div>
-        </div>
+    <div class="profile-stats">
+    <div class="stat-box">
+        <span class="stat-num">0</span>
+        <span class="stat-label">Reviews</span>
+    </div>
+
+    <a href="{% url 'watchlist' %}" class="stat-box stat-link">
+        <span class="stat-num">{{ watchlist_count }}</span>
+        <span class="stat-label">Watchlist</span>
+    </a>
+    </div>
+
 
         <div class="profile-footer">
             <a href="{% url 'forgot-password' %}" class="btn-secondary">Change Password</a>
@@ -125,7 +130,6 @@
     </div>
 </div>
 
-
 <script>
 function confirmLogout(event) {
     event.preventDefault();
@@ -150,12 +154,8 @@ function openNameModal() {
     document.getElementById("nameModal").style.display = "flex";
 }
 
-
 function closeNameModal() {
     document.getElementById("nameModal").style.display = "none";
 }
-
-
-
 </script>
 {% endblock %}

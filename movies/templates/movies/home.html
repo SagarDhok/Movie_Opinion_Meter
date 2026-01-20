@@ -1,171 +1,394 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Opinion Meter</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'movies/home.css' %}">
-</head>
-<body>
+{% block title %}Movie Opinion Meter{% endblock %}
 
-<nav class="navbar">
-    <div class="nav-container">
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'movies/home.css' %}">
+{% endblock %}
 
-         
-        <!-- LOGO -->
-<a href="{% url 'movies-home' %}" class="logo-link">
-    <h1 class="logo">🎬 Movie<span>Meter</span></h1>
-</a>
+{% block navbar %}
+  {% include "includes/navbar.html" with mode="full" %}
+{% endblock %}
 
-       
+{% block content %}
 
-        <!-- SEARCH + FILTER GROUP -->
-        <form method="get" class="nav-search-group">
+<main class="page-container">
 
-            <div class="search-form">
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="Search movies..."
-                    value="{{ request.GET.search }}"
-                />
-                <button type="submit" class="search-btn">🔍</button>
-            </div>
-
-            <div class="nav-filters">
-                <select name="genre">
-                    <option value="">Genre</option>
-                    {% for genre in genres %}
-                        <option value="{{ genre.name }}"
-                            {% if request.GET.genre == genre.name %}selected{% endif %}>
-                            {{ genre.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-
-                <select name="released">
-                    <option value="">Status</option>
-                    <option value="true" {% if request.GET.released == "true" %}selected{% endif %}>
-                        Released
-                    </option>
-                    <option value="false" {% if request.GET.released == "false" %}selected{% endif %}>
-                        Upcoming
-                    </option>
-                </select>
-
-                <button type="submit" class="apply-btn">Apply</button>
-            </div>
-
-        </form>
-
-        <!-- AUTH -->
-        <div class="auth">
-            {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="profile-btn">
-
-                    {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}"
-                            alt="Profile"
-                            class="nav-avatar">
-                    {% else %}
-                        <span class="nav-avatar-fallback">👤</span>
-                    {% endif %}
-
-                    <span class="nav-username">{{ user.first_name }} {{ user.last_name }}</span>
-                </a>
-
-            {% else %}
-                <a href="{% url 'login' %}" class="nav-link">Login</a>
-                <a href="{% url 'signup' %}" class="btn-primary">Signup</a>
-            {% endif %}
-        </div>
-
-    </div>
-</nav>
-
-<div class="navbar-spacer"></div>
-
-<main class="container">
-
-
-    <!-- ================= MOVIE GRID ================= -->
-    <section class="movie-grid">
+  {% if section_title %}
+    <!-- ================= FILTERED RESULTS ================= -->
+    <div class="content-wrapper">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">🔍</span>
+          {{ section_title }}
+        </h2>
+      </div>
+      
+      <section class="movie-grid">
         {% for movie in movies %}
+          <a href="{% url 'movie-detail' movie.id %}" class="movie-card-link">
             <div class="movie-card">
-
-                <div class="poster-container">
-                    {% if movie.poster_path %}
-                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
-                    {% else %}
-                        <div class="no-image">No Poster</div>
-                    {% endif %}
-
-                    <div class="overlay">
-                    <a href="{% url 'movie-detail' movie.id %}" class="details-btn">
-                    View Details
-                     </a>
-
-                    </div>
+              <div class="poster-container">
+                {% if movie.poster_path %}
+                  <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                       alt="{{ movie.title }}"
+                       loading="lazy">
+                {% else %}
+                  <div class="no-poster">
+                    <span>🎬</span>
+                  </div>
+                {% endif %}
+                
+                <div class="card-overlay">
+                  <span class="view-btn">View Details</span>
                 </div>
+              </div>
 
-                <div class="card-content">
-                    <span class="badge {% if movie.is_released %}released{% else %}upcoming{% endif %}">
-                        {% if movie.is_released %}Released{% else %}Upcoming{% endif %}
-                    </span>
+              <div class="card-info">
+                <span class="status-badge {% if movie.is_released %}released{% else %}upcoming{% endif %}">
+                  {% if movie.is_released %}Released{% else %}Upcoming{% endif %}
+                </span>
 
-                    <h3>{{ movie.title }}</h3>
+                <h3 class="movie-title">{{ movie.title }}</h3>
 
-                    <p class="genres">
-                        {% for g in movie.categories.all %}
-                            {{ g.name }}{% if not forloop.last %} • {% endif %}
-                        {% endfor %}
-                    </p>
-                </div>
-
+                <p class="movie-genres">
+                  {% for g in movie.categories.all|slice:":3" %}
+                    {{ g.name }}{% if not forloop.last %} • {% endif %}
+                  {% empty %}
+                    No genres
+                  {% endfor %}
+                </p>
+                
+                {% if movie.release_date %}
+                  <p class="release-date">{{ movie.release_date|date:"Y" }}</p>
+                {% endif %}
+              </div>
             </div>
+          </a>
         {% empty %}
-            <div class="no-results">
-                <p>No movies found.</p>
-            </div>
+          <div class="no-results">
+            <div class="no-results-icon">🎭</div>
+            <h3>No Movies Found</h3>
+            <p>Try adjusting your filters or search query</p>
+          </div>
         {% endfor %}
-    </section>
+      </section>
+    </div>
 
-    <!-- ============================================ -->
+  {% else %}
+    <!-- ================= SMART SECTIONS (DEFAULT VIEW) ================= -->
+  {% if page_obj.number == 1 %}
+    <!-- 🔥 TRENDING THIS WEEK -->
+    {% if trending_movies %}
+    <div class="content-wrapper">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">🔥</span>
+          Trending This Week
+        </h2>
+        <p class="section-subtitle">Most voted movies right now</p>
+      </div>
+      
+      <section class="horizontal-scroll">
+        <div class="scroll-container">
+          {% for movie in trending_movies %}
+            <a href="{% url 'movie-detail' movie.id %}" class="movie-card-link">
+              <div class="movie-card horizontal">
+                <div class="poster-container">
+                  {% if movie.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                         alt="{{ movie.title }}"
+                         loading="lazy">
+                  {% else %}
+                    <div class="no-poster"><span>🎬</span></div>
+                  {% endif %}
+                  
+                  <div class="card-overlay">
+                    <span class="view-btn">View Details</span>
+                  </div>
+                </div>
 
-    <!-- ================= PAGINATION ================= -->
-<div class="pagination">
+                <div class="card-info">
+                  <span class="status-badge released">Released</span>
+                  <h3 class="movie-title">{{ movie.title }}</h3>
+                  <p class="movie-genres">
+                    {% for g in movie.categories.all|slice:":2" %}
+                      {{ g.name }}{% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                  {% if movie.release_date %}
+                    <p class="release-date">{{ movie.release_date|date:"Y" }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+    {% endif %}
+    
+    <!-- 🎬 LATEST RELEASED -->
+    {% if latest_released_movies %}
+    <div class="content-wrapper">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">🎬</span>
+          Latest Released
+        </h2>
+        <p class="section-subtitle">Recently hit theaters</p>
+      </div>
+      
+      <section class="horizontal-scroll">
+        <div class="scroll-container">
+          {% for movie in latest_released_movies %}
+            <a href="{% url 'movie-detail' movie.id %}" class="movie-card-link">
+              <div class="movie-card horizontal">
+                <div class="poster-container">
+                  {% if movie.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                         alt="{{ movie.title }}"
+                         loading="lazy">
+                  {% else %}
+                    <div class="no-poster"><span>🎬</span></div>
+                  {% endif %}
+                  
+                  <div class="card-overlay">
+                    <span class="view-btn">View Details</span>
+                  </div>
+                </div>
 
-    {% if page_obj.has_previous %}
+                <div class="card-info">
+                  <span class="status-badge released">Released</span>
+                  <h3 class="movie-title">{{ movie.title }}</h3>
+                  <p class="movie-genres">
+                    {% for g in movie.categories.all|slice:":2" %}
+                      {{ g.name }}{% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                  {% if movie.release_date %}
+                    <p class="release-date">{{ movie.release_date|date:"Y" }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+    {% endif %}
+    
+    <!-- ⏳ COMING VERY SOON -->
+    {% if coming_soon_movies %}
+    <div class="content-wrapper">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">⏳</span>
+          Coming Very Soon
+        </h2>
+        <p class="section-subtitle">Releasing in the next 60 days</p>
+      </div>
+      
+      <section class="horizontal-scroll">
+        <div class="scroll-container">
+          {% for movie in coming_soon_movies %}
+            <a href="{% url 'movie-detail' movie.id %}" class="movie-card-link">
+              <div class="movie-card horizontal">
+                <div class="poster-container">
+                  {% if movie.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                         alt="{{ movie.title }}"
+                         loading="lazy">
+                  {% else %}
+                    <div class="no-poster"><span>🎬</span></div>
+                  {% endif %}
+                  
+                  <div class="card-overlay">
+                    <span class="view-btn">View Details</span>
+                  </div>
+                </div>
+
+                <div class="card-info">
+                  <span class="status-badge upcoming">Upcoming</span>
+                  <h3 class="movie-title">{{ movie.title }}</h3>
+                  <p class="movie-genres">
+                    {% for g in movie.categories.all|slice:":2" %}
+                      {{ g.name }}{% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                  {% if movie.release_date %}
+                    <p class="release-date">{{ movie.release_date|date:"M d, Y" }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+    {% endif %}
+    
+    <!-- 🚀 MAJOR UPCOMING RELEASES -->
+    {% if major_upcoming_movies %}
+    <div class="content-wrapper">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">🚀</span>
+          Major Upcoming Releases
+        </h2>
+        <p class="section-subtitle">Big releases on the horizon</p>
+      </div>
+      
+      <section class="horizontal-scroll">
+        <div class="scroll-container">
+          {% for movie in major_upcoming_movies %}
+            <a href="{% url 'movie-detail' movie.id %}" class="movie-card-link">
+              <div class="movie-card horizontal">
+                <div class="poster-container">
+                  {% if movie.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                         alt="{{ movie.title }}"
+                         loading="lazy">
+                  {% else %}
+                    <div class="no-poster"><span>🎬</span></div>
+                  {% endif %}
+                  
+                  <div class="card-overlay">
+                    <span class="view-btn">View Details</span>
+                  </div>
+                </div>
+
+                <div class="card-info">
+                  <span class="status-badge upcoming">Upcoming</span>
+                  <h3 class="movie-title">{{ movie.title }}</h3>
+                  <p class="movie-genres">
+                    {% for g in movie.categories.all|slice:":2" %}
+                      {{ g.name }}{% if not forloop.last %} • {% endif %}
+                    {% endfor %}
+                  </p>
+                  {% if movie.release_date %}
+                    <p class="release-date">{{ movie.release_date|date:"M Y" }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+    {% endif %}
+  {% endif %}
+    <!-- 🎞 ALL MOVIES (GRID) -->
+    <div class="content-wrapper">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon">🎞️</span>
+          All Movies
+        </h2>
+        <p class="section-subtitle">Explore our complete collection</p>
+      </div>
+      
+      <section class="movie-grid">
+        {% for movie in movies %}
+          <a href="{% url 'movie-detail' movie.id %}" class="movie-card-link">
+            <div class="movie-card">
+              <div class="poster-container">
+                {% if movie.poster_path %}
+                  <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                       alt="{{ movie.title }}"
+                       loading="lazy">
+                {% else %}
+                  <div class="no-poster"><span>🎬</span></div>
+                {% endif %}
+                
+                <div class="card-overlay">
+                  <span class="view-btn">View Details</span>
+                </div>
+              </div>
+
+              <div class="card-info">
+                <span class="status-badge {% if movie.is_released %}released{% else %}upcoming{% endif %}">
+                  {% if movie.is_released %}Released{% else %}Upcoming{% endif %}
+                </span>
+
+                <h3 class="movie-title">{{ movie.title }}</h3>
+
+                <p class="movie-genres">
+                  {% for g in movie.categories.all|slice:":3" %}
+                    {{ g.name }}{% if not forloop.last %} • {% endif %}
+                  {% empty %}
+                    No genres
+                  {% endfor %}
+                </p>
+                
+                {% if movie.release_date %}
+                  <p class="release-date">{{ movie.release_date|date:"Y" }}</p>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        {% empty %}
+          <div class="no-results">
+            <div class="no-results-icon">🎭</div>
+            <h3>No Movies Yet</h3>
+            <p>Run the sync command to populate the database</p>
+            <code>python manage.py sync_tmdb_movies</code>
+          </div>
+        {% endfor %}
+      </section>
+    </div>
+    
+  {% endif %}
+
+  <!-- ================= PAGINATION ================= -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination-wrapper">
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page=1
+          {% if request.GET.search %}&search={{ request.GET.search }}{% endif %}
+          {% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}
+          {% if request.GET.released %}&released={{ request.GET.released }}{% endif %}" 
+          class="page-btn">
+          ⏮️ First
+        </a>
+        
         <a href="?page={{ page_obj.previous_page_number }}
-            {% if request.GET.search %}&search={{ request.GET.search }}{% endif %}
-            {% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}
-            {% if request.GET.released %}&released={{ request.GET.released }}{% endif %}
-        ">
-            ← Prev
+          {% if request.GET.search %}&search={{ request.GET.search }}{% endif %}
+          {% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}
+          {% if request.GET.released %}&released={{ request.GET.released }}{% endif %}" 
+          class="page-btn">
+          ← Prev
         </a>
-    {% endif %}
+      {% endif %}
 
-    <span class="page-info">
-        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-    </span>
+      <span class="page-info">
+        Page <strong>{{ page_obj.number }}</strong> of <strong>{{ page_obj.paginator.num_pages }}</strong>
+      </span>
 
-    {% if page_obj.has_next %}
+      {% if page_obj.has_next %}
         <a href="?page={{ page_obj.next_page_number }}
-            {% if request.GET.search %}&search={{ request.GET.search }}{% endif %}
-            {% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}
-            {% if request.GET.released %}&released={{ request.GET.released }}{% endif %}
-        ">
-            Next →
+          {% if request.GET.search %}&search={{ request.GET.search }}{% endif %}
+          {% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}
+          {% if request.GET.released %}&released={{ request.GET.released }}{% endif %}" 
+          class="page-btn">
+          Next →
         </a>
-    {% endif %}
-
-</div>
-
+        
+        <a href="?page={{ page_obj.paginator.num_pages }}
+          {% if request.GET.search %}&search={{ request.GET.search }}{% endif %}
+          {% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}
+          {% if request.GET.released %}&released={{ request.GET.released }}{% endif %}" 
+          class="page-btn">
+          Last ⏭️
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
 
 </main>
 
-</body>
-</html>
+{% endblock %}

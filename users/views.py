@@ -10,6 +10,7 @@ from django.urls import reverse
 from .utils import send_brevo_email
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
+from movies.models import  Watchlist
 
 
 
@@ -178,6 +179,10 @@ def login_view(request):
             return render(request, "users/login.html", context)
 
         login(request, user)
+        messages.success(
+            request,
+            f"Welcome {user.first_name} {user.last_name}! Login successful 🎉"
+        )
 # User → Login Form
 #    ↓
 # authenticate()
@@ -189,7 +194,13 @@ def login_view(request):
 # sessionid cookie (browser)
 #    ↓
 # Next requests → request.user available login karych kam nahi ( time limit pan lau shakto) or untill logout
+
+        next_url = request.GET.get("next")
+        if next_url:
+            return redirect(next_url)
+
         return redirect("movies-home")
+
 
     return render(request, "users/login.html")
 
@@ -301,25 +312,39 @@ from django.shortcuts import render, redirect
 
 @login_required
 def profile_view(request):
+
+
+
     if request.method == "POST":
 
         # 🔴 REMOVE IMAGE
         if request.POST.get("remove_image") == "1":
-            if request.user.profile_image:
-                request.user.profile_image.delete(save=False)
-                request.user.profile_image = None
-                request.user.save()
-                messages.success(request, "Profile photo removed")
+            user = request.user
+
+            if user.profile_image:
+                user.profile_image.delete(save=False)  # file delete
+                user.profile_image = None
+                user.save()
+
+            messages.success(request, "Profile photo removed")
             return redirect("profile")
 
         # 🟢 UPDATE PROFILE IMAGE
         image = request.FILES.get("profile_image")
         if image:
-            request.user.profile_image = image
-            request.user.save()
+            user = request.user
+
+            # ✅ old image delete (best practice)
+            if user.profile_image:
+                user.profile_image.delete(save=False)
+
+            user.profile_image = image
+            user.save()
+
             messages.success(request, "Profile photo updated")
             return redirect("profile")
 
+        # 🟡 UPDATE NAME
         first_name = request.POST.get("first_name", "").strip()
         last_name = request.POST.get("last_name", "").strip()
 
@@ -337,6 +362,17 @@ def profile_view(request):
         messages.success(request, "Profile details updated")
         return redirect("profile")
 
-    return render(request, "users/profile.html")
+    watchlist_movies = (
+        Watchlist.objects
+        .filter(user=request.user)
+        .select_related("movie")
+    )
+    context = {
+        "watchlist_count": watchlist_movies.count(),
+        "watchlist_movies": watchlist_movies,
+    }
+    return render(request, "users/profile.html",context)
+
+
 
 

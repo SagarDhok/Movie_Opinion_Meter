@@ -2,7 +2,14 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
 from .managers import UserManager
+import uuid
 
+def user_profile_upload_path(instance, filename):
+    ext = filename.split(".")[-1]
+    filename = f"{uuid.uuid4().hex}.{ext}"
+
+    email_part = instance.email.split("@")[0].replace(".", "_")
+    return f"profiles/{email_part}/{filename}"
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
@@ -12,7 +19,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
-    profile_image = models.ImageField(upload_to="profiles/",blank=True,null=True)  #pip install pillow 
+    profile_image = models.ImageField(upload_to=user_profile_upload_path, blank=True, null=True) #pip install pillow 
 
 
     USERNAME_FIELD = 'email'  #bydefault django username

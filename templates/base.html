@@ -5,24 +5,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Movie Opinion Meter{% endblock %}</title>
+
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/password-toggle.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 
 {% if messages %}
-<div class="messages-container">
+<div class="toast-container" id="toast-container">
     {% for message in messages %}
-        <div class="flash-message {{ message.tags }}">
-            {{ message }}
+        <div class="toast toast-{{ message.tags }}">
+            <div class="toast-icon"></div>
+
+            <div class="toast-body">
+                <div class="toast-title">
+                    {% if "success" in message.tags %}Success
+                    {% elif "error" in message.tags %}Error
+                    {% elif "warning" in message.tags %}Warning
+                    {% elif "info" in message.tags %}Info
+                    {% else %}Notice{% endif %}
+                </div>
+
+                <div class="toast-text">{{ message }}</div>
+            </div>
+
+            <button class="toast-close" type="button">✕</button>
         </div>
     {% endfor %}
 </div>
 {% endif %}
 
+{# ✅ Navbar show only when page allows #}
+{% block navbar %}
+    {# default -> no navbar #}
+{% endblock %}
+
 {% block content %}{% endblock %}
- <script src="{% static 'js/password-toggle.js' %}"></script>
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="{% static 'js/password-toggle.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  document.querySelectorAll(".toast").forEach((toast) => {
+    const closeBtn = toast.querySelector(".toast-close");
+
+    const timer = setTimeout(() => {
+      toast.classList.add("hide");
+      setTimeout(() => toast.remove(), 250);
+    }, 5000);
+
+    closeBtn.addEventListener("click", () => {
+      clearTimeout(timer);
+      toast.classList.add("hide");
+      setTimeout(() => toast.remove(), 250);
+    });
+  });
+</script>
+
+{% block extra_js %}{% endblock %}
+
 </body>
 </html>

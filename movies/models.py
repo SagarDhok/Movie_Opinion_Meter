@@ -1,4 +1,8 @@
 from django.db import models
+from django.conf import settings
+
+User = settings.AUTH_USER_MODEL
+
 
 # Create your models here.
 
@@ -11,20 +15,22 @@ class Genre(models.Model):
 
 
 class Movie(models.Model):
-    tmdb_id = models.PositiveIntegerField(unique=True,db_index=True, help_text="TMDB movie ID")
-    title = models.CharField(max_length=255,db_index=True)
-    poster_path = models.CharField(max_length=255,blank=True,null=True)
-    release_date = models.DateField(blank=True,null=True,db_index=True)
-    is_released = models.BooleanField(default=False,db_index=True)
-    categories = models.ManyToManyField(Genre,related_name="movies")  
-            # synce.py
-            # movie.categories.set(
-            #     [genre_map[g] for g in m.get("genre_ids", []) if g in genre_map]
-            # )
-             # [<Genre: Action>, <Genre: Drama>]
+    tmdb_id = models.PositiveIntegerField(unique=True, db_index=True)
+    title = models.CharField(max_length=255, db_index=True)
+    overview = models.TextField(blank=True, null=True)
+    poster_path = models.CharField(max_length=255, blank=True, null=True)
+
+    release_date = models.DateField(blank=True, null=True, db_index=True)
+    is_released = models.BooleanField(default=False, db_index=True)
+
+    # 🔥 IMPORTANT
+    is_big_release = models.BooleanField(default=False, db_index=True)
+
+    categories = models.ManyToManyField(Genre, related_name="movies")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
     class Meta:
         ordering = ["-release_date"]
@@ -36,13 +42,57 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Person(models.Model):
+    tmdb_id = models.IntegerField(unique=True, db_index=True)
+
+    name = models.CharField(max_length=255, db_index=True)
+    biography = models.TextField(blank=True)
+
+    profile_path = models.CharField(max_length=255, blank=True, null=True)
+    known_for_department = models.CharField(max_length=100, blank=True)
+
+    birthday = models.DateField(null=True, blank=True)
+    place_of_birth = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 
-from django.conf import settings
-from django.db import models
+    
+class Cast(models.Model):
+    movie = models.ForeignKey(Movie, related_name="cast", on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    character = models.CharField(max_length=255, blank=True)
 
-User = settings.AUTH_USER_MODEL
+    def __str__(self):
+        return f"{self.person.name} as {self.character}"
 
+
+
+class Crew(models.Model):
+    movie = models.ForeignKey(Movie, related_name="crew", on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    job = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.person.name} ({self.job})"
+
+
+
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="watchlist_items")
+    movie = models.ForeignKey("Movie",on_delete=models.CASCADE,related_name="watchlisted_by" )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "movie")
+
+    def __str__(self):
+        return f"{self.user.email} → {self.movie.title}"
+
+#!Not Inlcluded yet 
 
 class MovieVote(models.Model):
     VOTE_CHOICES = [
@@ -61,15 +111,12 @@ class MovieVote(models.Model):
     class Meta:
         unique_together = ("user", "movie")  
 
-
 class MovieReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    movie = models.ForeignKey("Movie", on_delete=models.CASCADE, related_name="reviews")
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
 
     rating = models.PositiveSmallIntegerField(
-        choices=[(i, i) for i in range(1, 6)],
-        null=True,
-        blank=True
+        choices=[(i, i) for i in range(1, 6)]
     )
     review_text = models.TextField()
 
@@ -79,11 +126,5 @@ class MovieReview(models.Model):
         unique_together = ("user", "movie")
 
 
-class Watchlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    movie = models.ForeignKey("Movie", on_delete=models.CASCADE)
 
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ("user", "movie")

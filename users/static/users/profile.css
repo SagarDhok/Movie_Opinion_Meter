@@ -10,22 +10,22 @@
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: 'Inter', sans-serif;
-    background: var(--bg-gradient);
-    background-attachment: fixed;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-main);
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+
+  display: block;
 }
 
-.profile-container {
-    width: 100%;
-    max-width: 480px;
-    padding: 60px 20px 20px 20px;
-    position: relative;
+
+.profile-container{
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 30px 20px 20px;
 }
 
 /* --- Card Styles --- */
@@ -144,10 +144,54 @@ body {
 .verified { background: rgba(34, 197, 94, 0.1); color: #4ade80; }
 .unverified { background: rgba(248, 113, 113, 0.1); color: var(--danger); }
 
-.profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-.stat-box { padding: 15px; text-align: center; }
-.stat-num { display: block; font-size: 20px; font-weight: 800; }
-.stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+.profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 30px;
+}
+
+/* ✅ stat box base */
+.stat-box {
+    padding: 16px 14px;
+    text-align: center;
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    transition: transform 0.2s ease, border 0.2s ease, background 0.2s ease;
+}
+
+.stat-num {
+    display: block;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--text-main);
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+
+.stat-link,
+.stat-link:visited,
+.stat-link:hover,
+.stat-link:active {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* ✅ Just extra safety */
+.stat-link * {
+    text-decoration: none !important;
+}
+
+
 
 /* --- Footer --- */
 .profile-footer { display: flex; flex-direction: column; gap: 12px; }

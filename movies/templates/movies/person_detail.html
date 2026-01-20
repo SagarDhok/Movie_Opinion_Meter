@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ person.name }} | MovieMeter{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'movies/person_detail.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+{% endblock %}
+{% block navbar %}
+  {% include "includes/navbar.html" with mode="mini" %}
+{% endblock %}
+{% block content %}
+<div class="person-page">
+
+  <!-- ================= HERO ================= -->
+  <section class="person-hero">
+
+    <div class="person-photo">
+      {% if person.profile_path %}
+        <img src="https://image.tmdb.org/t/p/w500{{ person.profile_path }}" alt="{{ person.name }}">
+      {% else %}
+        <div class="photo-placeholder">👤</div>
+      {% endif %}
+    </div>
+
+    <div class="person-info">
+      <h1>{{ person.name }}</h1>
+
+      <p class="department">Known For : {{ person.known_for_department }}</p>
+
+ <div class="person-meta">
+
+  {% if person.birthday %}
+  <div class="meta-box">
+    <span class="meta-label">Born</span>
+    <span class="meta-value">
+      {{ person.birthday|date:"F j, Y" }}
+    </span>
+  </div>
+  {% endif %}
+
+  {% if person.place_of_birth %}
+  <div class="meta-box">
+    <span class="meta-label">Birthplace</span>
+    <span class="meta-value">
+      {{ person.place_of_birth }}
+    </span>
+  </div>
+  {% endif %}
+
+</div>
+
+      {% if person.biography %}
+        <p class="bio">
+          {{ person.biography|truncatechars:600 }}
+        </p>
+      {% else %}
+        <p class="bio muted">Biography not available.</p>
+      {% endif %}
+    </div>
+
+  </section>
+
+  <!-- ================= FILMOGRAPHY ================= -->
+  <section class="filmography">
+
+    <h2>Filmography</h2>
+
+    <div class="movies-grid">
+      {% for cast in person.cast_set.all %}
+        <a href="{% url 'movie-detail' cast.movie.id %}" class="movie-card">
+
+          {% if cast.movie.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w300{{ cast.movie.poster_path }}" alt="{{ cast.movie.title }}">
+          {% else %}
+            <div class="no-poster">No Image</div>
+          {% endif %}
+
+          <div class="movie-info">
+            <h3>{{ cast.movie.title }}</h3>
+            <span class="role">as {{ cast.character }}</span>
+          </div>
+
+        </a>
+      {% empty %}
+        <p class="muted">No movies found.</p>
+      {% endfor %}
+    </div>
+
+  </section>
+
+</div>
+{% endblock %}
