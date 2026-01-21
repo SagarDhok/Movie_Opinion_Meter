@@ -238,6 +238,13 @@ body {
   color: rgba(2, 6, 23, 0.95);
   background: linear-gradient(90deg, var(--accent), var(--accent2));
   box-shadow: 0 12px 25px rgba(56, 189, 248, 0.16);
+
+  transition: transform 0.2s ease, filter 0.2s ease, background 0.2s ease;
+}
+
+.vote-pill:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 /* Meter rows */
@@ -287,45 +294,11 @@ body {
   transition: transform 0.15s ease, background 0.2s ease, border 0.2s ease;
 }
 
-.meter-row.active .meter-name {
-  position: relative;
-  padding-right: 34px;
-}
-
-.meter-row.active .meter-name::after {
-  content: "";
-  width: 16px;
-  height: 16px;
-  border-radius: 5px;
-
-  background: rgba(2, 6, 23, 0.92);
-  border: 1px solid rgba(2, 6, 23, 0.92);
-
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.meter-row.active .meter-name::before {
-  content: "";
-  width: 8px;
-  height: 4px;
-
-  border-left: 2px solid rgba(56, 189, 248, 0.95);
-  border-bottom: 2px solid rgba(56, 189, 248, 0.95);
-
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-55%) rotate(-45deg);
-}
-
 .meter-track {
   height: 9px;
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(255, 255,  255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .meter-row .fill {
@@ -370,7 +343,7 @@ body {
 .summary .overall-summary {
   font-size: 13px;
   font-weight: 900;
-  color: rgba(248, 250, 252,  0.88);
+  color: rgba(248, 250, 252, 0.88);
 }
 
 .summary .user-vote {
@@ -655,3 +628,268 @@ body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ================================
+   ✅ NEWLY ADDED - VOTE UX UPGRADE
+   (cleaned: removed duplicates + conflicts)
+================================== */
+
+/* Vote pill wrap */
+.vote-pill-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip box */
+.vote-tooltip {
+  position: absolute;
+  top: 115%;
+  right: 0;
+
+  width: 240px;
+  padding: 12px 14px;
+  border-radius: 16px;
+
+  background: rgba(2, 6, 23, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.6);
+
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 50;
+}
+
+.vote-pill-wrap:hover .vote-tooltip {
+  opacity: 1;
+  transform: translateY(0px);
+  pointer-events: auto;
+}
+
+.tooltip-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(248, 250, 252, 0.85);
+  margin-bottom: 10px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 13px;
+  font-weight: 800;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tooltip-row:last-of-type {
+  border-bottom: none;
+}
+
+.tooltip-row.bad { color: rgba(251, 113, 133, 0.95); }
+.tooltip-row.average { color: rgba(250, 204, 21, 0.95); }
+.tooltip-row.good { color: rgba(52, 211, 153, 0.95); }
+.tooltip-row.masterpiece { color: rgba(168, 85, 247, 0.95); }
+
+.tooltip-total {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(248, 250, 252, 0.9);
+  text-align: right;
+}
+
+/* ✅ Make vote-pill take selected color */
+.vote-pill.pill-bad {
+  background: linear-gradient(90deg, rgba(251, 113, 133, 0.95), rgba(244, 63, 94, 0.95));
+  color: rgba(2, 6, 23, 0.95);
+}
+
+.vote-pill.pill-average {
+  background: linear-gradient(90deg, rgba(250, 204, 21, 0.95), rgba(234, 179, 8, 0.95));
+  color: rgba(2, 6, 23, 0.95);
+}
+
+.vote-pill.pill-good {
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.95), rgba(5, 150, 105, 0.95));
+  color: rgba(2, 6, 23, 0.95);
+}
+
+.vote-pill.pill-masterpiece {
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.95), rgba(126, 34, 206, 0.95));
+  color: rgba(2, 6, 23, 0.95);
+}
+
+/* ✅ Colored vote text used in summary */
+.vote-text {
+  font-weight: 900;
+}
+
+.vote-bad { color: rgba(251, 113, 133, 0.95); }
+.vote-average { color: rgba(250, 204, 21, 0.95); }
+.vote-good { color: rgba(52, 211, 153, 0.95); }
+.vote-masterpiece { color: rgba(168, 85, 247, 0.95); }
+
+.muted-mini {
+  margin-left: 10px;
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ================================
+   ✅ VOTE SUMMARY PREMIUM CARD
+================================== */
+
+.vote-summary-card {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  max-width: 850px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vote-summary-title {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.vote-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(2, 6, 23, 0.7);
+}
+
+.vote-chip.neutral {
+  color: rgba(148, 163, 184, 0.95);
+}
+
+/* vote chip colors */
+.vote-chip.vote-bad {
+  color: rgba(251, 113, 133, 0.95);
+  border-color: rgba(251, 113, 133, 0.30);
+}
+
+.vote-chip.vote-average {
+  color: rgba(250, 204, 21, 0.95);
+  border-color: rgba(250, 204, 21, 0.30);
+}
+
+.vote-chip.vote-good {
+  color: rgba(52, 211, 153, 0.95);
+  border-color: rgba(52, 211, 153, 0.30);
+}
+
+.vote-chip.vote-masterpiece {
+  color: rgba(168, 85, 247, 0.95);
+  border-color: rgba(168, 85, 247, 0.30);
+}
+
+/* ✅ SELECTED BUTTON BECOMES BAR COLOR */
+.meter-row.selected-bad .meter-name {
+  background: rgba(251, 113, 133, 0.20);
+  border: 1px solid rgba(251, 113, 133, 0.55);
+  color: rgba(251, 113, 133, 0.95);
+}
+
+.meter-row.selected-average .meter-name {
+  background: rgba(250, 204, 21, 0.20);
+  border: 1px solid rgba(250, 204, 21, 0.55);
+  color: rgba(250, 204, 21, 0.95);
+}
+
+.meter-row.selected-good .meter-name {
+  background: rgba(52, 211, 153, 0.20);
+  border: 1px solid rgba(52, 211, 153, 0.55);
+  color: rgba(52, 211, 153, 0.95);
+}
+
+.meter-row.selected-masterpiece .meter-name {
+  background: rgba(168, 85, 247, 0.20);
+  border: 1px solid rgba(168, 85, 247, 0.55);
+  color: rgba(168, 85, 247, 0.95);
+}
+
+/* ================================
+   ✅ EXTRAORDINARY HOVER CARD
+================================== */
+
+.meter-hovercard {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  max-width: 850px;
+}
+
+.hc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hc-label {
+  font-size: 14px;
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+}
+
+.hc-count {
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+/* mini strip */
+.hc-strip {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hc-strip-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  transition: none !important;
+}
+
+.hc-sub {
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+

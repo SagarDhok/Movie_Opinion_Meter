@@ -7,10 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'movies/detail.css' %}">
 {% endblock %}
+
 {% block navbar %}
   {% include "includes/navbar.html" with mode="mini" %}
 {% endblock %}
-
 
 {% block content %}
 
@@ -42,14 +42,12 @@
         {% endif %}
       </p>
 
-      <!-- Overview -->
       {% if movie.overview %}
         <p class="overview">{{ movie.overview }}</p>
       {% else %}
         <p class="overview muted">No overview available.</p>
       {% endif %}
 
-      <!-- Genres -->
       <div class="genres">
         {% for g in movie.categories.all %}
           <span>{{ g.name }}</span>
@@ -57,21 +55,20 @@
       </div>
 
       <!-- Watchlist -->
-       <button
-  id="watchlist-btn"
-  class="watchlist-btn {% if in_watchlist %}added{% endif %}"
-  data-movie-id="{{ movie.id }}"
->
-  {% if in_watchlist %}✓ In Watchlist{% else %}+ Add to Watchlist{% endif %}
-</button>
+      <button
+        id="watchlist-btn"
+        type="button"
+        class="watchlist-btn {% if in_watchlist %}added{% endif %}"
+        data-movie-id="{{ movie.id }}"
+      >
+        {% if in_watchlist %}✓ In Watchlist{% else %}+ Add to Watchlist{% endif %}
+      </button>
 
     </div>
-
   </section>
 
   <!-- OPINION METER -->
   <section class="meter-section">
-
     <div class="meter-wrap">
 
       <div class="meter-head">
@@ -80,114 +77,154 @@
           <p class="meter-subtitle">Tap any option to vote 👇</p>
         </div>
 
-        <div class="vote-pill" id="vote-pill">🗳️ Vote Now</div>
+        <!-- ✅ Vote pill + tooltip -->
+        <div class="vote-pill-wrap">
+          <div class="vote-pill" id="vote-pill">🗳️ Vote Now</div>
+
+          <div class="vote-tooltip">
+            <div class="tooltip-title">Vote Breakdown</div>
+
+            <div class="tooltip-row bad">
+              <span>Bad</span>
+              <span id="tt-bad">0</span>
+            </div>
+
+            <div class="tooltip-row average">
+              <span>Average</span>
+              <span id="tt-average">0</span>
+            </div>
+
+            <div class="tooltip-row good">
+              <span>Good</span>
+              <span id="tt-good">0</span>
+            </div>
+
+            <div class="tooltip-row masterpiece">
+              <span>Masterpiece</span>
+              <span id="tt-masterpiece">0</span>
+            </div>
+
+            <div class="tooltip-total">
+              Total: <strong id="tt-total">0</strong>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="meter-container">
 
-        <div class="meter-row bad meter-bar" data-label="Bad" data-percent="5" data-votes="34">
+        <div class="meter-row bad meter-bar"
+            data-vote="bad"
+            data-label="Bad"
+            data-percent="{{ vote_percents.bad }}"
+            data-votes="{{ vote_counts.bad }}">
           <span class="meter-name">Bad</span>
           <div class="meter-track"><div class="fill"></div></div>
-          <span class="meter-pct">5%</span>
+          <span class="meter-pct">{{ vote_percents.bad }}%</span>
         </div>
 
-        <div class="meter-row average meter-bar" data-label="Average" data-percent="20" data-votes="224">
+        <div class="meter-row average meter-bar"
+            data-vote="average"
+            data-label="Average"
+            data-percent="{{ vote_percents.average }}"
+            data-votes="{{ vote_counts.average }}">
           <span class="meter-name">Average</span>
           <div class="meter-track"><div class="fill"></div></div>
-          <span class="meter-pct">20%</span>
+          <span class="meter-pct">{{ vote_percents.average }}%</span>
         </div>
 
-        <div class="meter-row good meter-bar" data-label="Good" data-percent="55" data-votes="765">
+        <div class="meter-row good meter-bar"
+            data-vote="good"
+            data-label="Good"
+            data-percent="{{ vote_percents.good }}"
+            data-votes="{{ vote_counts.good }}">
           <span class="meter-name">Good</span>
           <div class="meter-track"><div class="fill"></div></div>
-          <span class="meter-pct">55%</span>
+          <span class="meter-pct">{{ vote_percents.good }}%</span>
         </div>
 
-        <div class="meter-row masterpiece meter-bar" data-label="Masterpiece" data-percent="20" data-votes="98">
+        <div class="meter-row masterpiece meter-bar"
+            data-vote="masterpiece"
+            data-label="Masterpiece"
+            data-percent="{{ vote_percents.masterpiece }}"
+            data-votes="{{ vote_counts.masterpiece }}">
           <span class="meter-name">Masterpiece</span>
           <div class="meter-track"><div class="fill"></div></div>
-          <span class="meter-pct">20%</span>
+          <span class="meter-pct">{{ vote_percents.masterpiece }}%</span>
         </div>
 
-        <div class="summary">
-          <div class="overall-summary" id="overall-summary">
-            Overall → Good (55%) — 765 votes out of 1121
-          </div>
-          <div class="user-vote" id="user-vote"></div>
-        </div>
+        
 
       </div>
-
     </div>
-
   </section>
 
   <!-- CAST -->
- {% if movie.cast.exists %}
-<section class="cast-section">
-  <h2>Cast</h2>
+  {% if movie.cast.exists %}
+  <section class="cast-section">
+    <h2>Cast</h2>
 
-  <div class="cast-list">
-    {% for member in movie.cast.all %}
-      <a href="{% url 'person-detail' member.person.id %}" class="cast-card-link">
-        <div class="cast-card">
+    <div class="cast-list">
+      {% for member in movie.cast.all %}
+        <a href="{% url 'person-detail' member.person.id %}" class="cast-card-link">
+          <div class="cast-card">
 
-          {% if member.person.profile_path %}
-            <img
-              src="https://image.tmdb.org/t/p/w200{{ member.person.profile_path }}"
-              alt="{{ member.person.name }}"
-            >
-          {% else %}
-            <div class="cast-avatar">🎭</div>
-          {% endif %}
+            {% if member.person.profile_path %}
+              <img
+                src="https://image.tmdb.org/t/p/w200{{ member.person.profile_path }}"
+                alt="{{ member.person.name }}"
+              >
+            {% else %}
+              <div class="cast-avatar">🎭</div>
+            {% endif %}
 
-          <p class="cast-name">{{ member.person.name }}</p>
-          <span class="cast-role">{{ member.character }}</span>
+            <p class="cast-name">{{ member.person.name }}</p>
+            <span class="cast-role">{{ member.character }}</span>
 
-        </div>
-      </a>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
   <!-- CREW -->
-{% if movie.crew.exists %}
-<section class="cast-section">
-  <h2>Crew</h2>
+  {% if movie.crew.exists %}
+  <section class="cast-section">
+    <h2>Crew</h2>
 
-  <div class="cast-list">
-    {% for member in movie.crew.all %}
-      <a href="{% url 'person-detail' member.person.id %}" class="cast-card-link">
-        <div class="cast-card">
+    <div class="cast-list">
+      {% for member in movie.crew.all %}
+        <a href="{% url 'person-detail' member.person.id %}" class="cast-card-link">
+          <div class="cast-card">
 
-          {% if member.person.profile_path %}
-            <img
-              src="https://image.tmdb.org/t/p/w200{{ member.person.profile_path }}"
-              alt="{{ member.person.name }}"
-            >
-          {% else %}
-            <div class="cast-avatar">🎬</div>
-          {% endif %}
+            {% if member.person.profile_path %}
+              <img
+                src="https://image.tmdb.org/t/p/w200{{ member.person.profile_path }}"
+                alt="{{ member.person.name }}"
+              >
+            {% else %}
+              <div class="cast-avatar">🎬</div>
+            {% endif %}
 
-          <p class="cast-name">{{ member.person.name }}</p>
-          <span class="cast-role">{{ member.job }}</span>
+            <p class="cast-name">{{ member.person.name }}</p>
+            <span class="cast-role">{{ member.job }}</span>
 
-        </div>
-      </a>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
   <!-- REVIEW FORM -->
   <section class="review-form">
     <h2>Rate & Review</h2>
 
     {% if user.is_authenticated %}
-      <form>
+      <form id="review-form" method="post" action="{% url 'submit-review' movie.id %}">
+        {% csrf_token %}
+
         <div class="stars" id="stars">
           <span class="star" data-value="1">★</span>
           <span class="star" data-value="2">★</span>
@@ -200,137 +237,287 @@
 
         <input type="hidden" name="rating" id="rating-input" value="0">
 
-        <textarea placeholder="Write your review..."></textarea>
+        <textarea
+          name="review_text"
+          placeholder="Write your review..."
+          required
+        ></textarea>
+
         <button type="submit">Submit Review</button>
       </form>
+
     {% else %}
       <p class="login-hint">Login to write a review</p>
     {% endif %}
   </section>
 
 </div>
-
 <script>
-  // =========================
-  // Audience Meter (click vote)
-  // =========================
-  const bars = document.querySelectorAll(".meter-bar");
-  const overallSummary = document.getElementById("overall-summary");
-  const userVote = document.getElementById("user-vote");
-  const votePill = document.getElementById("vote-pill");
+/* =========================
+   STABLE VOTE UX (FINAL + TOGGLE)
+========================= */
 
-  const colors = {
-    Bad: "#fb7185",
-    Average: "#facc15",
-    Good: "#34d399",
-    Masterpiece: "#a855f7"
-  };
+const bars = document.querySelectorAll(".meter-bar");
+const votePill = document.getElementById("vote-pill");
 
-  window.addEventListener("load", () => {
-    bars.forEach(bar => {
-      const pct = bar.dataset.percent;
-      bar.querySelector(".fill").style.width = pct + "%";
-    });
+// Tooltip counts
+const ttBad = document.getElementById("tt-bad");
+const ttAverage = document.getElementById("tt-average");
+const ttGood = document.getElementById("tt-good");
+const ttMasterpiece = document.getElementById("tt-masterpiece");
+const ttTotal = document.getElementById("tt-total");
 
-    overallSummary.innerHTML = `🎬 <strong>Overall → Good (55%)</strong> — 765 votes out of 1121`;
-  });
+const labels = {
+  bad: "Bad",
+  average: "Average",
+  good: "Good",
+  masterpiece: "Masterpiece",
+};
 
+// 🔒 single source of truth
+let lockedVoteKey = null;
+
+/* =========================
+   HELPERS
+========================= */
+
+function animateBars() {
   bars.forEach(bar => {
-    bar.addEventListener("click", () => {
-      bars.forEach(b => b.classList.remove("active"));
-      bar.classList.add("active");
-
-      const label = bar.dataset.label;
-      const votes = bar.dataset.votes;
-      const percent = bar.dataset.percent;
-      const total = 1121;
-
-      votePill.innerHTML = `Voted: ${label}`;
-
-      userVote.innerHTML =
-        `🗳️ <strong>You voted:</strong> <span style="color:${colors[label]}; font-weight:900;">${label}</span>
-         <span style="color: rgba(148,163,184,0.9);">(${percent}%)</span>
-         — ${votes} votes out of ${total}`;
-
-      userVote.classList.add("show");
-    });
+    bar.querySelector(".fill").style.width =
+      (bar.dataset.percent || 0) + "%";
   });
+}
 
-  // =========================
-  // Stars rating (Google Play style)
-  // =========================
-  const starEls = document.querySelectorAll(".star");
-  const ratingText = document.getElementById("rating-text");
-  const ratingInput = document.getElementById("rating-input");
+function totalVotes() {
+  let t = 0;
+  bars.forEach(b => t += Number(b.dataset.votes || 0));
+  return t;
+}
 
-  let selectedRating = 0;
+function votesFor(key) {
+  return [...bars].find(b => b.dataset.vote === key)?.dataset.votes || 0;
+}
 
-  const ratingLabels = {
-    1: "Poor",
-    2: "Average",
-    3: "Good",
-    4: "Great",
-    5: "Masterpiece"
-  };
+function clearBarState() {
+  bars.forEach(b => {
+    b.classList.remove(
+      "active",
+      "selected-bad",
+      "selected-average",
+      "selected-good",
+      "selected-masterpiece"
+    );
+  });
+}
 
-  function paintStars(rating) {
-    starEls.forEach((s, index) => {
-      if (index < rating) {
-        s.classList.add("active");
-      } else {
-        s.classList.remove("active");
-      }
-    });
+function lockBar(key) {
+  clearBarState();
+  if (!key) return;
+  bars.forEach(b => {
+    if (b.dataset.vote === key) {
+      b.classList.add("active", `selected-${key}`);
+    }
+  });
+}
+
+function setVotePill(key) {
+  votePill.className = "vote-pill";
+  if (key) {
+    votePill.textContent = `Voted: ${labels[key]}`;
+    votePill.classList.add(`pill-${key}`);
+  } else {
+    votePill.textContent = "🗳️ Vote Now";
   }
+}
 
-  starEls.forEach((star) => {
-    const value = Number(star.dataset.value);
+function updateTooltip() {
+  ttBad.textContent = votesFor("bad");
+  ttAverage.textContent = votesFor("average");
+  ttGood.textContent = votesFor("good");
+  ttMasterpiece.textContent = votesFor("masterpiece");
+  ttTotal.textContent = totalVotes();
+}
 
-    star.addEventListener("mouseover", () => {
-      paintStars(value);
-      ratingText.textContent = ratingLabels[value];
-    });
+/* =========================
+   INITIAL LOAD (NO DEFAULT)
+========================= */
 
-    star.addEventListener("mouseout", () => {
-      paintStars(selectedRating);
-      ratingText.textContent = selectedRating ? ratingLabels[selectedRating] : "Select rating";
-    });
+window.addEventListener("load", () => {
+  animateBars();
+  updateTooltip();
 
-    star.addEventListener("click", () => {
-      selectedRating = value;
-      ratingInput.value = selectedRating;
-      paintStars(selectedRating);
-      ratingText.textContent = ratingLabels[selectedRating];
-    });
+  const alreadyVoted = "{{ user_vote }}".trim();
+
+  if (alreadyVoted) {
+    lockedVoteKey = alreadyVoted;
+    setVotePill(alreadyVoted);
+    lockBar(alreadyVoted);
+  } else {
+    lockedVoteKey = null;
+    setVotePill(null);
+    clearBarState();
+  }
+});
+
+/* =========================
+   CLICK → TOGGLE (YT STYLE)
+========================= */
+
+bars.forEach(bar => {
+  bar.addEventListener("click", async () => {
+    const voteKey = bar.dataset.vote;
+
+    // 🔁 toggle logic
+    const isRemoving = lockedVoteKey === voteKey;
+    const payloadVote = isRemoving ? "remove" : voteKey;
+
+    try {
+      const res = await fetch("{% url 'vote-movie' movie.id %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: `vote=${payloadVote}`,
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        alert("Vote failed");
+        return;
+      }
+
+      // backend = source of truth
+      bars.forEach(b => {
+        b.dataset.votes = data.counts[b.dataset.vote];
+        b.dataset.percent = data.percents[b.dataset.vote];
+      });
+
+      animateBars();
+      updateTooltip();
+
+      // REMOVE vote
+      if (isRemoving) {
+        lockedVoteKey = null;
+        setVotePill(null);
+        clearBarState();
+      }
+      // ADD / CHANGE vote
+      else {
+        lockedVoteKey = voteKey;
+        setVotePill(voteKey);
+        lockBar(voteKey);
+      }
+
+    } catch (e) {
+      console.error("Vote JS error:", e);
+      alert("Something broke. Check console.");
+    }
   });
+});
 
 
+
+
+
+
+
+
+/* =========================
+   WATCHLIST TOGGLE
+========================= */
+
+/* =========================
+   WATCHLIST TOGGLE (FIXED)
+========================= */
 
 const watchlistBtn = document.getElementById("watchlist-btn");
 
 if (watchlistBtn) {
-  watchlistBtn.addEventListener("click", () => {
-    const movieId = watchlistBtn.dataset.movieId;
+  watchlistBtn.addEventListener("click", async () => {
+    try {
+      const res = await fetch("{% url 'toggle-watchlist' movie.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+      });
 
-    fetch(`/movie/${movieId}/watchlist/`, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": "{{ csrf_token }}",
-      },
-    })
-    .then(res => res.json())
-    .then(data => {
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status);
+      }
+
+      const data = await res.json();
+
       if (data.status === "added") {
         watchlistBtn.classList.add("added");
         watchlistBtn.textContent = "✓ In Watchlist";
-      } else {
+      } else if (data.status === "removed") {
         watchlistBtn.classList.remove("added");
-        watchlistBtn.textContent = "+ Add to Watchlist";
+        watchlistBtn.textContent = "+ Add to aWatchlist";
       }
-    });
+
+    } catch (e) {
+      console.error("Watchlist error:", e);
+      alert("Something broke. Check console.");
+    }
   });
 }
+
+
+/* =========================
+   STAR RATING (UI ONLY)
+========================= */
+
+const stars = document.querySelectorAll(".star");
+const ratingInput = document.getElementById("rating-input");
+const ratingText = document.getElementById("rating-text");
+
+function updateStars(value) {
+  stars.forEach(star => {
+    const starValue = Number(star.dataset.value);
+    star.classList.toggle("active", starValue <= value);
+  });
+}
+
+stars.forEach(star => {
+  star.addEventListener("click", () => {
+    const value = Number(star.dataset.value);
+    ratingInput.value = value;
+    ratingText.textContent = `${value} / 5`;
+    updateStars(value);
+  });
+});
+
+
+const reviewForm = document.getElementById("review-form");
+
+reviewForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(reviewForm);
+
+  const res = await fetch(reviewForm.action, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.error || "Review failed");
+    return;
+  }
+
+  location.reload(); 
+});
+
+
 </script>
 
+
+
 {% endblock %}
- 

@@ -8,34 +8,35 @@
 
     {% if mode == "full" %}
     <!-- SEARCH + FILTER GROUP -->
-    <form method="get" class="nav-search-group">
+    <form method="GET" action="{% url 'movies-home' %}" class="nav-search-group">
 
       <div class="search-form">
         <input
           type="text"
           name="search"
           placeholder="Search movies..."
-          value="{{ request.GET.search }}"
-        />
+          value="{{ request.GET.search|default:'' }}"
+        >
         <button type="submit" class="search-btn">🔍</button>
       </div>
 
       <div class="nav-filters">
         <select name="genre">
-          <option value="">Genre</option>
-          {% for genre in genres %}
-            <option value="{{ genre.name }}" {% if request.GET.genre == genre.name %}selected{% endif %}>
-              {{ genre.name }}
+          <option value="">All Genres</option>
+          {% for g in genres %}
+            <option value="{{ g.id }}"
+              {% if request.GET.genre == g.id|stringformat:"s" %}selected{% endif %}>
+              {{ g.name }}
             </option>
           {% endfor %}
         </select>
 
         <select name="released">
-          <option value="">Status</option>
-          <option value="true" {% if request.GET.released == "true" %}selected{% endif %}>
+          <option value="">All</option>
+          <option value="released" {% if request.GET.released == "released" %}selected{% endif %}>
             Released
           </option>
-          <option value="false" {% if request.GET.released == "false" %}selected{% endif %}>
+          <option value="upcoming" {% if request.GET.released == "upcoming" %}selected{% endif %}>
             Upcoming
           </option>
         </select>
@@ -45,7 +46,6 @@
 
     </form>
     {% endif %}
-
     <!-- AUTH -->
     <div class="auth">
       {% if user.is_authenticated %}

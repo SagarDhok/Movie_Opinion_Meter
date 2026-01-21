@@ -17,9 +17,11 @@ def sync_genres():
         genre_map[g["id"]] = genre
     return genre_map
 
+from datetime import date
+from movies.models import Movie, Genre
 
 def save_movie_to_db(movie_data, genre_map):
-    release_date = movie_data.get("release_date") or None
+    release_date = movie_data.get("release_date")
     is_released = False
 
     if release_date:
@@ -36,12 +38,14 @@ def save_movie_to_db(movie_data, genre_map):
         },
     )
 
-    genre_ids = movie_data.get("genre_ids", [])
-    movie.categories.set(
-        {genre_map[g] for g in genre_ids if g in genre_map}
-    )
+    genre_ids = movie_data.get("genre_ids")
+    if genre_ids:
+        movie.categories.set(
+            [genre_map[g] for g in genre_ids if g in genre_map]
+        )
 
     return movie
+
 
 
 def sync_popular_movies(pages=10):

@@ -109,3 +109,27 @@ def fetch_indian_language_movies(page=1):
     )
     r.raise_for_status()
     return r.json()
+
+
+def fetch_movie_full(tmdb_id):
+    r = session.get(
+        f"{TMDB_BASE_URL}/movie/{tmdb_id}",
+        params={
+            "api_key": settings.TMDB_API_KEY,
+            "append_to_response": "credits",
+        },
+        timeout=25,
+    )
+    r.raise_for_status()
+    return r.json()
+
+
+def fetch_person_details(tmdb_person_id):
+    r = session.get(
+        f"{TMDB_BASE_URL}/person/{tmdb_person_id}",
+        params={"api_key": settings.TMDB_API_KEY},
+        timeout=15,
+    )
+    r.raise_for_status()
+    return r.json()
+

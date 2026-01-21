@@ -128,3 +128,16 @@ class MovieReview(models.Model):
 
 
 
+class ReviewLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    review = models.ForeignKey(MovieReview, related_name="likes", on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("user", "review")
+
+class ReviewComment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    review = models.ForeignKey(MovieReview, related_name="comments", on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+

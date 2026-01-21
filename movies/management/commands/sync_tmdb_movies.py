@@ -3,9 +3,9 @@ from movies.tmdb.sync import sync_all_movies
 
 
 class Command(BaseCommand):
-    help = "Sync TMDB movies (India-focused + pop culture only)"
+    help = "Sync TMDB movies (India-focused + pop culture)"
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS("Starting TMDB sync...\n"))
+        self.stdout.write("🎬 Starting TMDB movie sync...")
         sync_all_movies()
-        self.stdout.write(self.style.SUCCESS("\n🎉 TMDB sync completed"))
+        self.stdout.write(self.style.SUCCESS("✅ Movie sync completed"))
