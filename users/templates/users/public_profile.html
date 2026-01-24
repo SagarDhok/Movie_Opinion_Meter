@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+{{ user_obj.first_name }} {{ user_obj.last_name }} | MovieMeter
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'users/public_profile.css' %}">
+{% endblock %}
+
+{% block navbar %}
+  {% include "includes/navbar.html" with mode="mini" %}
+{% endblock %}
+
+{% block content %}
+<div class="public-profile">
+
+  <!-- ===== CONTEXT STRIP (ONCE) ===== -->
+  <div class="context-strip">
+    <div class="context-left">
+      {% if user_obj.profile_image %}
+        <img src="{{ user_obj.profile_image.url }}" class="context-avatar">
+      {% else %}
+        <div class="context-avatar fallback">
+          {{ user_obj.first_name|first }}
+        </div>
+      {% endif %}
+
+      <div class="context-text">
+        <div class="context-title">
+          Reviews by {{ user_obj.first_name }} {{ user_obj.last_name }}
+        </div>
+        <div class="context-sub">
+          Member since {{ user_obj.date_joined|date:"F Y" }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REVIEWS ===== -->
+  <div class="reviews-section">
+
+    {% if reviews %}
+      <div class="reviews-list">
+
+        {% for review in reviews %}
+        <a href="{% url 'movie-detail' review.movie.id %}" class="review-row">
+
+          <!-- Poster -->
+          <div class="poster">
+            {% if review.movie.poster_path %}
+              <img src="https://image.tmdb.org/t/p/w342{{ review.movie.poster_path }}">
+            {% else %}
+              <div class="poster-fallback">🎬</div>
+            {% endif %}
+          </div>
+
+          <!-- Content -->
+          <div class="review-content">
+
+            <div class="top-row">
+              <div class="movie-title">{{ review.movie.title }}</div>
+
+              {% with vote=review.movie.user_vote_list.0 %}
+                {% if vote %}
+                  <span class="vote-pill vote-{{ vote.vote }}">
+                    Voted: {{ vote.vote|title }}
+                  </span>
+                {% endif %}
+              {% endwith %}
+            </div>
+
+            <div class="rating">
+              {% for i in "12345" %}
+                <span class="star {% if forloop.counter <= review.rating %}filled{% endif %}">★</span>
+              {% endfor %}
+            </div>
+
+            <div class="text">
+              {{ review.review_text|truncatechars:220 }}
+            </div>
+
+            <div class="date">
+              Reviewed {{ review.created_at|date:"M d, Y" }}
+            </div>
+
+          </div>
+        </a>
+        {% endfor %}
+
+      </div>
+    {% else %}
+      <div class="empty">No reviews yet</div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endblock %}

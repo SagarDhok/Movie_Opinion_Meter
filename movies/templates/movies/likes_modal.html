@@ -1,0 +1,42 @@
+<div class="likes-backdrop">
+  <div class="likes-modal">
+
+    <div class="likes-header">
+      <h3>Likes</h3>
+      <button class="likes-close" type="button">✕</button>
+    </div>
+
+    <div class="likes-list">
+      {% for like in likes %}
+        <a
+          href="{% url 'public_profile' like.user.id %}"
+          class="like-user-link"
+        >
+          <div class="like-user">
+
+            {% if like.user.profile_image %}
+              <img src="{{ like.user.profile_image.url }}">
+            {% else %}
+              <div class="avatar-fallback">
+                {{ like.user.first_name|first }}
+              </div>
+            {% endif %}
+
+            <div class="user-meta">
+              <div class="name">
+                {{ like.user.first_name }} {{ like.user.last_name }}
+              </div>
+              <div class="joined">
+                Joined : {{ like.user.date_joined|date:"M Y" }}
+              </div>
+            </div>
+
+          </div>
+        </a>
+      {% empty %}
+        <div class="no-likes">No likes yet</div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>

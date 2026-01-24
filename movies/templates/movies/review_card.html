@@ -1,0 +1,120 @@
+{% load static %}
+
+<div class="review-card">
+  
+  <!-- HEADER -->
+  <div class="review-header">
+    <div class="review-user">
+      {% if review.user.profile_image %}
+        <img src="{{ review.user.profile_image.url }}" class="review-avatar" alt="Profile">
+      {% else %}
+        <div class="review-avatar fallback">
+          {{ review.user.first_name|first|upper }}
+        </div>
+      {% endif %}
+
+      <div class="review-user-meta">
+        <div class="review-username">
+          <a href="{% url 'public_profile' review.user.id %}" style="color:inherit;text-decoration:none">
+            {{ review.user.first_name }} {{ review.user.last_name }}
+          </a>
+        </div>
+        <div class="review-date">
+          {{ review.created_at|date:"j M Y" }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Vote Chip -->
+    {% if review.user_vote %}
+      <span class="review-vote-chip {{ review.user_vote.vote }}">
+        Voted: {{ review.user_vote.vote|title }}
+      </span>
+    {% endif %}
+  </div>
+
+  <!-- BODY -->
+  <div class="review-body">
+    
+    <!-- Rating Stars -->
+    <div class="review-rating">
+      {% for i in "12345" %}
+        <span class="star {% if forloop.counter <= review.rating %}filled{% endif %}">★</span>
+      {% endfor %}
+    </div>
+
+    <!-- Review Text -->
+    <div class="review-text-wrapper">
+      {% if review.contains_spoiler %}
+        <div class="review-text spoiler" id="review-{{ review.id }}">
+          {{ review.review_text }}
+        </div>
+        <button type="button" class="spoiler-toggle" onclick="toggleSpoiler({{ review.id }})">
+          Show spoiler
+        </button>
+      {% else %}
+        <div class="review-text">
+          {{ review.review_text }}
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="review-footer">
+    <div class="review-stats">
+      
+      <!-- Like Button (Form) -->
+      <form method="post" action="{% url 'toggle-review-like' review.id %}" style="display:inline;margin:0">
+        {% csrf_token %}
+        <button type="submit" class="like-btn {% if review.is_liked %}liked{% endif %}">
+          <img src="{% if review.is_liked %}{% static 'icons/liked.png' %}{% else %}{% static 'icons/like.png' %}{% endif %}" 
+               class="like-icon" alt="Like">
+          <span class="like-count">{{ review.like_count }}</span>
+        </button>
+      </form>
+
+      <!-- Comments Count -->
+      <div class="comment-indicator">
+        <img src="{% static 'icons/comment.png' %}" class="comment-icon" alt="Comment">
+        <span class="comment-count">{{ review.comments.count }}</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMMENTS SECTION -->
+  {% if review.comments.all %}
+  <div class="comments-section">
+    <h4>Comments</h4>
+    {% for comment in review.comments.all %}
+      <div class="comment-item">
+        <div class="comment-user">
+          {% if comment.user.profile_image %}
+            <img src="{{ comment.user.profile_image.url }}" class="comment-avatar" alt="Profile">
+          {% else %}
+            <div class="comment-avatar fallback">
+              {{ comment.user.first_name|first|upper }}
+            </div>
+          {% endif %}
+          <strong>{{ comment.user.first_name }} {{ comment.user.last_name }}</strong>
+        </div>
+        <div class="comment-text">{{ comment.text }}</div>
+        <div class="comment-date">{{ comment.created_at|date:"j M Y" }}</div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ADD COMMENT FORM -->
+  <div class="add-comment-section">
+    <form method="post" action="{% url 'add-comment' review.id %}" class="comment-form">
+      {% csrf_token %}
+      <textarea name="text" placeholder="Write a comment..." maxlength="500" rows="2" required></textarea>
+      <button type="submit" class="btn-comment">Post Comment</button>
+    </form>
+  </div>
+
+</div>
+

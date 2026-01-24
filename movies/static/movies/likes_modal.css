@@ -1,0 +1,181 @@
+/* ================================
+   LIKES MODAL — FINAL PREMIUM UI
+================================ */
+
+/* Backdrop */
+.likes-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.like-user-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.like-user {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.like-user:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+/* Modal container */
+.likes-modal {
+  width: 380px;
+  max-height: 70vh;
+
+  background: #0f172a;
+  border-radius: 20px;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75);
+
+  animation: modalIn 0.18s ease-out;
+}
+
+/* Entry animation */
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Header */
+.likes-header {
+  padding: 14px 16px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 15px;
+  font-weight: 900;
+
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Close button */
+.likes-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  font-size: 18px;
+  font-weight: 900;
+  color: rgba(148, 163, 184, 0.85);
+
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.likes-close:hover {
+  color: #f8fafc;
+  transform: scale(1.1);
+}
+
+/* Likes list */
+.likes-list {
+  padding: 10px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Scrollbar (subtle, premium) */
+.likes-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.likes-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.likes-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+/* Individual user row */
+.like-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+
+  transition: background 0.15s ease;
+}
+
+.like-user:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Avatar image */
+.like-user img,
+.avatar-fallback {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 900;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+
+/* User meta */
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-meta .name {
+  font-size: 14px;
+  font-weight: 900;
+  color: #f8fafc;
+}
+
+.user-meta .username {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+/* Empty state */
+.no-likes {
+  padding: 40px 0;
+  text-align: center;
+
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(148, 163, 184, 0.85);
+}

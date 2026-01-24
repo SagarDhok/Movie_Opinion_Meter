@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from django.core.validators import MaxLengthValidator
 User = settings.AUTH_USER_MODEL
 
 
@@ -102,7 +102,7 @@ class MovieVote(models.Model):
         ("bad", "Bad"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey("Movie", on_delete=models.CASCADE, related_name="votes")
     vote = models.CharField(max_length=20, choices=VOTE_CHOICES)
 
@@ -112,15 +112,18 @@ class MovieVote(models.Model):
         unique_together = ("user", "movie")  
 
 class MovieReview(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
 
     rating = models.PositiveSmallIntegerField(
         choices=[(i, i) for i in range(1, 6)]
     )
-    review_text = models.TextField()
+    review_text = models.TextField(
+        validators=[MaxLengthValidator(1000)]
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
+    contains_spoiler = models.BooleanField(default=False) 
 
     class Meta:
         unique_together = ("user", "movie")
@@ -129,15 +132,43 @@ class MovieReview(models.Model):
 
 
 class ReviewLike(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     review = models.ForeignKey(MovieReview, related_name="likes", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("user", "review")
 
 class ReviewComment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    review = models.ForeignKey(MovieReview, related_name="comments", on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    review = models.ForeignKey(
+        MovieReview,
+        related_name="comments",
+        on_delete=models.CASCADE
+    )
+
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        related_name="replies",
+        on_delete=models.CASCADE
+    )
+
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.text[:40]
+    
+class CommentLike(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    comment = models.ForeignKey(
+        ReviewComment,
+        related_name="likes",
+        on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "comment")

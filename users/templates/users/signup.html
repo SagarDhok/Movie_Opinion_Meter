@@ -14,61 +14,44 @@
 
         <form method="post">
             {% csrf_token %}
-
-            <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value="{{ form_data.email|default:'' }}"
-                required
-            >
-            {% if errors.email %}
-                <div class="field-error">{{ errors.email }}</div>
+            
+            <!-- Email Field -->
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="field-error">{{ form.email.errors.0 }}</div>
             {% endif %}
 
+            <!-- Name Row -->
             <div class="name-row">
-                <input
-                    type="text"
-                    name="first_name"
-                    placeholder="First name"
-                    value="{{ form_data.first_name|default:'' }}"
-                >
-                <input
-                    type="text"
-                    name="last_name"
-                    placeholder="Last name"
-                    value="{{ form_data.last_name|default:'' }}"
-                >
+                {{ form.first_name }}
+                {{ form.last_name }}
             </div>
 
+            <!-- Password Field -->
             <div class="password-field">
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    required
-                >
+                {{ form.password }}
                 <button type="button" class="toggle-password">
                     <img src="{% static 'icons/show.png' %}" alt="Show">
                 </button>
             </div>
-            {% if errors.password %}
-                <div class="field-error">{{ errors.password }}</div>
+            {% if form.password.errors %}
+                <div class="field-error">{{ form.password.errors.0 }}</div>
             {% endif %}
 
+            <!-- Confirm Password Field -->
             <div class="password-field">
-                <input
-                    type="password"
-                    name="confirm_password"
-                    placeholder="Confirm password"
-                    required
-                >
+                {{ form.confirm_password }}
                 <button type="button" class="toggle-password">
                     <img src="{% static 'icons/show.png' %}" alt="Show">
                 </button>
             </div>
-            {% if errors.confirm_password %}
-                <div class="field-error">{{ errors.confirm_password }}</div>
+            {% if form.confirm_password.errors %}
+                <div class="field-error">{{ form.confirm_password.errors.0 }}</div>
+            {% endif %}
+
+            <!-- Non-field errors (like password mismatch) -->
+            {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors.0 }}</div>
             {% endif %}
 
             <button type="submit" class="btn-submit">Sign Up</button>

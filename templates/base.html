@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/password-toggle.css' %}">
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'movies/likes_modal.css' %}">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -38,9 +39,7 @@
 </div>
 {% endif %}
 
-{# ✅ Navbar show only when page allows #}
 {% block navbar %}
-    {# default -> no navbar #}
 {% endblock %}
 
 {% block content %}{% endblock %}

@@ -15,43 +15,37 @@
         <form method="post">
             {% csrf_token %}
 
-            <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value="{{ request.session.login_email|default:'' }}"
-                required
-            >
-                 {% if errors.email %}
-                <div class="field-error">{{ errors.email }}</div>
+            <!-- Email Field -->
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="field-error">{{ form.email.errors.0 }}</div>
             {% endif %}
 
+            <!-- Password Field -->
             <div class="password-field">
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    required
-                >
+                {{ form.password }}
                 <button type="button" class="toggle-password">
                     <img src="{% static 'icons/show.png' %}" alt="Show">
                 </button>
             </div>
-               {% if errors.password %}
-                <div class="field-error">{{ errors.password }}</div>
+            {% if form.password.errors %}
+                <div class="field-error">{{ form.password.errors.0 }}</div>
+            {% endif %}
+
+            <!-- Non-field errors (invalid credentials) -->
+            {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors.0 }}</div>
             {% endif %}
 
             <button type="submit" class="btn-submit">Login</button>
         </form>
 
-   <div class="auth-footer">
-       <a href="{% url 'forgot-password' %}">Forgot password?</a>
-       <br>
-       <br>
-    Don’t have an account?
-    <a href="{% url 'signup' %}">Sign up</a>
-</div>
-
+        <div class="auth-footer">
+            <a href="{% url 'forgot-password' %}">Forgot password?</a>
+            <br><br>
+            Don't have an account?
+            <a href="{% url 'signup' %}">Sign up</a>
+        </div>
     </div>
 </div>
 {% endblock %}

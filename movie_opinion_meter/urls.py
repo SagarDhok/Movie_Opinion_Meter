@@ -45,3 +45,4 @@ if settings.DEBUG:
 # “If someone opens /media/... then go to MEDIA_ROOT folder and return that file.”
 
 # So without static() your uploaded image/file will not open in browser during development.
+
