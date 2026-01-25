@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Comments | MovieMeter{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'movies/comments_page.css' %}">
+<link rel="stylesheet" href="{% static 'movies/review_card.css' %}">
+{% endblock %}
+
+{% block navbar %}
+  {% include "includes/navbar.html" with mode="mini" %}
+{% endblock %}
+
+{% block content %}
+<div class="comments-page">
+  <div class="comments-shell">
+
+    <!-- REVIEW -->
+    <div class="comments-left">
+      <div class="comments-left-header">
+        <h3>Review</h3>
+        <a href="javascript:history.back()" class="comments-back-btn">Back</a>
+      </div>
+
+      <div class="comments-review-wrap">
+        {% include "movies/review_card.html" with review=review movie=movie is_owner=is_owner %}
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="comments-right">
+
+      <div class="comments-header">
+        <h3>Comments</h3>
+      </div>
+
+      <div class="comments-list">
+        {% if parent_comments %}
+          {% for c in parent_comments %}
+
+            <div class="comment-row">
+              <div class="comment-avatar">
+                {% if c.user.profile_image %}
+                  <img src="{{ c.user.profile_image.url }}" alt="Profile">
+                {% else %}
+                  <div class="comment-avatar-fallback">
+                    {{ c.user.first_name|default:"U"|first|upper }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="comment-main">
+                <div class="comment-top">
+                  <div class="comment-meta">
+                    <span class="comment-name">
+                      {{ c.user.first_name }} {{ c.user.last_name }}
+                    </span>
+                    <span class="comment-time">
+                      {{ c.created_at|naturaltime }}
+                    </span>
+                  </div>
+
+                  {% if c.user == request.user or review.user == request.user %}
+                    <form method="post" action="{% url 'delete-comment-page' c.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="comment-delete-btn">Delete</button>
+                    </form>
+                  {% endif %}
+                </div>
+
+                <div class="comment-text">{{ c.text }}</div>
+
+                <div class="comment-actions">
+                  <button type="button" class="reply-btn" data-reply-toggle="{{ c.id }}">Reply</button>
+
+                  {% if c.replies.count %}
+                    <button type="button" class="view-replies-btn" data-replies-toggle="{{ c.id }}">
+                      View replies ({{ c.replies.count }})
+                    </button>
+                  {% endif %}
+                </div>
+
+                <form method="post"
+                      action="{% url 'reply-comment-page' c.id %}"
+                      class="reply-form hidden"
+                      data-reply-form="{{ c.id }}">
+                  {% csrf_token %}
+                  <textarea name="text" maxlength="500" placeholder="Write a reply..." required></textarea>
+                  <button type="submit" class="comment-post-btn" aria-label="Post comment">
+                <span class="send-icon">➤</span>
+                </button>
+
+                </form>
+
+                {% if c.replies.count %}
+                  <div class="replies-wrap hidden" data-replies-wrap="{{ c.id }}">
+                    {% for r in c.replies.all %}
+                      <div class="reply-row">
+                        <div class="comment-avatar">
+                          {% if r.user.profile_image %}
+                            <img src="{{ r.user.profile_image.url }}" alt="Profile">
+                          {% else %}
+                            <div class="comment-avatar-fallback">
+                              {{ r.user.first_name|default:"U"|first|upper }}
+                            </div>
+                          {% endif %}
+                        </div>
+
+                        <div class="comment-main">
+                          <div class="comment-top">
+                            <div class="comment-meta">
+                              <span class="comment-name">
+                                {{ r.user.first_name }} {{ r.user.last_name }}
+                              </span>
+                              <span class="comment-time">
+                                {{ r.created_at|naturaltime }}
+                              </span>
+                            </div>
+
+                            {% if r.user == request.user or review.user == request.user %}
+                              <form method="post" action="{% url 'delete-comment-page' r.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="comment-delete-btn">Delete</button>
+                              </form>
+                            {% endif %}
+                          </div>
+
+                          <div class="comment-text">{{ r.text }}</div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+              </div>
+            </div>
+
+          {% endfor %}
+        {% else %}
+          <p class="no-comments">No comments yet.</p>
+        {% endif %}
+      </div>
+
+      <!-- ADD COMMENT -->
+      <form method="post" action="{% url 'add-comment-page' review.id %}" class="comment-form">
+        {% csrf_token %}
+        <textarea name="text" placeholder="Write a comment..." maxlength="500" required></textarea>
+        <button type="submit" class="reply-post-btn" aria-label="Post reply">
+  <span class="send-icon">➤</span>
+</button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/detail.js' %}"></script>
+
+<script>
+document.addEventListener("click", (e) => {
+  const replyBtn = e.target.closest("[data-reply-toggle]");
+  if (replyBtn) {
+    const id = replyBtn.dataset.replyToggle;
+    const form = document.querySelector(`[data-reply-form="${id}"]`);
+    if (form) form.classList.toggle("hidden");
+    return;
+  }
+
+  const repliesBtn = e.target.closest("[data-replies-toggle]");
+  if (repliesBtn) {
+    const id = repliesBtn.dataset.repliesToggle;
+    const wrap = document.querySelector(`[data-replies-wrap="${id}"]`);
+    if (wrap) wrap.classList.toggle("hidden");
+    return;
+  }
+});
+</script>
+{% endblock %}
+

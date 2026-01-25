@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/password-toggle.css' %}">
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-    <link rel="stylesheet" href="{% static 'movies/likes_modal.css' %}">
-
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -39,10 +37,30 @@
 </div>
 {% endif %}
 
-{% block navbar %}
-{% endblock %}
+{% block navbar %}{% endblock %}
 
 {% block content %}{% endblock %}
+
+<div class="app-modal hidden" id="app-confirm-modal">
+  <div class="app-modal-backdrop" data-modal-close></div>
+
+  <div class="app-modal-card">
+    <h3 class="app-modal-title" id="app-modal-title">Confirm Delete</h3>
+    <p class="app-modal-text" id="app-modal-text">
+      Are you sure you want to delete this?
+    </p>
+
+    <div class="app-modal-actions">
+      <button type="button" class="app-modal-cancel" data-modal-cancel>
+        Cancel
+      </button>
+
+      <button type="button" class="app-modal-danger" data-modal-confirm>
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
 
 <script src="{% static 'js/password-toggle.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -90,7 +90,7 @@ class ProfileUpdateForm(forms.ModelForm):
     
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'profile_image']
+        fields = ['first_name', 'last_name']
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'placeholder': 'First Name'
@@ -102,7 +102,6 @@ class ProfileUpdateForm(forms.ModelForm):
         labels = {
             'first_name': 'First Name',
             'last_name': 'Last Name',
-            'profile_image': 'Profile Image'
         }
 
     def clean_first_name(self):
@@ -116,6 +115,9 @@ class ProfileUpdateForm(forms.ModelForm):
         if not last_name or not last_name.strip():
             raise ValidationError('Last name cannot be empty')
         return last_name.strip()
+    
+
+
 
 
 class ForgotPasswordForm(forms.Form):
@@ -160,3 +162,7 @@ class ResetPasswordForm(forms.Form):
             })
 
         return cleaned_data
+    
+
+
+

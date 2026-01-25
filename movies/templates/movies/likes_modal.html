@@ -1,24 +1,32 @@
-<div class="likes-backdrop">
-  <div class="likes-modal">
+{% extends "base.html" %}
+{% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'movies/likes_modal.css' %}">
+{% endblock %}
+
+{% block navbar %}
+  {% include "includes/navbar.html" with mode="mini" %}
+{% endblock %}
+
+{% block content %}
+<div class="likes-page">
+
+  <div class="likes-card">
     <div class="likes-header">
-      <h3>Likes</h3>
-      <button class="likes-close" type="button">✕</button>
+      <h2>Likes</h2>
+      <a href="javascript:history.back()" class="likes-back-btn">Back</a>
     </div>
 
     <div class="likes-list">
       {% for like in likes %}
-        <a
-          href="{% url 'public_profile' like.user.id %}"
-          class="like-user-link"
-        >
+        <a href="{% url 'public_profile' like.user.id %}" class="like-user-link">
           <div class="like-user">
-
             {% if like.user.profile_image %}
-              <img src="{{ like.user.profile_image.url }}">
+              <img src="{{ like.user.profile_image.url }}" class="like-avatar" alt="Profile">
             {% else %}
-              <div class="avatar-fallback">
-                {{ like.user.first_name|first }}
+              <div class="like-avatar fallback">
+                {{ like.user.first_name|first|upper }}
               </div>
             {% endif %}
 
@@ -27,16 +35,16 @@
                 {{ like.user.first_name }} {{ like.user.last_name }}
               </div>
               <div class="joined">
-                Joined : {{ like.user.date_joined|date:"M Y" }}
+                Joined: {{ like.user.date_joined|date:"M Y" }}
               </div>
             </div>
-
           </div>
         </a>
       {% empty %}
         <div class="no-likes">No likes yet</div>
       {% endfor %}
     </div>
-
   </div>
+
 </div>
+{% endblock %}

@@ -1,29 +1,27 @@
-{% extends "base.html" %}
-{% load static %}
-{% load movie_filters %}
+{% extends "base.html" %} {% load static %} {% load movie_filters %} {% block
+title %}{{ movie.title }} | MovieMeter{% endblock %} {% block extra_css %}
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="{% static 'movies/detail.css' %}" />
+<link rel="stylesheet" href="{% static 'movies/review_card.css' %}" />
+<link rel="stylesheet" href="{% static 'movies/likes_modal.css' %}" />
 
-{% block title %}{{ movie.title }} | MovieMeter{% endblock %}
+{% endblock %} {% block navbar %} {% include "includes/navbar.html" with
+mode="mini" %} {% endblock %} {% block content %}
 
-{% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'movies/detail.css' %}">
-{% endblock %}
-
-{% block navbar %}
-  {% include "includes/navbar.html" with mode="mini" %}
-{% endblock %}
-
-{% block content %}
-
-<div class="detail-page">
-
+<div class="detail-page" data-current-vote="{{ user_vote }}">
   <!-- HERO -->
   <section class="movie-hero">
     <div class="poster">
       {% if movie.poster_path %}
-        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+      <img
+        src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
+        alt="{{ movie.title }}"
+      />
       {% else %}
-        <div class="no-poster">No Image</div>
+      <div class="no-poster">No Image</div>
       {% endif %}
     </div>
 
@@ -32,33 +30,39 @@
 
       <p class="meta">
         {% if movie.release_date %}
-          <span class="meta-date">{{ movie.release_date }}</span>
-        {% endif %}
-
-        {% if movie.is_released %}
-          <span class="status-pill released">Released</span>
+        <span class="meta-date">{{ movie.release_date }}</span>
+        {% endif %} {% if movie.is_released %}
+        <span class="status-pill released">Released</span>
         {% else %}
-          <span class="status-pill upcoming">Upcoming</span>
+        <span class="status-pill upcoming">Upcoming</span>
         {% endif %}
       </p>
 
       {% if movie.overview %}
-        <p class="overview">{{ movie.overview }}</p>
+      <p class="overview">{{ movie.overview }}</p>
       {% else %}
-        <p class="overview muted">No overview available.</p>
+      <p class="overview muted">No overview available.</p>
       {% endif %}
 
       <div class="genres">
         {% for g in movie.categories.all %}
-          <span>{{ g.name }}</span>
+        <span>{{ g.name }}</span>
         {% endfor %}
       </div>
 
       <!-- Watchlist Form - Pure Django -->
-      <form method="post" action="{% url 'toggle-watchlist' movie.id %}" style="display:inline">
+      <form
+        method="post"
+        action="{% url 'toggle-watchlist' movie.id %}"
+        style="display: inline"
+      >
         {% csrf_token %}
-        <button type="submit" class="watchlist-btn {% if in_watchlist %}added{% endif %}">
-          {% if in_watchlist %}✓ In Watchlist{% else %}+ Add to Watchlist{% endif %}
+        <button
+          type="submit"
+          class="watchlist-btn {% if in_watchlist %}added{% endif %}"
+        >
+          {% if in_watchlist %}✓ In Watchlist{% else %}+ Add to Watchlist{%
+          endif %}
         </button>
       </form>
     </div>
@@ -74,64 +78,138 @@
         </div>
 
         <div class="vote-summary">
-          {% if user_vote %}
+          <div class="vote-tooltip">
+            {% if user_vote %}
             <span class="vote-pill vote-{{ user_vote }}">
               Voted: {{ user_vote|title }}
             </span>
-          {% else %}
-            <span class="vote-pill">🗳️ Vote Now</span>
-          {% endif %}
+            {% else %}
+            <span class="vote-pill"> Vote Now </span>
+            {% endif %}
+
+            <div class="vote-tooltip-box">
+              <div class="tip-title">Vote Breakdown</div>
+
+              <div class="tip-row bad">
+                <span>Bad</span>
+                <span class="tip-count">{{ vote_counts.bad }}</span>
+              </div>
+
+              <div class="tip-row average">
+                <span>Average</span>
+                <span class="tip-count">{{ vote_counts.average }}</span>
+              </div>
+
+              <div class="tip-row good">
+                <span>Good</span>
+                <span class="tip-count">{{ vote_counts.good }}</span>
+              </div>
+
+              <div class="tip-row masterpiece">
+                <span>Masterpiece</span>
+                <span class="tip-count">{{ vote_counts.masterpiece }}</span>
+              </div>
+
+              <div class="tip-total">
+                Total Votes: <strong>{{ total_votes }}</strong>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Voting Form - Server-side -->
       <form method="post" action="{% url 'vote-movie' movie.id %}">
         {% csrf_token %}
-        
+
         <div class="meter-container">
-          
-          <div class="meter-row bad {% if user_vote == 'bad' %}selected{% endif %}">
-            <button type="submit" name="vote" value="bad" class="meter-name">Bad</button>
+          <div
+            class="meter-row bad {% if user_vote == 'bad' %}selected{% endif %}"
+          >
+            <button
+              type="submit"
+              name="vote"
+              value="bad"
+              class="meter-name"
+              data-vote="bad"
+            >
+              Bad
+            </button>
             <div class="meter-track">
-              <div class="fill" style="width: {{ vote_percents|get_item:'bad' }}%"></div>
+              <div
+                class="fill"
+                style="--w: {{ vote_percents|get_item:'bad' }}%"
+              ></div>
             </div>
             <span class="meter-pct">{{ vote_percents|get_item:'bad' }}%</span>
           </div>
 
-          <div class="meter-row average {% if user_vote == 'average' %}selected{% endif %}">
-            <button type="submit" name="vote" value="average" class="meter-name">Average</button>
+          <div
+            class="meter-row average {% if user_vote == 'average' %}selected{% endif %}"
+          >
+            <button
+              type="submit"
+              name="vote"
+              value="average"
+              class="meter-name"
+              data-vote="average"
+            >
+              Average
+            </button>
             <div class="meter-track">
-              <div class="fill" style="width: {{ vote_percents|get_item:'average' }}%"></div>
+              <div
+                class="fill"
+                style="--w: {{ vote_percents|get_item:'average' }}%"
+              ></div>
             </div>
-            <span class="meter-pct">{{ vote_percents|get_item:'average' }}%</span>
+            <span class="meter-pct"
+              >{{ vote_percents|get_item:'average' }}%</span
+            >
           </div>
 
-          <div class="meter-row good {% if user_vote == 'good' %}selected{% endif %}">
-            <button type="submit" name="vote" value="good" class="meter-name">Good</button>
+          <div
+            class="meter-row good {% if user_vote == 'good' %}selected{% endif %}"
+          >
+            <button
+              type="submit"
+              name="vote"
+              value="good"
+              class="meter-name"
+              data-vote="good"
+            >
+              Good
+            </button>
             <div class="meter-track">
-              <div class="fill" style="width: {{ vote_percents|get_item:'good' }}%"></div>
+              <div
+                class="fill"
+                style="--w: {{ vote_percents|get_item:'good' }}%"
+              ></div>
             </div>
             <span class="meter-pct">{{ vote_percents|get_item:'good' }}%</span>
           </div>
 
-          <div class="meter-row masterpiece {% if user_vote == 'masterpiece' %}selected{% endif %}">
-            <button type="submit" name="vote" value="masterpiece" class="meter-name">Masterpiece</button>
+          <div
+            class="meter-row masterpiece {% if user_vote == 'masterpiece' %}selected{% endif %}"
+          >
+            <button
+              type="submit"
+              name="vote"
+              value="masterpiece"
+              class="meter-name"
+              data-vote="masterpiece"
+            >
+              Masterpiece
+            </button>
             <div class="meter-track">
-              <div class="fill" style="width: {{ vote_percents|get_item:'masterpiece' }}%"></div>
+              <div
+                class="fill"
+                style="--w: {{ vote_percents|get_item:'masterpiece' }}%"
+              ></div>
             </div>
-            <span class="meter-pct">{{ vote_percents|get_item:'masterpiece' }}%</span>
+            <span class="meter-pct"
+              >{{ vote_percents|get_item:'masterpiece' }}%</span
+            >
           </div>
-
-        </div>
-
-        {% if user_vote %}
-          <button type="submit" name="vote" value="remove" class="btn-remove-vote">
-            Remove My Vote
-          </button>
-        {% endif %}
-
-        <div class="vote-stats">
-          Total Votes: <strong>{{ total_votes }}</strong>
         </div>
       </form>
     </div>
@@ -144,18 +222,23 @@
     <div class="cast-scroll-wrap">
       <div class="cast-scroll">
         {% for member in movie.cast.all %}
-          <a href="{% url 'person-detail' member.person.id %}" class="cast-card-link">
-            <div class="cast-card">
-              {% if member.person.profile_path %}
-                <img src="https://image.tmdb.org/t/p/w200{{ member.person.profile_path }}" 
-                     alt="{{ member.person.name }}">
-              {% else %}
-                <div class="cast-avatar">🎭</div>
-              {% endif %}
-              <p class="cast-name">{{ member.person.name }}</p>
-              <span class="cast-role">{{ member.character }}</span>
-            </div>
-          </a>
+        <a
+          href="{% url 'person-detail' member.person.id %}"
+          class="cast-card-link"
+        >
+          <div class="cast-card">
+            {% if member.person.profile_path %}
+            <img
+              src="https://image.tmdb.org/t/p/w200{{ member.person.profile_path }}"
+              alt="{{ member.person.name }}"
+            />
+            {% else %}
+            <div class="cast-avatar">🎭</div>
+            {% endif %}
+            <p class="cast-name">{{ member.person.name }}</p>
+            <span class="cast-role">{{ member.character }}</span>
+          </div>
+        </a>
         {% endfor %}
       </div>
     </div>
@@ -169,17 +252,22 @@
     <div class="cast-scroll-wrap">
       <div class="cast-scroll">
         {% for item in grouped_crew %}
-          <a href="{% url 'person-detail' item.person.id %}" class="cast-card-link">
-            <div class="cast-card">
-              {% if item.person.profile_path %}
-                <img src="https://image.tmdb.org/t/p/w200{{ item.person.profile_path }}">
-              {% else %}
-                <div class="cast-avatar">🎬</div>
-              {% endif %}
-              <p class="cast-name">{{ item.person.name }}</p>
-              <span class="cast-role">{{ item.jobs|join:" · " }}</span>
-            </div>
-          </a>
+        <a
+          href="{% url 'person-detail' item.person.id %}"
+          class="cast-card-link"
+        >
+          <div class="cast-card">
+            {% if item.person.profile_path %}
+            <img
+              src="https://image.tmdb.org/t/p/w200{{ item.person.profile_path }}"
+            />
+            {% else %}
+            <div class="cast-avatar">🎬</div>
+            {% endif %}
+            <p class="cast-name">{{ item.person.name }}</p>
+            <span class="cast-role">{{ item.jobs|join:" · " }}</span>
+          </div>
+        </a>
         {% endfor %}
       </div>
     </div>
@@ -187,45 +275,90 @@
   {% endif %}
 
   <!-- REVIEW FORM -->
-  <section class="review-form">
-    <h2>{% if my_review %}Edit Your Review{% else %}Rate & Review{% endif %}</h2>
+  <section class="review-form" id="review-form">
+    <h2>
+      {% if my_review and edit_mode %} Edit Your Review {% else %} Rate & Review
+      {% endif %}
+    </h2>
 
-    <form method="post" action="{% url 'submit-review' movie.id %}">
+    <form method="post" action="{% url 'submit-review' movie.id %}" novalidate>
       {% csrf_token %}
-      
-      <!-- Star Rating -->
+
       <div class="stars-container">
         {% for i in "12345" %}
-          <label class="star-label {% if my_review.rating >= forloop.counter %}active{% endif %}">
-            <input type="radio" name="rating" value="{{ forloop.counter }}" 
-                   {% if my_review.rating == forloop.counter %}checked{% endif %}
-                   required>
-            <span class="star">★</span>
-          </label>
+        <label
+          class="star-label {% if edit_mode and my_review and my_review.rating >= forloop.counter %}active{% endif %}"
+        >
+          <input
+            type="radio"
+            name="rating"
+            value="{{ forloop.counter }}"
+            {%
+            if
+            edit_mode
+            and
+            my_review
+            and
+            my_review.rating=""
+            ="forloop.counter"
+            %}checked{%
+            endif
+            %}
+          />
+          <span class="star">★</span>
+        </label>
+
         {% endfor %}
+
         <span class="rating-text">
-          {% if my_review %}{{ my_review.rating }}/5{% else %}Select rating{% endif %}
+          {% if my_review and edit_mode %} {{ my_review.rating }}/5 {% else %}
+          Select rating {% endif %}
         </span>
       </div>
+      <p class="review-error" id="review-rating-error" hidden></p>
 
-      <!-- Review Text -->
       <div class="review-textarea-wrap">
-        <textarea name="review_text" maxlength="1000" 
-                  placeholder="Write your review..." required>{% if my_review %}{{ my_review.review_text }}{% endif %}</textarea>
+        <textarea
+          name="review_text"
+          maxlength="1000"
+          placeholder="Write your review..."
+        >
+{% if edit_mode and my_review %}{{ my_review.review_text }}{% endif %}</textarea
+        >
+
+        <p class="review-error" id="review-text-error" hidden></p>
+
         <div class="char-counter">
-          <span id="char-count">{% if my_review %}{{ my_review.review_text|length }}{% else %}0{% endif %}</span>/1000
+          <span id="char-count">
+            {% if my_review and edit_mode %} {{ my_review.review_text|length }}
+            {% else %} 0 {% endif %} </span
+          >/1000
         </div>
       </div>
 
       <div class="review-form-footer">
         <label class="spoiler-check">
-          <input type="checkbox" name="contains_spoiler" 
-                 {% if my_review.contains_spoiler %}checked{% endif %}>
+          <input
+            type="checkbox"
+            name="contains_spoiler"
+            {%
+            if
+            edit_mode
+            and
+            my_review
+            and
+            my_review.contains_spoiler
+            %}checked{%
+            endif
+            %}
+          />
+
           <span>Contains spoilers</span>
         </label>
 
         <button type="submit" class="submit-review-btn">
-          {% if my_review %}Update Review{% else %}Submit Review{% endif %}
+          {% if edit_mode and my_review %}Update Review{% else %}Submit Review{%
+          endif %}
         </button>
       </div>
     </form>
@@ -240,57 +373,22 @@
       </h2>
 
       <!-- My Review -->
-      {% if my_review %}
-        <div class="review-card my-review-card">
-          {% include "movies/review_card.html" with review=my_review is_owner=True %}
-          
-          <form method="post" action="{% url 'delete-review' movie.id %}" 
-                onsubmit="return confirm('Delete this review?')" style="margin-top:10px">
-            {% csrf_token %}
-            <button type="submit" class="btn-delete-review">Delete Review</button>
-          </form>
-        </div>
-      {% endif %}
+      {% if my_review %} {% include "movies/review_card.html" with
+      review=my_review movie=movie is_owner=True %} {% endif %}
 
       <!-- Other Reviews -->
-      {% if other_reviews %}
-        {% for review in other_reviews %}
-          {% include "movies/review_card.html" with review=review is_owner=False %}
-        {% endfor %}
-      {% else %}
-        {% if not my_review %}
-          <p class="no-reviews-text">No reviews yet. Be the first!</p>
-        {% endif %}
-      {% endif %}
+      {% if other_reviews %} {% for review in other_reviews %} {% include
+      "movies/review_card.html" with review=review movie=movie is_owner=False %}
+      {% endfor %} {% else %} {% if not my_review %}
+      <p class="no-reviews-text">No reviews yet. Be the first!</p>
+      {% endif %} {% endif %}
     </div>
   </section>
 
+
+  
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
-<!-- Minimal JS for UI enhancements only -->
-<script>
-// Star rating visual feedback
-document.querySelectorAll('.star-label input').forEach(input => {
-  input.addEventListener('change', function() {
-    const value = parseInt(this.value);
-    const labels = document.querySelectorAll('.star-label');
-    labels.forEach((label, idx) => {
-      label.classList.toggle('active', idx < value);
-    });
-    document.querySelector('.rating-text').textContent = value + '/5';
-  });
-});
-
-// Character counter
-const textarea = document.querySelector('textarea[name="review_text"]');
-const charCount = document.getElementById('char-count');
-if (textarea && charCount) {
-  textarea.addEventListener('input', function() {
-    charCount.textContent = this.value.length;
-  });
-}
-</script>
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/detail.js' %}"></script>
 {% endblock %}

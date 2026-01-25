@@ -1,4 +1,3 @@
-# movies/views.py - FIXED VERSION
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Count, Prefetch
@@ -7,18 +6,13 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from datetime import date, timedelta
 from .models import (Movie, Genre, MovieVote, Watchlist, Person, 
-                     Cast, Crew, MovieReview, ReviewLike, ReviewComment, CommentLike)
-from .forms import MovieReviewForm, ReviewCommentForm
+                     Cast, Crew, MovieReview, ReviewLike, ReviewComment, MovieHypeVote)
+from .forms import MovieReviewForm
 from collections import defaultdict
 
 
 def home(request):
-    """
-    Main homepage with smart movie sections.
-    
-    Handles search, filtering by genre and release status.
-    All filtering and pagination done server-side.
-    """
+
     search_query = request.GET.get("search", "").strip()
     genre_filter = request.GET.get("genre", "").strip()
     status_filter = request.GET.get("released", "").strip()
@@ -89,7 +83,7 @@ def home(request):
             release_date__lte=soon_limit
         ).prefetch_related("categories").order_by("release_date")[:12]
         
-        # Major upcoming (after 60 days)
+    
         context["major_upcoming_movies"] = Movie.objects.filter(
             is_released=False,
             release_date__isnull=False,
@@ -100,12 +94,6 @@ def home(request):
 
 
 def movie_detail(request, movie_id):
-    """
-    Movie detail page with voting, reviews, and comments.
-    
-    All data processing done server-side.
-    Uses Django forms for reviews and comments.
-    """
     if not request.user.is_authenticated:
         messages.warning(request, "Please login to access the movie detail page.")
         return redirect(f"{reverse('login')}?next={request.path}")
@@ -146,7 +134,6 @@ def movie_detail(request, movie_id):
         key=lambda x: person_priority(x["jobs"])
     )
 
-    # Calculate vote statistics server-side
     vote_stats_qs = MovieVote.objects.filter(
         movie=movie
     ).values("vote").annotate(count=Count("id"))
@@ -160,11 +147,30 @@ def movie_detail(request, movie_id):
     def pct(x):
         return round((x / total_votes) * 100) if total_votes > 0 else 0
 
-    # Get current user's vote
+   
     user_vote = MovieVote.objects.filter(
         user=request.user, 
         movie=movie
     ).first()
+
+    hype_counts = {"excited": 0, "not_excited": 0}
+    hype_score = 0
+    user_hype_vote = ""
+
+    if not movie.is_released:
+        hype_stats = MovieHypeVote.objects.filter(movie=movie).values("vote").annotate(count=Count("id"))
+        hype_counts = {x["vote"]: x["count"] for x in hype_stats}
+
+        hype_counts.setdefault("excited", 0)
+        hype_counts.setdefault("not_excited", 0)
+
+        hype_total = hype_counts["excited"] + hype_counts["not_excited"]
+
+        hype_score = round((hype_counts["excited"] / hype_total) * 100) if hype_total > 0 else 0
+
+        hype_obj = MovieHypeVote.objects.filter(movie=movie, user=request.user).first()
+        user_hype_vote = hype_obj.vote if hype_obj else ""
+
     
     # Check if movie in watchlist
     in_watchlist = Watchlist.objects.filter(
@@ -191,21 +197,34 @@ def movie_detail(request, movie_id):
     other_reviews = []
 
     for review in reviews_qs:
-        # Get user's vote on this movie
+        
         review.user_vote = MovieVote.objects.filter(
             movie=movie, 
             user=review.user
         ).first()
         
-        # Calculate likes
+
+        
         review.like_count = review.likes.count()
         review.is_liked = bool(review.user_likes)
+        review.comment_count = review.comments.count()
+
+        text = (review.review_text or "").strip()
+
+        line_count = len(text.splitlines())
+        char_count = len(text)
+
+        review.show_more = (line_count > 3) or (char_count > 150)
+
+                
         
-        # Separate own review from others
         if review.user == request.user:
             my_review = review
         else:
             other_reviews.append(review)
+
+
+    edit_mode = request.GET.get("edit") == "1"
 
     context = {
         "movie": movie,
@@ -222,6 +241,10 @@ def movie_detail(request, movie_id):
         "in_watchlist": in_watchlist,
         "my_review": my_review,
         "other_reviews": other_reviews,
+         "edit_mode": edit_mode,
+          "hype_counts": hype_counts,
+    "hype_score": hype_score,
+    "user_hype_vote": user_hype_vote,
     }
 
     return render(request, "movies/detail.html", context)
@@ -316,30 +339,24 @@ def watchlist_page(request):
 
 @login_required
 def submit_review(request, movie_id):
-    """
-    Submit or update movie review.
-    
-    Uses Django ModelForm for validation.
-    Handles both new reviews and updates to existing reviews.
-    """
+
     movie = get_object_or_404(Movie, id=movie_id)
     
     if request.method != "POST":
         return redirect('movie-detail', movie_id=movie_id)
 
-    # Check if user already has a review
     existing_review = MovieReview.objects.filter(
         user=request.user, 
         movie=movie
     ).first()
     
-    # Bind form to existing review or create new
     form = MovieReviewForm(request.POST, instance=existing_review)
     
     if form.is_valid():
         review = form.save(commit=False)
         review.user = request.user
         review.movie = movie
+        
         review.save()
         
         if existing_review:
@@ -357,11 +374,6 @@ def submit_review(request, movie_id):
 
 @login_required
 def delete_review(request, movie_id):
-    """
-    Delete user's review.
-    
-    POST-only endpoint for security.
-    """
     if request.method != "POST":
         return redirect('movie-detail', movie_id=movie_id)
     
@@ -379,38 +391,35 @@ def delete_review(request, movie_id):
     return redirect('movie-detail', movie_id=movie_id)
 
 
+from django.http import JsonResponse
+
 @login_required
 def toggle_review_like(request, review_id):
-    """
-    Toggle like on a review.
-    
-    POST-only endpoint that adds/removes like.
-    """
     if request.method != "POST":
-        review = get_object_or_404(MovieReview, id=review_id)
-        return redirect('movie-detail', movie_id=review.movie.id)
-    
+        return JsonResponse({"ok": False, "error": "Invalid method"}, status=405)
+
     review = get_object_or_404(MovieReview, id=review_id)
-    like_obj = ReviewLike.objects.filter(
-        user=request.user, 
-        review=review
-    )
+
+    like_obj = ReviewLike.objects.filter(user=request.user, review=review)
 
     if like_obj.exists():
         like_obj.delete()
+        liked = False
     else:
         ReviewLike.objects.create(user=request.user, review=review)
+        liked = True
 
-    return redirect('movie-detail', movie_id=review.movie.id)
+    like_count = ReviewLike.objects.filter(review=review).count()
+
+    return JsonResponse({
+        "ok": True,
+        "liked": liked,
+        "like_count": like_count,
+    })
 
 
 @login_required
 def review_likes_list(request, review_id):
-    """
-    Display list of users who liked a review.
-    
-    Used for showing likes in a modal/popup.
-    """
     review = get_object_or_404(MovieReview, id=review_id)
 
     likes = review.likes.select_related("user").order_by("-created_at")
@@ -422,93 +431,9 @@ def review_likes_list(request, review_id):
     )
 
 
-@login_required
-def add_comment(request, review_id):
-    """
-    Add comment to a review.
-    
-    Uses Django form for validation.
-    """
-    if request.method != "POST":
-        review = get_object_or_404(MovieReview, id=review_id)
-        return redirect('movie-detail', movie_id=review.movie.id)
-    
-    review = get_object_or_404(MovieReview, id=review_id)
-    form = ReviewCommentForm(request.POST)
-    
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.user = request.user
-        comment.review = review
-        comment.save()
-        messages.success(request, "Comment added")
-    else:
-        for error in form.errors.get('text', []):
-            messages.error(request, error)
-
-    return redirect('movie-detail', movie_id=review.movie.id)
-
-
-@login_required
-def toggle_comment_like(request, comment_id):
-    """
-    Toggle like on a comment.
-    
-    POST-only endpoint.
-    """
-    if request.method != "POST":
-        comment = get_object_or_404(ReviewComment, id=comment_id)
-        return redirect('movie-detail', movie_id=comment.review.movie.id)
-    
-    comment = get_object_or_404(ReviewComment, id=comment_id)
-    like_obj = CommentLike.objects.filter(
-        user=request.user, 
-        comment=comment
-    )
-
-    if like_obj.exists():
-        like_obj.delete()
-    else:
-        CommentLike.objects.create(user=request.user, comment=comment)
-
-    return redirect('movie-detail', movie_id=comment.review.movie.id)
-
-
-@login_required
-def reply_comment(request, comment_id):
-    """
-    Reply to a comment.
-    
-    Creates nested comment with parent reference.
-    """
-    if request.method != "POST":
-        parent = get_object_or_404(ReviewComment, id=comment_id)
-        return redirect('movie-detail', movie_id=parent.review.movie.id)
-    
-    parent = get_object_or_404(ReviewComment, id=comment_id)
-    form = ReviewCommentForm(request.POST)
-    
-    if form.is_valid():
-        reply = form.save(commit=False)
-        reply.user = request.user
-        reply.review = parent.review
-        reply.parent = parent
-        reply.save()
-        messages.success(request, "Reply added")
-    else:
-        for error in form.errors.get('text', []):
-            messages.error(request, error)
-
-    return redirect('movie-detail', movie_id=parent.review.movie.id)
-
 
 def person_detail(request, person_id):
-    """
-    Display person (actor/crew) detail page.
-    
-    Shows filmography and biography.
-    All data fetched server-side.
-    """
+
     person = get_object_or_404(Person, id=person_id)
 
     # Get movies where person acted
@@ -528,3 +453,161 @@ def person_detail(request, person_id):
     }
 
     return render(request, "movies/person_detail.html", context)
+
+
+
+@login_required
+def comments_page(request, review_id):
+    review = get_object_or_404(
+        MovieReview.objects.select_related("movie", "user").prefetch_related("likes"),
+        id=review_id
+    )
+
+    review.like_count = review.likes.count()
+    review.is_liked = review.likes.filter(user=request.user).exists()
+    review.comment_count = ReviewComment.objects.filter(review=review).count()
+    text = (review.review_text or "").strip()
+    review.show_more = (len(text) > 150) or (len(text.splitlines()) > 3)
+
+
+    parent_comments = ReviewComment.objects.filter(
+        review=review,
+        parent__isnull=True
+    ).select_related("user").prefetch_related(
+        Prefetch(
+            "replies",
+            queryset=ReviewComment.objects.select_related("user").order_by("created_at")
+        )
+    ).order_by("-created_at")
+
+    total_count = ReviewComment.objects.filter(review=review).count()
+
+    context = {
+        "review": review,
+        "movie": review.movie,
+        "parent_comments": parent_comments,
+        "total_count": total_count,
+        "is_owner": review.user == request.user,
+    }
+
+    return render(request, "movies/comments_page.html", context)
+
+
+
+
+@login_required
+def add_comment_page(request, review_id):
+    if request.method != "POST":
+        return redirect("comments-page", review_id=review_id)
+
+    review = get_object_or_404(MovieReview, id=review_id)
+    text = request.POST.get("text", "").strip()
+
+    if not text:
+        messages.error(request, "Comment cannot be empty")
+        return redirect("comments-page", review_id=review_id)
+
+    if len(text) > 500:
+        messages.error(request, "Comment too long")
+        return redirect("comments-page", review_id=review_id)
+
+    ReviewComment.objects.create(
+        user=request.user,
+        review=review,
+        text=text
+    )
+
+    messages.success(request, "Comment added")
+    return redirect("comments-page", review_id=review_id)
+
+
+@login_required
+def reply_comment_page(request, comment_id):
+    parent = get_object_or_404(ReviewComment, id=comment_id)
+
+    if request.method != "POST":
+        return redirect("comments-page", review_id=parent.review_id)
+
+    if parent.parent_id is not None:
+        messages.error(request, "Only 1 level reply allowed")
+        return redirect("comments-page", review_id=parent.review_id)
+
+    text = request.POST.get("text", "").strip()
+
+    if not text:
+        messages.error(request, "Reply cannot be empty")
+        return redirect("comments-page", review_id=parent.review_id)
+
+    if len(text) > 500:
+        messages.error(request, "Reply too long")
+        return redirect("comments-page", review_id=parent.review_id)
+
+    ReviewComment.objects.create(
+        user=request.user,
+        review=parent.review,
+        parent=parent,
+        text=text
+    )
+
+    messages.success(request, "Reply added")
+    return redirect("comments-page", review_id=parent.review_id)
+
+
+
+@login_required
+def delete_comment_page(request, comment_id):
+    comment = get_object_or_404(
+        ReviewComment.objects.select_related("review__user"),
+        id=comment_id
+    )
+
+    if request.method != "POST":
+        return redirect("comments-page", review_id=comment.review_id)
+
+    is_comment_owner = (comment.user == request.user)
+    is_review_owner = (comment.review.user == request.user)
+
+    if not (is_comment_owner or is_review_owner):
+        messages.error(request, "Not allowed")
+        return redirect("comments-page", review_id=comment.review_id)
+
+    review_id = comment.review_id
+    comment.delete()
+
+    messages.success(request, "Comment deleted")
+    return redirect("comments-page", review_id=review_id)
+
+
+
+
+@login_required
+def hype_vote_movie(request, movie_id):
+    if request.method != "POST":
+        return redirect("movie-detail", movie_id=movie_id)
+
+    movie = get_object_or_404(Movie, id=movie_id)
+
+    if movie.is_released:
+        messages.error(request, "Hype voting is only for upcoming movies.")
+        return redirect("movie-detail", movie_id=movie_id)
+
+    vote = request.POST.get("vote", "").strip().lower()
+
+    allowed = {"excited", "not_excited", "remove"}
+    if vote not in allowed:
+        messages.error(request, "Invalid hype vote option.")
+        return redirect("movie-detail", movie_id=movie_id)
+
+    if vote == "remove":
+        MovieHypeVote.objects.filter(user=request.user, movie=movie).delete()
+        messages.success(request, "Hype vote removed.")
+        return redirect("movie-detail", movie_id=movie_id)
+
+    MovieHypeVote.objects.update_or_create(
+        user=request.user,
+        movie=movie,
+        defaults={"vote": vote},
+    )
+
+    messages.success(request, "Hype vote saved.")
+    return redirect("movie-detail", movie_id=movie_id)

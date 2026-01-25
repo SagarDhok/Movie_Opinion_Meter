@@ -114,6 +114,7 @@ class MovieVote(models.Model):
 class MovieReview(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
+    
 
     rating = models.PositiveSmallIntegerField(
         choices=[(i, i) for i in range(1, 6)]
@@ -161,14 +162,21 @@ class ReviewComment(models.Model):
     def __str__(self):
         return self.text[:40]
     
-class CommentLike(models.Model):
+
+
+
+class MovieHypeVote(models.Model):
+    VOTE_CHOICES = [
+        ("excited", "Excited"),
+        ("not_excited", "Not Excited"),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comment = models.ForeignKey(
-        ReviewComment,
-        related_name="likes",
-        on_delete=models.CASCADE
-    )
+    movie = models.ForeignKey("Movie", on_delete=models.CASCADE, related_name="hype_votes")
+    vote = models.CharField(max_length=20, choices=VOTE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("user", "comment")
+        unique_together = ("user", "movie")
+
+  

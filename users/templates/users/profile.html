@@ -8,11 +8,9 @@
 <link rel="stylesheet" href="{% static 'users/profile.css' %}">
 {% endblock %}
 
-
 {% block navbar %}
   {% include "includes/navbar.html" with mode="mini" %}
 {% endblock %}
-
 
 {% block content %}
 <div class="profile-container">
@@ -39,14 +37,20 @@
             </h3>
 
             <div class="avatar-actions">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <label for="fileInput" class="btn-upload">Update Photo</label>
-                    <input type="file" name="profile_image" id="fileInput" accept="image/*" onchange="this.form.submit()">
-                </form>
 
+                <!-- Upload Photo Form -->
+                    <form method="post" enctype="multipart/form-data" action="{% url 'profile' %}" id="uploadForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="upload_photo" value="1">
+
+                        <input type="file" name="profile_image" id="fileInput" accept="image/*" hidden>
+
+                        <button type="button" class="btn-primary-glow" id="uploadBtn">Upload</button>
+                    </form>
+
+                <!-- Remove Photo Form -->
                 {% if request.user.profile_image %}
-                <form method="post">
+                <form method="post" action="{% url 'profile' %}">
                     {% csrf_token %}
                     <input type="hidden" name="remove_image" value="1">
                     <button type="submit" class="btn-danger-outline">Remove</button>
@@ -72,24 +76,24 @@
                     <span class="label">Email</span>
                     <span class="value">{{ request.user.email }}</span>
                 </div>
+
                 <span class="status-pill {% if request.user.is_email_verified %}verified{% else %}unverified{% endif %}">
                     {{ request.user.is_email_verified|yesno:"Verified,Unverified" }}
                 </span>
             </div>
         </div>
 
-    <div class="profile-stats">
-    <div class="stat-box">
-        <span class="stat-num">0</span>
-        <span class="stat-label">Reviews</span>
-    </div>
+        <div class="profile-stats">
+            <div class="stat-box">
+                <span class="stat-num">{{ review_count }}</span>
+                <span class="stat-label">Reviews</span>
+            </div>
 
-    <a href="{% url 'watchlist' %}" class="stat-box stat-link">
-        <span class="stat-num">{{ watchlist_count }}</span>
-        <span class="stat-label">Watchlist</span>
-    </a>
-    </div>
-
+            <a href="{% url 'watchlist' %}" class="stat-box stat-link">
+                <span class="stat-num">{{ watchlist_count }}</span>
+                <span class="stat-label">Watchlist</span>
+            </a>
+        </div>
 
         <div class="profile-footer">
             <a href="{% url 'forgot-password' %}" class="btn-secondary">Change Password</a>
@@ -106,8 +110,11 @@
             <p>Personalize how you appear on MovieMeter</p>
         </div>
 
-        <form method="post">
+        <!-- Name Update Form -->
+        <form method="post" action="{% url 'profile' %}">
             {% csrf_token %}
+            <input type="hidden" name="update_name" value="1">
+
             <div class="input-container">
                 <div class="input-group">
                     <label>First Name</label>
@@ -134,6 +141,7 @@
 function confirmLogout(event) {
     event.preventDefault();
     const logoutUrl = event.currentTarget.getAttribute('href');
+
     Swal.fire({
         title: 'Logout?',
         text: "Do you really want to sign out?",
@@ -146,7 +154,9 @@ function confirmLogout(event) {
         confirmButtonText: 'Yes, Logout!',
         cancelButtonText: 'Stay here'
     }).then((result) => {
-        if (result.isConfirmed) { window.location.href = logoutUrl; }
+        if (result.isConfirmed) {
+            window.location.href = logoutUrl;
+        }
     })
 }
 
@@ -156,6 +166,18 @@ function openNameModal() {
 
 function closeNameModal() {
     document.getElementById("nameModal").style.display = "none";
+
+    
 }
+
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileInput");
+const uploadForm = document.getElementById("uploadForm");
+
+uploadBtn.addEventListener("click", () => fileInput.click());
+
+fileInput.addEventListener("change", () => {
+    if (fileInput.files.length > 0) uploadForm.submit();
+});
 </script>
 {% endblock %}

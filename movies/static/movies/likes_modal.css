@@ -1,130 +1,78 @@
-/* ================================
-   LIKES MODAL — FINAL PREMIUM UI
-================================ */
+.likes-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 18px;
 
-/* Backdrop */
-.likes-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(2,6,23,0.75);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 999;
 }
 
-.like-user-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
+.likes-card {
+  width: 100%;
+  max-width: 720px;
 
-.like-user {
-  display: flex;
-  gap: 12px;
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.like-user:hover {
-  background: rgba(255,255,255,0.05);
-}
-
-/* Modal container */
-.likes-modal {
-  width: 380px;
-  max-height: 70vh;
-
-  background: #0f172a;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 22px;
   overflow: hidden;
 
-  display: flex;
-  flex-direction: column;
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75);
-
-  animation: modalIn 0.18s ease-out;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
 }
 
-/* Entry animation */
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* Header */
 .likes-header {
-  padding: 14px 16px;
-
+  padding: 18px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 14px;
 
-  font-size: 15px;
-  font-weight: 900;
-
-  background: rgba(15, 23, 42, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Close button */
-.likes-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-
+.likes-header h2 {
+  margin: 0;
   font-size: 18px;
   font-weight: 900;
-  color: rgba(148, 163, 184, 0.85);
-
-  transition: color 0.15s ease, transform 0.15s ease;
+  color: rgba(248, 250, 252, 0.95);
 }
 
-.likes-close:hover {
-  color: #f8fafc;
-  transform: scale(1.1);
-}
-
-/* Likes list */
-.likes-list {
-  padding: 10px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-/* Scrollbar (subtle, premium) */
-.likes-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.likes-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.likes-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
+.likes-back-btn {
+  text-decoration: none;
+  padding: 7px 12px;
   border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(248, 250, 252, 0.92);
+
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
-/* Individual user row */
+.likes-back-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.likes-list {
+  padding: 12px;
+}
+
+.like-user-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .like-user {
   display: flex;
   align-items: center;
   gap: 12px;
 
-  padding: 10px;
-  border-radius: 12px;
-  cursor: pointer;
-
+  padding: 14px;
+  border-radius: 16px;
   transition: background 0.15s ease;
 }
 
@@ -132,50 +80,56 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Avatar image */
-.like-user img,
-.avatar-fallback {
-  width: 42px;
-  height: 42px;
+.like-avatar {
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-
   object-fit: cover;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
+  border: 1px solid rgba(255, 255, 255, 0.10);
   background: rgba(255, 255, 255, 0.08);
+}
+
+.like-avatar.fallback {
+  display: grid;
+  place-items: center;
   font-weight: 900;
-  font-size: 14px;
+  font-size: 15px;
   color: #e5e7eb;
 }
 
-/* User meta */
 .user-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .user-meta .name {
   font-size: 14px;
   font-weight: 900;
-  color: #f8fafc;
+  color: rgba(248, 250, 252, 0.95);
 }
 
-.user-meta .username {
+.user-meta .joined {
   font-size: 12px;
   font-weight: 700;
   color: rgba(148, 163, 184, 0.9);
 }
 
-/* Empty state */
 .no-likes {
-  padding: 40px 0;
+  padding: 55px 0;
   text-align: center;
-
   font-size: 14px;
   font-weight: 800;
   color: rgba(148, 163, 184, 0.85);
+}
+
+@media (max-width: 520px) {
+  .likes-page {
+    padding: 45px 14px;
+  }
+
+  .likes-card {
+    max-width: 100%;
+  }
 }

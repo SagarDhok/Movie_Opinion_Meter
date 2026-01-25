@@ -176,3 +176,85 @@ body {
     background: rgba(255, 255, 255, 0.06);
     color: rgba(248, 250, 252, 0.95);
 }
+
+
+.app-modal.hidden {
+  display: none;
+}
+
+.app-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.app-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.75);
+  backdrop-filter: blur(6px);
+}
+
+.app-modal-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(420px, calc(100% - 24px));
+  transform: translate(-50%, -50%);
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.app-modal-title {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: rgba(248, 250, 252, 0.95);
+}
+
+.app-modal-text {
+  margin: 0 0 14px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.app-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.app-modal-cancel,
+.app-modal-danger {
+  all: unset;
+  cursor: pointer;
+
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.app-modal-cancel {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(248, 250, 252, 0.92);
+}
+
+.app-modal-cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.app-modal-danger {
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.15);
+  color: rgba(248, 113, 113, 0.95);
+}
+
+.app-modal-danger:hover {
+  background: rgba(248, 113, 113, 0.22);
+}

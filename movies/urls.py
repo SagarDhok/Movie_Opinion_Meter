@@ -14,10 +14,15 @@ urlpatterns = [
     path("reviews/<int:review_id>/like/", views.toggle_review_like, name="toggle-review-like"),
     path("reviews/<int:review_id>/likes/", views.review_likes_list, name="review-likes-list"),
 
-    path("reviews/<int:review_id>/comments/add/", views.add_comment, name="add-comment"),
-    path("comments/<int:comment_id>/like/", views.toggle_comment_like, name="toggle-comment-like"),
-    path("comments/<int:comment_id>/reply/", views.reply_comment, name="reply-comment"),
+
 
     path("person/<int:person_id>/", views.person_detail, name="person-detail"),
+
     path("watchlist/", views.watchlist_page, name="watchlist"),
+    path("reviews/<int:review_id>/comments-page/", views.comments_page, name="comments-page"),
+    path("reviews/<int:review_id>/comments/add/", views.add_comment_page, name="add-comment-page"),
+    path("comments/<int:comment_id>/reply/", views.reply_comment_page, name="reply-comment-page"),
+    path("comments/<int:comment_id>/delete/", views.delete_comment_page, name="delete-comment-page"),
+    path("movie/<int:movie_id>/hype/", views.hype_vote_movie, name="hype-vote-movie"),
+
 ]

@@ -1,8 +1,3 @@
-/* ================================
-   MovieMeter - Detail Page UI
-   Clean Netflix/Prime Inspired Look
-================================== */
-
 :root {
   --bg: #020617;
   --text: #f8fafc;
@@ -16,12 +11,11 @@
   --radius: 22px;
 }
 
-/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", "Poppins", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 body {
@@ -30,21 +24,15 @@ body {
   min-height: 100vh;
 }
 
-/* Page */
 .detail-page {
   max-width: 1250px;
   margin: auto;
   padding: 55px 20px;
 }
 
-.muted-text {
-  color: var(--muted);
-  font-size: 14px;
-}
-
-/* ================================
+/* =========================
    HERO
-================================== */
+========================= */
 
 .movie-hero {
   display: grid;
@@ -54,7 +42,6 @@ body {
   align-items: start;
 }
 
-/* Poster */
 .poster img {
   width: 100%;
   border-radius: var(--radius);
@@ -78,35 +65,22 @@ body {
   color: var(--muted);
 }
 
-/* Movie Info */
-.movie-info {
-  width: 100%;
-}
-
 .movie-info h1 {
   font-size: clamp(30px, 4vw, 52px);
   font-weight: 900;
   letter-spacing: -0.02em;
   line-height: 1.1;
-
   background: linear-gradient(90deg, var(--accent), var(--accent2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Meta row (Release date + status) */
 .meta {
   margin-top: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-
-  font-size: 14px;
-  color: var(--muted);
-}
-
-.meta-date {
   font-size: 14px;
   color: var(--muted);
 }
@@ -131,11 +105,8 @@ body {
   color: rgba(186, 230, 253, 0.95);
 }
 
-/* Overview */
 .overview {
   margin-top: 14px;
-  width: 100%;
-  max-width: 100%;
   line-height: 1.65;
   font-size: 15px;
   color: rgba(248, 250, 252, 0.88);
@@ -145,7 +116,6 @@ body {
   color: var(--muted);
 }
 
-/* Genres */
 .genres {
   margin-top: 16px;
   display: flex;
@@ -158,13 +128,11 @@ body {
   border-radius: 999px;
   font-size: 13px;
   font-weight: 700;
-
   background: rgba(56, 189, 248, 0.10);
   border: 1px solid rgba(56, 189, 248, 0.20);
   color: rgba(220, 245, 255, 0.9);
 }
 
-/* Watchlist button */
 .watchlist-btn {
   margin-top: 18px;
   padding: 12px 18px;
@@ -173,11 +141,9 @@ body {
   cursor: pointer;
   font-weight: 900;
   font-size: 14px;
-
   color: #031427;
   background: linear-gradient(90deg, var(--accent), #0ea5e9);
   box-shadow: 0 12px 24px rgba(56, 189, 248, 0.15);
-
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
@@ -191,15 +157,9 @@ body {
   color: #fff;
 }
 
-.login-hint {
-  margin-top: 14px;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-/* ================================
-   AUDIENCE OPINION
-================================== */
+/* =========================
+   AUDIENCE OPINION METER
+========================= */
 
 .meter-section {
   margin-bottom: 55px;
@@ -227,27 +187,143 @@ body {
   color: var(--muted);
 }
 
-/* Vote pill */
 .vote-pill {
   padding: 8px 14px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 900;
-  user-select: none;
-
-  color: rgba(2, 6, 23, 0.95);
+  display: inline-block;
   background: linear-gradient(90deg, var(--accent), var(--accent2));
   box-shadow: 0 12px 25px rgba(56, 189, 248, 0.16);
-
-  transition: transform 0.2s ease, filter 0.2s ease, background 0.2s ease;
+  color: rgba(2, 6, 23, 0.95);
 }
 
-.vote-pill:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+.vote-pill.vote-bad {
+  background: rgba(251, 113, 133, 0.20);
+  border: 1px solid rgba(251, 113, 133, 0.55);
+  color: rgba(251, 113, 133, 0.95);
+  box-shadow: none;
 }
 
-/* Meter rows */
+.vote-pill.vote-average {
+  background: rgba(250, 204, 21, 0.20);
+  border: 1px solid rgba(250, 204, 21, 0.55);
+  color: rgba(250, 204, 21, 0.95);
+  box-shadow: none;
+}
+
+.vote-pill.vote-good {
+  background: rgba(52, 211, 153, 0.20);
+  border: 1px solid rgba(52, 211, 153, 0.55);
+  color: rgba(52, 211, 153, 0.95);
+  box-shadow: none;
+}
+
+.vote-pill.vote-masterpiece {
+  background: rgba(168, 85, 247, 0.20);
+  border: 1px solid rgba(168, 85, 247, 0.55);
+  color: rgba(168, 85, 247, 0.95);
+  box-shadow: none;
+}
+
+.vote-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.vote-tooltip-box {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 230px;
+  background: rgba(2, 6, 23, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all 0.2s ease;
+  z-index: 30;
+}
+
+.vote-tooltip:hover .vote-tooltip-box {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.tip-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(248, 250, 252, 0.95);
+  margin-bottom: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tip-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.tip-row.bad {
+  background: rgba(251, 113, 133, 0.12);
+  color: rgba(251, 113, 133, 0.95);
+}
+
+.tip-row.average {
+  background: rgba(250, 204, 21, 0.12);
+  color: rgba(250, 204, 21, 0.95);
+}
+
+.tip-row.good {
+  background: rgba(52, 211, 153, 0.12);
+  color: rgba(52, 211, 153, 0.95);
+}
+
+.tip-row.masterpiece {
+  background: rgba(168, 85, 247, 0.12);
+  color: rgba(168, 85, 247, 0.95);
+}
+
+.tip-total {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.tip-count {
+  min-width: 32px;
+  text-align: right;
+  font-weight: 900;
+}
+
+.vote-tooltip-box {
+  width: 250px;
+}
+
+.tip-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tip-total strong {
+  color: rgba(248, 250, 252, 0.95);
+}
+
+
+
 .meter-container {
   max-width: 850px;
   display: flex;
@@ -260,13 +336,9 @@ body {
   grid-template-columns: 120px 1fr 46px;
   align-items: center;
   gap: 14px;
-
   padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-
-  cursor: pointer;
   transition: transform 0.2s ease, opacity 0.2s ease;
-  position: relative;
 }
 
 .meter-row:hover {
@@ -274,24 +346,52 @@ body {
   opacity: 0.95;
 }
 
-.meter-row.active {
-  transform: translateY(-2px);
+.meter-row.selected .meter-name {
+  border-width: 2px;
 }
 
+.meter-row.bad.selected .meter-name {
+  background: rgba(251, 113, 133, 0.18);
+  border-color: rgba(251, 113, 133, 0.65);
+  color: rgba(251, 113, 133, 0.95);
+}
+
+.meter-row.average.selected .meter-name {
+  background: rgba(250, 204, 21, 0.18);
+  border-color: rgba(250, 204, 21, 0.65);
+  color: rgba(250, 204, 21, 0.95);
+}
+
+.meter-row.good.selected .meter-name {
+  background: rgba(52, 211, 153, 0.18);
+  border-color: rgba(52, 211, 153, 0.65);
+  color: rgba(52, 211, 153, 0.95);
+}
+
+.meter-row.masterpiece.selected .meter-name {
+  background: rgba(168, 85, 247, 0.18);
+  border-color: rgba(168, 85, 247, 0.65);
+  color: rgba(168, 85, 247, 0.95);
+}
+
+
 .meter-name {
+  all: unset;
+  cursor: pointer;
   font-size: 13px;
   font-weight: 900;
-
   padding: 8px 12px;
   border-radius: 999px;
-
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-
   color: rgba(248, 250, 252, 0.92);
-
-  width: fit-content;
   transition: transform 0.15s ease, background 0.2s ease, border 0.2s ease;
+  width: fit-content;
+}
+
+.meter-name:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .meter-track {
@@ -303,10 +403,11 @@ body {
 
 .meter-row .fill {
   height: 100%;
-  width: 0%;
+  width: var(--w, 0%);
   border-radius: 999px;
   transition: width 1.1s ease;
 }
+
 
 .meter-pct {
   text-align: right;
@@ -315,7 +416,6 @@ body {
   color: rgba(248, 250, 252, 0.85);
 }
 
-/* Colors */
 .meter-row.bad .fill {
   background: linear-gradient(90deg, rgba(251, 113, 133, 0.95), rgba(244, 63, 94, 0.95));
 }
@@ -332,38 +432,35 @@ body {
   background: linear-gradient(90deg, rgba(168, 85, 247, 0.95), rgba(126, 34, 206, 0.95));
 }
 
-/* Summary */
-.summary {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.summary .overall-summary {
-  font-size: 13px;
-  font-weight: 900;
-  color: rgba(248, 250, 252, 0.88);
-}
-
-.summary .user-vote {
-  font-size: 13px;
+.btn-remove-vote {
+  margin-top: 16px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  cursor: pointer;
   font-weight: 700;
-  color: rgba(248, 250, 252, 0.88);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  font-size: 13px;
+  transition: all 0.2s ease;
 }
 
-.summary .user-vote.show {
-  opacity: 1;
-  transform: translateY(0px);
+.btn-remove-vote:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: translateY(-2px);
 }
 
-/* ================================
-   CAST + CREW (Circular Premium)
-================================== */
+.vote-stats {
+  margin-top: 14px;
+  font-size: 13px;
+  color: rgba(148, 163, 184, 0.9);
+  font-weight: 700;
+}
 
+/* =========================
+   CAST + CREW
+========================= */
 .cast-section {
   margin-bottom: 65px;
 }
@@ -377,33 +474,14 @@ body {
 .cast-scroll-wrap {
   max-width: 850px;
   overflow-x: auto;
-  overflow-y: visible; 
-  padding: 16px 0;    
+  overflow-y: visible;
+  padding: 16px 0;
   position: relative;
-}
 
-
-.cast-scroll {
-  display: flex;
-  gap: 40px;
-  width: max-content;
-}
-.cast-scroll-wrap::-webkit-scrollbar {
-  height: 6px;
-}
-
-.cast-scroll-wrap::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-}
-
-/* Hide scrollbar visuals but keep scrolling */
-.cast-scroll-wrap {
-  scrollbar-width: thin;              /* Firefox */
+  scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.25) transparent;
 }
 
-/* Chrome / Edge / Safari */
 .cast-scroll-wrap::-webkit-scrollbar {
   height: 6px;
 }
@@ -417,9 +495,14 @@ body {
   border-radius: 999px;
 }
 
-/* 🚫 Disable hover effects completely */
 .cast-scroll-wrap::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.18);
+}
+
+.cast-scroll {
+  display: flex;
+  gap: 40px;
+  width: max-content;
 }
 
 .cast-card {
@@ -448,9 +531,6 @@ body {
   color: inherit;
 }
 
-
-
-/* Circular image wrapper */
 .cast-card img,
 .cast-avatar {
   width: 92px;
@@ -479,7 +559,6 @@ body {
   box-shadow: 0 18px 45px rgba(56, 189, 248, 0.12);
 }
 
-/* Name */
 .cast-name {
   margin-top: 10px;
   font-weight: 900;
@@ -491,21 +570,17 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Role / Job */
 .cast-role {
   display: block;
   margin-top: 4px;
   font-size: 12px;
   color: var(--muted);
 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* ================================
+/* =========================
    REVIEW FORM
-================================== */
+========================= */
 
 .review-form {
   padding: 10px 0;
@@ -524,27 +599,33 @@ body {
   gap: 12px;
 }
 
-/* Stars */
-.stars {
+.stars-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  user-select: none;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
-.star {
-  font-size: 32px;
+.star-label {
   cursor: pointer;
+  display: inline-flex;
+}
+
+.star-label input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.star-label .star {
+  font-size: 32px;
   color: rgba(255, 255, 255, 0.25);
-  transition: transform 0.15s ease, color 0.2s ease;
+  transition: color 0.2s ease, transform 0.15s ease;
 }
 
-.star:hover {
-  transform: translateY(-2px);
-}
-
-.star.active {
+.star-label.active .star {
   color: rgba(250, 204, 21, 0.95);
+  transform: scale(1.1);
 }
 
 .rating-text {
@@ -552,491 +633,8 @@ body {
   font-size: 13px;
   font-weight: 800;
   color: rgba(148, 163, 184, 0.95);
-  
 }
 
-/* Textarea */
-.review-form textarea {
-  width: 100%;
-  min-height: 120px;
-  resize: vertical;
-  padding: 14px 14px;
-
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
-  outline: none;
-  font-size: 14px;
-}
-
-.review-form textarea::placeholder {
-  color: rgba(148, 163, 184, 0.8);
-}
-
-/* Submit button */
-.review-form button {
-  width: fit-content;
-  padding: 12px 18px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-
-  font-weight: 900;
-  font-size: 14px;
-
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  color: #020617;
-
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-.review-form button:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.06);
-}
-/* ===== NO REVIEWS EMPTY STATE ===== */
-.no-reviews-text {
-  margin-top: 30px;
-  font-size: 14px;
-  font-weight: 700;
-  color: rgba(148,163,184,0.85);
-  margin-left: 10px;
-}
-
-
-
-/* ================================
-   RESPONSIVE
-================================== */
-
-@media (max-width: 1100px) {
-  .cast-list {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .movie-hero {
-    grid-template-columns: 1fr;
-    gap: 22px;
-  }
-
-  .poster img,
-  .no-poster {
-    max-width: 320px;
-  }
-
-  .meter-head {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .cast-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 680px) {
-  .cast-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .cast-card img,
-  .cast-avatar {
-    width: 76px;
-    height: 76px;
-  }
-}
-
-@media (max-width: 520px) {
-  .detail-page {
-    padding: 35px 14px;
-  }
-
-  .cast-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .meter-row {
-    grid-template-columns: 105px 1fr 42px;
-    gap: 10px;
-  }
-
-  .stars {
-    gap: 6px;
-  }
-
-  .star {
-    font-size: 28px;
-  }
-
-  .rating-text {
-    display: none;
-  }
-}
-
-@media (max-width: 420px) {
-  .cast-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-/* ================================
-   ✅ NEWLY ADDED - VOTE UX UPGRADE
-   (cleaned: removed duplicates + conflicts)
-================================== */
-
-/* Vote pill wrap */
-.vote-pill-wrap {
-  position: relative;
-  display: inline-block;
-}
-
-/* Tooltip box */
-.vote-tooltip {
-  position: absolute;
-  top: 115%;
-  right: 0;
-
-  width: 240px;
-  padding: 12px 14px;
-  border-radius: 16px;
-
-  background: rgba(2, 6, 23, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.6);
-
-  opacity: 0;
-  transform: translateY(6px);
-  pointer-events: none;
-
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 50;
-}
-
-.vote-pill-wrap:hover .vote-tooltip {
-  opacity: 1;
-  transform: translateY(0px);
-  pointer-events: auto;
-}
-
-.tooltip-title {
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(248, 250, 252, 0.85);
-  margin-bottom: 10px;
-}
-
-.tooltip-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  font-size: 13px;
-  font-weight: 800;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.tooltip-row:last-of-type {
-  border-bottom: none;
-}
-
-.tooltip-row.bad { color: rgba(251, 113, 133, 0.95); }
-.tooltip-row.average { color: rgba(250, 204, 21, 0.95); }
-.tooltip-row.good { color: rgba(52, 211, 153, 0.95); }
-.tooltip-row.masterpiece { color: rgba(168, 85, 247, 0.95); }
-
-.tooltip-total {
-  margin-top: 10px;
-  font-size: 13px;
-  font-weight: 900;
-  color: rgba(248, 250, 252, 0.9);
-  text-align: right;
-}
-
-/* ✅ Make vote-pill take selected color */
-.vote-pill.pill-bad {
-  background: linear-gradient(90deg, rgba(251, 113, 133, 0.95), rgba(244, 63, 94, 0.95));
-  color: rgba(2, 6, 23, 0.95);
-}
-
-.vote-pill.pill-average {
-  background: linear-gradient(90deg, rgba(250, 204, 21, 0.95), rgba(234, 179, 8, 0.95));
-  color: rgba(2, 6, 23, 0.95);
-}
-
-.vote-pill.pill-good {
-  background: linear-gradient(90deg, rgba(52, 211, 153, 0.95), rgba(5, 150, 105, 0.95));
-  color: rgba(2, 6, 23, 0.95);
-}
-
-.vote-pill.pill-masterpiece {
-  background: linear-gradient(90deg, rgba(168, 85, 247, 0.95), rgba(126, 34, 206, 0.95));
-  color: rgba(2, 6, 23, 0.95);
-}
-
-/* ✅ Colored vote text used in summary */
-.vote-text {
-  font-weight: 900;
-}
-
-.vote-bad { color: rgba(251, 113, 133, 0.95); }
-.vote-average { color: rgba(250, 204, 21, 0.95); }
-.vote-good { color: rgba(52, 211, 153, 0.95); }
-.vote-masterpiece { color: rgba(168, 85, 247, 0.95); }
-
-.muted-mini {
-  margin-left: 10px;
-  color: rgba(148, 163, 184, 0.9);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-/* ================================
-   ✅ VOTE SUMMARY PREMIUM CARD
-================================== */
-
-.vote-summary-card {
-  margin-top: 16px;
-  padding: 16px 18px;
-  border-radius: 18px;
-
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  max-width: 850px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.vote-summary-title {
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(148, 163, 184, 0.9);
-}
-
-.vote-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 10px 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 900;
-
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(2, 6, 23, 0.7);
-}
-
-.vote-chip.neutral {
-  color: rgba(148, 163, 184, 0.95);
-}
-
-/* vote chip colors */
-.vote-chip.vote-bad {
-  color: rgba(251, 113, 133, 0.95);
-  border-color: rgba(251, 113, 133, 0.30);
-}
-
-.vote-chip.vote-average {
-  color: rgba(250, 204, 21, 0.95);
-  border-color: rgba(250, 204, 21, 0.30);
-}
-
-.vote-chip.vote-good {
-  color: rgba(52, 211, 153, 0.95);
-  border-color: rgba(52, 211, 153, 0.30);
-}
-
-.vote-chip.vote-masterpiece {
-  color: rgba(168, 85, 247, 0.95);
-  border-color: rgba(168, 85, 247, 0.30);
-}
-
-/* ✅ SELECTED BUTTON BECOMES BAR COLOR */
-.meter-row.selected-bad .meter-name {
-  background: rgba(251, 113, 133, 0.20);
-  border: 1px solid rgba(251, 113, 133, 0.55);
-  color: rgba(251, 113, 133, 0.95);
-}
-
-.meter-row.selected-average .meter-name {
-  background: rgba(250, 204, 21, 0.20);
-  border: 1px solid rgba(250, 204, 21, 0.55);
-  color: rgba(250, 204, 21, 0.95);
-}
-
-.meter-row.selected-good .meter-name {
-  background: rgba(52, 211, 153, 0.20);
-  border: 1px solid rgba(52, 211, 153, 0.55);
-  color: rgba(52, 211, 153, 0.95);
-}
-
-.meter-row.selected-masterpiece .meter-name {
-  background: rgba(168, 85, 247, 0.20);
-  border: 1px solid rgba(168, 85, 247, 0.55);
-  color: rgba(168, 85, 247, 0.95);
-}
-
-/* ================================
-   ✅ EXTRAORDINARY HOVER CARD
-================================== */
-
-.meter-hovercard {
-  margin-top: 16px;
-  padding: 16px 18px;
-  border-radius: 18px;
-
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  max-width: 850px;
-}
-
-.hc-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.hc-label {
-  font-size: 14px;
-  font-weight: 1000;
-  letter-spacing: 0.2px;
-}
-
-.hc-count {
-  font-size: 13px;
-  font-weight: 900;
-  color: rgba(148, 163, 184, 0.95);
-}
-
-/* mini strip */
-.hc-strip {
-  height: 10px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hc-strip-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 999px;
-  transition: none !important;
-}
-
-.hc-sub {
-  font-size: 12px;
-  font-weight: 800;
-  color: rgba(148, 163, 184, 0.95);
-}
-/* ================================
-   MOVIEMETER REVIEW CARD
-================================ */
-
-.review-card {
-  width: 100%;
-  display: flex;              
-  flex-direction: column;     
-
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  
-}
-
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 14px;
-}
-
-.review-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.review-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-.review-avatar.fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.07);
-  font-weight: 900;
-}
-
-.review-user-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.review-username {
-  font-weight: 900;
-  font-size: 14px;
-}
-
-.review-date {
-  font-size: 12px;
-  color: rgba(148,163,184,0.9);
-}
-
-/* Vote chip */
-.review-vote-chip {
-  padding: 7px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.03);
-  margin-top: 4px;
-  white-space: nowrap;
-}
-
-.review-vote-chip.bad { color:#fb7185; border-color: rgba(251,113,133,0.35); }
-.review-vote-chip.average { color:#facc15; border-color: rgba(250,204,21,0.35); }
-.review-vote-chip.good { color:#34d399; border-color: rgba(52,211,153,0.35); }
-.review-vote-chip.masterpiece { color:#a855f7; border-color: rgba(168,85,247,0.35); }
-
-.review-rating {
-  margin-top: 8px;
-  margin-left: 0;
-}
-
-.review-rating .star {
-  font-size: 16px;
-  color: rgba(255,255,255,0.25);
-}
-
-.review-rating .star.filled {
-  color: rgba(250,204,21,0.95);
-}
-
-/* Text */
 .review-textarea-wrap {
   position: relative;
   width: 100%;
@@ -1045,213 +643,29 @@ body {
 .review-textarea-wrap textarea {
   width: 100%;
   min-height: 120px;
-  resize: vertical;
-  padding: 14px 14px 34px 14px; /* ✅ extra bottom space for counter */
-
+  resize: none;
+  padding: 14px 14px 34px 14px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
   outline: none;
   font-size: 14px;
+  line-height: 1.65;
+}
+
+.review-textarea-wrap textarea::placeholder {
+  color: rgba(148, 163, 184, 0.8);
 }
 
 .char-counter {
   position: absolute;
   bottom: 12px;
   right: 18px;
-
-
   font-size: 12px;
   font-weight: 800;
   color: rgba(148, 163, 184, 0.85);
-
   pointer-events: none;
-}
-
-
-/* Footer */
-.review-footer {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-/* ===== REVIEW STATS (LIKE / COMMENT) ===== */
-
-.review-stats {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.review-stats button {
-  all: unset;               
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.review-stats img {
-  width: 18px;
-  height: 18px;
-  display: block;          
-  object-fit: contain;
-    filter: invert(1) brightness(1.8);
-
-}
-
-.review-stats span {
-  font-size: 13px;
-  font-weight: 800;
-  color: rgba(148,163,184,0.9);
-  line-height: 1;
-}
-
-
-.like-btn.liked img {
-  transform: scale(1.10);
-  filter: none;           
-}
-.comment-btn img {
-  width: 16px;        
-  height: 16px;
-}
-
-
-.comment-btn img,
-.comment-btn:hover img,
-.comment-btn.active img {
-  transform: none !important;
-  opacity: 1;
-}
-
-
-.review-actions {
-  display: flex;
-  gap: 14px;
-}
-
-.review-actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 800;
-  color: rgba(148,163,184,0.9);
-}
-
-.review-actions .action-delete {
-  color: #fb7185;
-}
-
-.reviews-section {
-  margin-top: 90px;
-}
-
-.reviews-wrap {
-  max-width: 850px; 
-}
-
-
-
-/* ================================
-   REVIEWS SECTION — PREMIUM TITLE
-================================ */
-
-.reviews-title {
-  position: relative;
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  margin-bottom: 34px;
-  padding-left: 14px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  background: linear-gradient(
-    90deg,
-    #f8fafc 0%,
-    #c7d2fe 40%,
-    #94a3b8 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Accent bar (this is the killer detail) */
-.reviews-title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 6px;
-
-  width: 4px;
-  height: 70%;
-
-  border-radius: 999px;
-  background: linear-gradient(
-    180deg,
-    #38bdf8,
-    #a855f7
-  );
-}
-
-/* Subtitle = editorial voice, not helper text */
-.reviews-subtitle {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-
-  color: rgba(148, 163, 184, 0.85);
-
-  /* subtle separation */
-  padding-top: 2px;
-}
-
-
-.star.hovered {
-  color: rgba(250, 204, 21, 0.95);
-}
-/* ================================
-   PREMIUM TEXTAREA BEHAVIOR
-================================ */
-
-.review-form textarea {
-  resize: none; /* kill resize handle */
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: break-word;
-
-  padding: 14px 24px 44px 14px;
-  box-sizing: border-box;
-
-  font-size: 14px;
-  line-height: 1.65;
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: rgba(255,255,255,0.25) transparent;
-}
-
-/* Chrome / Edge / Safari */
-.review-form textarea::-webkit-scrollbar {
-  width: 6px;
-}
-
-.review-form textarea::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.review-form textarea::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.22);
-  border-radius: 999px;
-}
-
-.review-form textarea::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.22);
 }
 
 .review-form-footer {
@@ -1282,14 +696,12 @@ body {
   border-radius: 999px;
   border: none;
   cursor: pointer;
-
   font-size: 14px;
   font-weight: 900;
-
   background: linear-gradient(90deg, #38bdf8, #a855f7);
   color: #020617;
-
   box-shadow: 0 10px 24px rgba(168,85,247,0.25);
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .submit-review-btn:hover {
@@ -1297,310 +709,64 @@ body {
   filter: brightness(1.05);
 }
 
-/* Review text MUST preserve formatting */
-.review-text {
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-size: 14px;
-  line-height: 1.65;
+/* =========================
+   REVIEWS SECTION
+========================= */
+
+.reviews-section {
+  margin-top: 90px;
 }
 
-/* Clamp (already used by you) */
-.review-text.clamp {
-  max-height: 120px;
-  margin-right: 100px;
-  overflow: hidden;
-  
+.reviews-wrap {
+  max-width: 850px;
 }
 
-/* Spoiler blur */
-.review-text.spoiler {
-  filter: blur(6px);
-  user-select: none;
-}
-
-.review-text.spoiler.revealed {
-  filter: none;
-  user-select: text;
-}
-
-/* Spoiler toggle */
-.spoiler-toggle {
-  background: none;
-  border: none;
-  color: #a855f7;
-  font-weight: 800;
-  cursor: pointer;
-  margin: 6px 0 8px;
-  padding: 0;
-}
-
-.review-more-btn {
-  margin-top: 6px;
-  margin-left: 6px;
-}
-
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.review-user {
-  display: flex;
-  gap: 12px;
-}
-
-
-.review-rating {
-  margin-top: 4px;
-}
-
-
-
-/* ===== REVIEW MORE / LESS BUTTON (PREMIUM) ===== */
-
-.review-more-btn {
-  align-self: flex-start;
-  margin-top: 8px;
-
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(168,85,247,0.35);
-
-  background: rgba(168,85,247,0.08);
-  color: #a855f7;
-
-  font-size: 12px;
-  font-weight: 900;
-  cursor: pointer;
-
-  transition: all 0.25s ease;
-}
-
-.review-more-btn:hover {
-  background: linear-gradient(90deg, #38bdf8, #a855f7);
-  color: #020617;
-  transform: translateY(-1px);
-}
-
-/* ===== INLINE FORM ERRORS ===== */
-
-.rating-error,
-.review-error {
-  margin-top: 6px;
-  font-size: 13px;
-  font-weight: 800;
-  color: #fb7185; /* red */
-  display: none;
-}
-
-
-.mm-modal.hidden {
-  display: none;
-}
-
-.mm-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;    
-  justify-content: center; 
-  padding: 20px;
-}
-
-.mm-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(6px);
-}
-
-.mm-modal-card {
+.reviews-title {
   position: relative;
-  width: min(420px, 100%);
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-
-  z-index: 1; 
-}
-
-.mm-modal-card h3 {
-  margin: 0 0 6px;
-  font-size: 18px;
-}
-
-.mm-modal-card p {
-  margin: 0 0 16px;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.4;
-}
-
-.mm-modal-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-#mm-modal-cancel,
-#mm-modal-confirm {
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.06);
-  color: white;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-#mm-modal-confirm {
-  background: rgba(239, 68, 68, 0.18);
-  border-color: rgba(239, 68, 68, 0.35);
-}
-
-
-/* Add this to your existing movies/static/movies/detail.css */
-
-/* ========================================
-   SIMPLIFIED VOTING FORM STYLES
-======================================== */
-
-.vote-summary {
-  display: inline-block;
-}
-
-.vote-pill {
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-size: 13px;
+  font-size: 28px;
   font-weight: 900;
-  display: inline-block;
-}
-
-.vote-pill.vote-bad {
-  background: rgba(251, 113, 133, 0.20);
-  border: 1px solid rgba(251, 113, 133, 0.55);
-  color: rgba(251, 113, 133, 0.95);
-}
-
-.vote-pill.vote-average {
-  background: rgba(250, 204, 21, 0.20);
-  border: 1px solid rgba(250, 204, 21, 0.55);
-  color: rgba(250, 204, 21, 0.95);
-}
-
-.vote-pill.vote-good {
-  background: rgba(52, 211, 153, 0.20);
-  border: 1px solid rgba(52, 211, 153, 0.55);
-  color: rgba(52, 211, 153, 0.95);
-}
-
-.vote-pill.vote-masterpiece {
-  background: rgba(168, 85, 247, 0.20);
-  border: 1px solid rgba(168, 85, 247, 0.55);
-  color: rgba(168, 85, 247, 0.95);
-}
-
-.btn-remove-vote {
-  margin-top: 16px;
-  padding: 10px 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 13px;
-  transition: all 0.2s ease;
-}
-
-.btn-remove-vote:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.6);
-  transform: translateY(-2px);
-}
-
-.vote-stats {
-  margin-top: 14px;
-  font-size: 13px;
-  color: rgba(148, 163, 184, 0.9);
-  font-weight: 700;
-}
-
-/* Meter name is now a button */
-.meter-name {
-  all: unset;
-  cursor: pointer;
-  
-  font-size: 13px;
-  font-weight: 900;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(248, 250, 252, 0.92);
-  
-  transition: transform 0.15s ease, background 0.2s ease, border 0.2s ease;
-}
-
-.meter-name:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.meter-row.selected .meter-name {
-  transform: scale(1.05);
-}
-
-/* ========================================
-   STAR RATING STYLES
-======================================== */
-
-.stars-container {
+  letter-spacing: -0.03em;
+  margin-bottom: 34px;
+  padding-left: 14px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  margin-bottom: 14px;
+  background: linear-gradient(90deg, #f8fafc 0%, #c7d2fe 40%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.star-label {
-  cursor: pointer;
-  display: inline-flex;
-}
-
-.star-label input {
+.reviews-title::before {
+  content: "";
   position: absolute;
-  opacity: 0;
-  pointer-events: none;
+  left: 0;
+  top: 6px;
+  width: 4px;
+  height: 70%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #38bdf8, #a855f7);
 }
 
-.star-label .star {
-  font-size: 32px;
-  color: rgba(255, 255, 255, 0.25);
-  transition: color 0.2s ease, transform 0.15s ease;
-}
-
-.star-label:hover .star,
-.star-label.active .star {
-  color: rgba(250, 204, 21, 0.95);
-  transform: scale(1.1);
-}
-
-.rating-text {
-  margin-left: 10px;
-  font-size: 13px;
+.reviews-subtitle {
+  font-size: 12px;
   font-weight: 800;
-  color: rgba(148, 163, 184, 0.95);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.85);
+  padding-top: 2px;
 }
 
-/* ========================================
+.no-reviews-text {
+  margin-top: 30px;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(148,163,184,0.85);
+  margin-left: 10px;
+}
+
+/* =========================
    DELETE REVIEW BUTTON
-======================================== */
+========================= */
 
 .btn-delete-review {
   padding: 10px 16px;
@@ -1620,203 +786,100 @@ body {
 }
 
 .my-review-card {
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  background: rgba(56, 189, 248, 0.02);
-  padding: 18px;
-  border-radius: 16px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
   margin-bottom: 24px;
 }
 
-/* ========================================
-   REVIEW CARD INTERACTION STYLES
-======================================== */
 
-.review-text.spoiler {
-  filter: blur(6px);
-  user-select: none;
-  cursor: not-allowed;
-}
-
-.review-text.spoiler.revealed {
-  filter: none;
-  user-select: text;
-  cursor: auto;
-}
-
-.spoiler-toggle {
-  background: none;
-  border: none;
-  color: #a855f7;
-  font-weight: 800;
-  cursor: pointer;
-  margin-top: 6px;
-  padding: 0;
-  font-size: 13px;
-}
-
-.spoiler-toggle:hover {
-  text-decoration: underline;
-}
-
-.like-btn,
-.comment-indicator {
-  all: unset;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.like-btn:hover {
-  transform: translateY(-1px);
-}
-
-.like-icon,
-.comment-icon {
-  width: 18px;
-  height: 18px;
-  filter: invert(1) brightness(1.8);
-  transition: transform 0.2s ease;
-}
-
-.like-btn.liked .like-icon {
-  filter: none;
-  transform: scale(1.1);
-}
-
-.like-count,
-.comment-count {
-  font-size: 13px;
-  font-weight: 800;
-  color: rgba(148, 163, 184, 0.9);
-}
-
-/* ========================================
-   COMMENTS SECTION
-======================================== */
-
-.comments-section {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.comments-section h4 {
-  font-size: 14px;
-  font-weight: 900;
-  margin-bottom: 12px;
-  color: rgba(148, 163, 184, 0.95);
-}
-
-.comment-item {
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.comment-user {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.comment-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.comment-avatar.fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.comment-text {
-  font-size: 14px;
-  line-height: 1.5;
-  color: rgba(248, 250, 252, 0.9);
-  margin-left: 36px;
-}
-
-.comment-date {
-  font-size: 11px;
-  color: rgba(148, 163, 184, 0.7);
-  margin-left: 36px;
-  margin-top: 4px;
-}
-
-/* ========================================
-   ADD COMMENT FORM
-======================================== */
-
-.add-comment-section {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.comment-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.comment-form textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
-  font-size: 14px;
-  resize: vertical;
-}
-
-.comment-form textarea:focus {
-  outline: none;
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
-}
-
-.btn-comment {
-  align-self: flex-end;
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: none;
-  background: #22c55e;
-  color: #022c22;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-comment:hover {
-  background: #16a34a;
-  transform: translateY(-2px);
-}
-
-/* ========================================
+/* =========================
    RESPONSIVE
-======================================== */
+========================= */
 
-@media (max-width: 640px) {
-  .stars-container {
-    flex-wrap: wrap;
+@media (max-width: 900px) {
+  .movie-hero {
+    grid-template-columns: 1fr;
+    gap: 22px;
   }
-  
+
+  .poster img,
+  .no-poster {
+    max-width: 320px;
+  }
+
+  .meter-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .detail-page {
+    padding: 35px 14px;
+  }
+
+  .meter-row {
+    grid-template-columns: 105px 1fr 42px;
+    gap: 10px;
+  }
+
   .star-label .star {
     font-size: 28px;
   }
-  
+
   .rating-text {
-    width: 100%;
-    margin-left: 0;
-    margin-top: 6px;
+    display: none;
   }
+}
+.review-textarea-wrap textarea {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.22) transparent;
+}
+
+.review-textarea-wrap textarea::-webkit-scrollbar {
+  width: 10px;
+}
+
+.review-textarea-wrap textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.review-textarea-wrap textarea::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 999px;
+  border: 2px solid rgba(2,6,23,0.55);
+}
+
+.review-textarea-wrap textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.28);
+}
+
+.edit-review-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 10px 0 14px 0;
+  padding: 10px 16px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 900;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.08);
+  color: rgba(186, 230, 253, 0.95);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.edit-review-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(56, 189, 248, 0.14);
+}
+.review-error {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(248, 113, 113, 0.95);
 }
