@@ -15,4 +15,5 @@ urlpatterns = [
     path("reset-password/<uid>/<token>/", views.reset_password_view, name="reset-password"),
 
     path("<int:user_id>/", views.public_profile, name="public_profile"),
+    path("my-reviews/", views.my_reviews, name="my-reviews"),
 ]

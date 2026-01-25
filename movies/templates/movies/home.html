@@ -136,6 +136,69 @@
       </section>
     </div>
     {% endif %}
+
+
+<!-- Hyped section  -->
+{% if hyped_movies %}
+<div class="content-wrapper">
+  <div class="section-header">
+    <h2 class="section-title">
+      <span class="section-icon">🚀</span>
+      Most Hyped Upcoming
+    </h2>
+    <p class="section-subtitle">Movies people are most excited for</p>
+  </div>
+
+  <section class="horizontal-scroll">
+    <div class="scroll-container">
+      {% for movie in hyped_movies %}
+        <a href="{% url 'movie-detail' movie.id %}" class="movie-card-link">
+          <div class="movie-card horizontal">
+            <div class="poster-container">
+
+              {% if movie.poster_path %}
+                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
+                     alt="{{ movie.title }}" loading="lazy">
+              {% else %}
+                <div class="no-poster"><span>🎬</span></div>
+              {% endif %}
+
+              <div class="card-overlay">
+                <span class="view-btn">View Details</span>
+              </div>
+
+              <div class="hype-badge">
+                Hype: {{ movie.excited_count }}/{{ movie.total_hype_votes }}
+              </div>
+
+            </div>
+
+            <div class="card-info">
+              <span class="status-badge upcoming">Upcoming</span>
+
+              <h3 class="movie-title">{{ movie.title }}</h3>
+
+              <div class="movie-genres">
+                {% for g in movie.categories.all|slice:":2" %}
+                  <span class="genre-tag">{{ g.name }}</span>
+                {% endfor %}
+              </div>
+
+              <p class="release-date">
+                {% if movie.release_date %}
+                  {{ movie.release_date|date:"d M Y" }}
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endif %}
+
+
     
     <!-- 🎬 LATEST RELEASED -->
     {% if latest_released_movies %}
@@ -145,7 +208,7 @@
           <span class="section-icon">🎬</span>
           Latest Released
         </h2>
-        <p class="section-subtitle">Recently hit theaters</p>
+        <p class="section-subtitle">Recently Released theaters</p>
       </div>
       
       <section class="horizontal-scroll">

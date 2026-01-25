@@ -333,7 +333,7 @@ body {
 
 .meter-row {
   display: grid;
-  grid-template-columns: 120px 1fr 46px;
+   grid-template-columns: 120px 1fr 46px;
   align-items: center;
   gap: 14px;
   padding: 10px 0;
@@ -414,6 +414,7 @@ body {
   font-size: 13px;
   font-weight: 900;
   color: rgba(248, 250, 252, 0.85);
+   white-space: nowrap;
 }
 
 .meter-row.bad .fill {

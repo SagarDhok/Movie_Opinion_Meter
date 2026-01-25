@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch,Q
 from django.contrib import messages
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -9,6 +9,7 @@ from .models import (Movie, Genre, MovieVote, Watchlist, Person,
                      Cast, Crew, MovieReview, ReviewLike, ReviewComment, MovieHypeVote)
 from .forms import MovieReviewForm
 from collections import defaultdict
+
 
 
 def home(request):
@@ -46,7 +47,6 @@ def home(request):
             "genres": Genre.objects.all(),
         })
 
-    # Default view: paginated all movies
     all_movies = base_qs.order_by("-is_released", "-release_date")
     paginator = Paginator(all_movies, 24)
     page_obj = paginator.get_page(page_number)
@@ -57,20 +57,36 @@ def home(request):
         "genres": Genre.objects.all(),
     }
 
-    # Smart sections only on first page
     if str(page_number) == "1":
         today = date.today()
         soon_limit = today + timedelta(days=60)
         recent_limit = today - timedelta(days=120)
-
-        # Trending: recent movies with most votes
+        
+        #trednding section 
         context["trending_movies"] = Movie.objects.filter(
             is_released=True,
             release_date__gte=recent_limit
         ).prefetch_related("categories").annotate(
             vote_count=Count("votes")
         ).order_by("-vote_count", "-release_date")[:12]
-        
+
+
+        #  Most Hyped (Upcoming) movies
+        context["hyped_movies"] = Movie.objects.filter(
+            is_released=False
+        ).annotate(
+            excited_count=Count("hype_votes", filter=Q(hype_votes__vote="excited")),
+            total_hype_votes=Count("hype_votes"),
+        ).filter(
+            total_hype_votes__gt=0
+        ).order_by(
+            "-excited_count",
+            "-total_hype_votes",
+            "release_date"
+        )[:12]
+
+
+                
         # Latest released
         context["latest_released_movies"] = Movie.objects.filter(
             is_released=True
@@ -155,6 +171,7 @@ def movie_detail(request, movie_id):
 
     hype_counts = {"excited": 0, "not_excited": 0}
     hype_score = 0
+    hype_not_excited_percent = 0
     user_hype_vote = ""
 
     if not movie.is_released:
@@ -166,10 +183,16 @@ def movie_detail(request, movie_id):
 
         hype_total = hype_counts["excited"] + hype_counts["not_excited"]
 
-        hype_score = round((hype_counts["excited"] / hype_total) * 100) if hype_total > 0 else 0
+        if hype_total > 0:
+            hype_score = round((hype_counts["excited"] / hype_total) * 100)
+            hype_not_excited_percent = 100 - hype_score
+        else:
+            hype_score = 0
+            hype_not_excited_percent = 0
 
         hype_obj = MovieHypeVote.objects.filter(movie=movie, user=request.user).first()
         user_hype_vote = hype_obj.vote if hype_obj else ""
+
 
     
     # Check if movie in watchlist
@@ -245,6 +268,8 @@ def movie_detail(request, movie_id):
           "hype_counts": hype_counts,
     "hype_score": hype_score,
     "user_hype_vote": user_hype_vote,
+    "hype_not_excited_percent": hype_not_excited_percent,
+
     }
 
     return render(request, "movies/detail.html", context)

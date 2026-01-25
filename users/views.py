@@ -307,3 +307,32 @@ def public_profile(request, user_id):
             "reviews": reviews,
         }
     )
+
+
+
+@login_required
+def my_reviews(request):
+    user_obj = request.user
+
+    reviews = (
+        MovieReview.objects
+        .filter(user=user_obj)
+        .select_related("movie")
+        .prefetch_related(
+            Prefetch(
+                "movie__votes",
+                queryset=MovieVote.objects.filter(user=user_obj),
+                to_attr="user_vote_list"
+            )
+        )
+        .order_by("-created_at")
+    )
+
+    return render(
+        request,
+        "users/public_profile.html",
+        {
+            "user_obj": user_obj,
+            "reviews": reviews,
+        }
+    )

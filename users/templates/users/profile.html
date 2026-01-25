@@ -84,10 +84,11 @@
         </div>
 
         <div class="profile-stats">
-            <div class="stat-box">
+                    <a href="{% url 'my-reviews' %}" class="stat-box stat-link">
                 <span class="stat-num">{{ review_count }}</span>
                 <span class="stat-label">Reviews</span>
-            </div>
+            </a>
+
 
             <a href="{% url 'watchlist' %}" class="stat-box stat-link">
                 <span class="stat-num">{{ watchlist_count }}</span>
