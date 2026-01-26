@@ -55,36 +55,36 @@ class MovieReviewForm(forms.ModelForm):
         
         return rating
 
-
-class ReviewCommentForm(forms.ModelForm):
-    """
-    Django form for review comments
-    Validates comment length
-    """
+#not using 
+# class ReviewCommentForm(forms.ModelForm):
+#     """
+#     Django form for review comments
+#     Validates comment length
+#     """
     
-    class Meta:
-        model = ReviewComment
-        fields = ['text']
-        widgets = {
-            'text': forms.Textarea(attrs={
-                'placeholder': 'Write a comment...',
-                'maxlength': 500,
-                'rows': 3,
-                'class': 'comment-textarea'
-            })
-        }
-        labels = {
-            'text': ''
-        }
+#     class Meta:
+#         model = ReviewComment
+#         fields = ['text']
+#         widgets = {
+#             'text': forms.Textarea(attrs={
+#                 'placeholder': 'Write a comment...',
+#                 'maxlength': 500,
+#                 'rows': 3,
+#                 'class': 'comment-textarea'
+#             })
+#         }
+#         labels = {
+#             'text': ''
+#         }
 
-    def clean_text(self):
-        """Validate comment text"""
-        text = self.cleaned_data.get('text')
+#     def clean_text(self):
+#         """Validate comment text"""
+#         text = self.cleaned_data.get('text')
         
-        if not text or not text.strip():
-            raise forms.ValidationError("Comment cannot be empty")
+#         if not text or not text.strip():
+#             raise forms.ValidationError("Comment cannot be empty")
         
-        if len(text) > 500:
-            raise forms.ValidationError("Comment must be under 500 characters")
+#         if len(text) > 500:
+#             raise forms.ValidationError("Comment must be under 500 characters")
         
-        return text.strip()
+#         return text.strip()

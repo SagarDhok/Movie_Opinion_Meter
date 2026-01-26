@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views,views_ai
 
 urlpatterns = [
     path("", views.home, name="movies-home"),
@@ -24,5 +24,12 @@ urlpatterns = [
     path("comments/<int:comment_id>/reply/", views.reply_comment_page, name="reply-comment-page"),
     path("comments/<int:comment_id>/delete/", views.delete_comment_page, name="delete-comment-page"),
     path("movie/<int:movie_id>/hype/", views.hype_vote_movie, name="hype-vote-movie"),
+    path("movie/<int:movie_id>/reviews/", views.all_reviews_page, name="all-reviews"),
+    path("movie/<int:movie_id>/ai/assist/", views_ai.ai_review_assistant, name="ai-review-assistant"),
+    path("movie/<int:movie_id>/ai/pros-cons/",views_ai.ai_pros_cons, name="ai-pros-cons"),
+    path("review/<int:review_id>/ai/pros-cons/", views_ai.ai_pros_cons_review, name="ai-pros-cons-review"),
+
+
+
 
 ]

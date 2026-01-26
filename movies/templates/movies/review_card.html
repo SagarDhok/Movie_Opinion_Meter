@@ -1,13 +1,15 @@
 {% load static %}
 
 <div class="review-card" data-review-id="{{ review.id }}">
-
-
   <div class="review-top">
     <div class="review-left">
       <div class="review-user">
         {% if review.user.profile_image %}
-        <img src="{{ review.user.profile_image.url }}" class="review-avatar" alt="Profile">
+        <img
+          src="{{ review.user.profile_image.url }}"
+          class="review-avatar"
+          alt="Profile"
+        />
         {% else %}
         <div class="review-avatar fallback">
           {{ review.user.first_name|first|upper }}
@@ -15,13 +17,14 @@
         {% endif %}
 
         <div class="review-user-meta">
-          <a href="{% url 'public_profile' review.user.id %}" class="review-user-link">
+          <a
+            href="{% url 'public_profile' review.user.id %}"
+            class="review-user-link"
+          >
             {{ review.user.first_name }} {{ review.user.last_name }}
           </a>
 
-          <div class="review-date">
-            {{ review.created_at|date:"j M Y" }}
-          </div>
+          <div class="review-date">{{ review.created_at|date:"j M Y" }}</div>
         </div>
       </div>
     </div>
@@ -34,23 +37,47 @@
       {% endif %}
     </div>
   </div>
-
   <div class="review-body">
     <div class="review-rating">
       {% for i in "12345" %}
-      <span class="star {% if forloop.counter <= review.rating %}filled{% endif %}">★</span>
+      <span
+        class="star {% if forloop.counter <= review.rating %}filled{% endif %}"
+        >★</span
+      >
       {% endfor %}
     </div>
 
     <div class="review-text-area">
       {% if review.contains_spoiler %}
-      <p class="review-text spoiler collapsed" data-review-text>{{ review.review_text }}</p>
-
-
+      <p class="review-text spoiler collapsed" data-review-text>
+        {{ review.review_text }}
+      </p>
       {% else %}
-      <p class="review-text collapsed" data-review-text>{{ review.review_text }}</p>
-
-
+      <p class="review-text collapsed" data-review-text>
+        {{ review.review_text }}
+      </p>
+      {% endif %} {% if review.pros or review.cons %}
+      <div class="review-pros-cons">
+        {% if review.pros %}
+        <div class="pc-block pros">
+          <div class="pc-title">Pros</div>
+          <ul>
+            {% for p in review.pros.splitlines %}
+            <li>{{ p }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %} {% if review.cons %}
+        <div class="pc-block cons">
+          <div class="pc-title">Cons</div>
+          <ul>
+            {% for c in review.cons.splitlines %}
+            <li>{{ c }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
       {% endif %}
 
       <div class="review-actions">
@@ -58,78 +85,91 @@
         <button type="button" class="toggle-btn spoiler" data-spoiler-btn>
           Show spoiler
         </button>
+        {% endif %} {% if review.show_more %}
+        <button type="button" class="toggle-btn more" data-moreless-btn>
+          More
+        </button>
         {% endif %}
-        {% if review.show_more %}
-          <button type="button" class="toggle-btn more" data-moreless-btn>
-            More
-          </button>
-        {% endif %}
 
-
-
-
+        <button
+          type="button"
+          class="toggle-btn proscons-btn"
+          data-proscons-btn
+          data-url="{% url 'ai-pros-cons-review' review.id %}"
+        >
+          Pros/Cons
+        </button>
       </div>
+
+      <div class="ai-status" data-proscons-output hidden></div>
     </div>
   </div>
 
-    <div class="review-footer">
+  <div class="review-footer">
     <div class="review-stats">
+      <form
+        method="post"
+        action="{% url 'toggle-review-like' review.id %}"
+        class="inline-form like-form"
+        data-like-form
+      >
+        {% csrf_token %}
 
-        <form method="post"
-              action="{% url 'toggle-review-like' review.id %}"
-              class="inline-form like-form"
-              data-like-form>
-          {% csrf_token %}
+        <button
+          type="submit"
+          class="like-btn {% if review.is_liked %}liked{% endif %}"
+          data-like-btn
+        >
+          <img
+            src="{% if review.is_liked %}{% static 'icons/liked.png' %}{% else %}{% static 'icons/like.png' %}{% endif %}"
+            class="like-icon"
+            data-like-icon
+            data-like-src="{% static 'icons/like.png' %}"
+            data-liked-src="{% static 'icons/liked.png' %}"
+            alt="Like"
+          />
 
-          <button type="submit"
-                  class="like-btn {% if review.is_liked %}liked{% endif %}"
-                  data-like-btn>
-            <img
-              src="{% if review.is_liked %}{% static 'icons/liked.png' %}{% else %}{% static 'icons/like.png' %}{% endif %}"
-              class="like-icon"
-              data-like-icon
-              data-like-src="{% static 'icons/like.png' %}"
-              data-liked-src="{% static 'icons/liked.png' %}"
-              alt="Like">
-
-                   <a href="{% url 'review-likes-list' review.id %}"
+          <a
+            href="{% url 'review-likes-list' review.id %}"
             class="like-count-link"
-            data-like-count>
+            data-like-count
+          >
             {{ review.like_count }}
           </a>
-          </button>
-
-     
-        </form>
+        </button>
+      </form>
 
       <a href="{% url 'comments-page' review.id %}" class="comment-btn">
-        <img src="{% static 'icons/comment.png' %}" class="comment-icon" alt="Comment">
+        <img
+          src="{% static 'icons/comment.png' %}"
+          class="comment-icon"
+          alt="Comment"
+        />
         <span class="comment-count">{{ review.comment_count }}</span>
       </a>
-
     </div>
 
     {% if is_owner %}
-      <div class="review-owner-actions-bottom">
- <a href="{% url 'movie-detail' movie.id %}?edit=1#review-form" class="review-action-link">
-  Edit
-</a>
+    <div class="review-owner-actions-bottom">
+      <a
+        href="{% url 'movie-detail' movie.id %}?edit=1#review-form"
+        class="review-action-link"
+      >
+        Edit
+      </a>
 
-<span class="review-action-sep">|</span>
+      <span class="review-action-sep">|</span>
 
-          <form method="post"
-                action="{% url 'delete-review' movie.id %}"
-                class="inline-form"
-                data-delete-review-form>
-            {% csrf_token %}
-            <button type="submit" class="review-action-link danger">Delete</button>
-          </form>
-
-
-      </div>
+      <form
+        method="post"
+        action="{% url 'delete-review' movie.id %}"
+        class="inline-form"
+        data-delete-review-form
+      >
+        {% csrf_token %}
+        <button type="submit" class="review-action-link danger">Delete</button>
+      </form>
+    </div>
     {% endif %}
   </div>
-
-
 </div>
-

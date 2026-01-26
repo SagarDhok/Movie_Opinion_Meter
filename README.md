@@ -15,7 +15,14 @@
 
 next
 
-filtering 
 ai 
 
 deploy 
+
+<!-- {% if total_reviews_count > 10 %}
+  <a href="{% url 'all-reviews' movie.id %}?sort={{ sort }}" class="show-all-btn">
+    Show All Reviews ({{ total_reviews_count }})
+  </a>
+{% endif %} -->
+
+

@@ -28,37 +28,57 @@
   </div>
 
   {% if watchlist_movies %}
-  <section class="movie-grid watchlist-grid">
-    {% for item in watchlist_movies %}
-      <a href="{% url 'movie-detail' item.movie.id %}" class="movie-card-link">
-        <div class="movie-card">
+  <section class="movie-grid">
+  {% for item in watchlist_movies %}
+    {% with movie=item.movie %}
+    <a href="{% url 'movie-detail' movie.id %}" class="movie-card-link">
+      <div class="movie-card">
 
-          <div class="poster-container">
-            {% if item.movie.poster_path %}
-              <img src="https://image.tmdb.org/t/p/w500{{ item.movie.poster_path }}" alt="{{ item.movie.title }}">
-            {% else %}
-              <div class="no-image">No Poster</div>
-            {% endif %}
+        <div class="poster-container">
+          {% if movie.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
+                 alt="{{ movie.title }}"
+                 loading="lazy">
+          {% else %}
+            <div class="no-poster"><span>🎬</span></div>
+          {% endif %}
 
-            <div class="overlay">
-              <span class="details-btn">Open</span>
-            </div>
+          <div class="card-overlay">
+            <span class="view-btn">View Details</span>
           </div>
 
-          <div class="card-content">
-            <h3>{{ item.movie.title }}</h3>
-
-            <p class="genres">
-              {% for g in item.movie.categories.all %}
-                {{ g.name }}{% if not forloop.last %} • {% endif %}
-              {% endfor %}
-            </p>
+          {% if item.total_hype_votes > 0 %}
+          <div class="hype-badge">
+            Hype: {{ item.excited_count }}/{{ item.total_hype_votes }}
           </div>
-
+          {% endif %}
         </div>
-      </a>
-    {% endfor %}
-  </section>
+
+        <div class="card-info">
+          <span class="status-badge {% if movie.is_released %}released{% else %}upcoming{% endif %}">
+            {% if movie.is_released %}Released{% else %}Upcoming{% endif %}
+          </span>
+
+          <h3 class="movie-title">{{ movie.title }}</h3>
+
+          <div class="movie-genres">
+            {% for g in movie.categories.all|slice:":2" %}
+              <span class="genre-tag">{{ g.name }}</span>
+            {% endfor %}
+          </div>
+
+          <p class="release-date">
+            {% if movie.release_date %}
+              {{ movie.release_date|date:"d M Y" }}
+            {% endif %}
+          </p>
+        </div>
+
+      </div>
+    </a>
+    {% endwith %}
+  {% endfor %}
+</section>
 
   {% else %}
   <div class="empty-watchlist">

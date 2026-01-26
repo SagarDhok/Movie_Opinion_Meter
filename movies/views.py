@@ -5,8 +5,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from datetime import date, timedelta
-from .models import (Movie, Genre, MovieVote, Watchlist, Person, 
-                     Cast, Crew, MovieReview, ReviewLike, ReviewComment, MovieHypeVote)
+from .models import (Movie, Genre, MovieVote, Watchlist, Person, Cast, Crew, MovieReview, ReviewLike, ReviewComment, MovieHypeVote)
 from .forms import MovieReviewForm
 from collections import defaultdict
 
@@ -123,6 +122,10 @@ def movie_detail(request, movie_id):
         ),
         id=movie_id,
     )
+    sort = request.GET.get("sort", "liked").strip().lower()
+    if sort not in ["liked", "latest"]:
+        sort = "liked"
+  
 
     # Group crew roles by person
     ROLE_PRIORITY = ["Director", "Producer", "Writer", "Screenplay", 
@@ -202,49 +205,73 @@ def movie_detail(request, movie_id):
     ).exists()
 
     # Fetch reviews with optimized queries
-    reviews_qs = MovieReview.objects.filter(movie=movie).select_related(
-        "user"
-    ).prefetch_related(
-        Prefetch(
-            "likes", 
-            queryset=ReviewLike.objects.filter(user=request.user), 
-            to_attr="user_likes"
-        ),
-        Prefetch(
-            "comments",
-            queryset=ReviewComment.objects.select_related("user").order_by("created_at")
+
+    reviews_base_qs = (
+        MovieReview.objects
+        .filter(movie=movie)
+        .select_related("user")
+        .annotate(like_count=Count("likes"))
+        .prefetch_related(
+            Prefetch(
+                "likes",
+                queryset=ReviewLike.objects.filter(user=request.user),
+                to_attr="user_likes"
+            ),
+            Prefetch(
+                "comments",
+                queryset=ReviewComment.objects.select_related("user").order_by("created_at")
+            )
         )
-    ).order_by("-created_at")
+    )
 
-    my_review = None
-    other_reviews = []
+    total_reviews_count = reviews_base_qs.count()
 
-    for review in reviews_qs:
-        
-        review.user_vote = MovieVote.objects.filter(
-            movie=movie, 
-            user=review.user
-        ).first()
-        
+    if sort == "latest":
+        ordered_qs = reviews_base_qs.order_by("-created_at")
+    else:
+        ordered_qs = reviews_base_qs.order_by("-like_count", "-created_at")
 
-        
-        review.like_count = review.likes.count()
+    my_review = ordered_qs.filter(user=request.user).first()
+
+    other_reviews_qs = ordered_qs
+    if my_review:
+        other_reviews_qs = other_reviews_qs.exclude(id=my_review.id)
+
+    other_reviews = list(other_reviews_qs[:10])
+
+    review_user_ids = []
+
+    if my_review:
+        review_user_ids.append(my_review.user_id)
+
+    review_user_ids += [r.user_id for r in other_reviews]
+
+    votes_map = {
+        v.user_id: v
+        for v in MovieVote.objects.filter(movie=movie, user_id__in=review_user_ids)
+    }
+
+
+    def enrich_review(review):
         review.is_liked = bool(review.user_likes)
         review.comment_count = review.comments.count()
 
         text = (review.review_text or "").strip()
-
         line_count = len(text.splitlines())
         char_count = len(text)
 
         review.show_more = (line_count > 3) or (char_count > 150)
 
-                
-        
-        if review.user == request.user:
-            my_review = review
-        else:
-            other_reviews.append(review)
+        review.user_vote = votes_map.get(review.user_id)
+
+        return review
+
+
+    if my_review:
+        my_review = enrich_review(my_review)
+
+    other_reviews = [enrich_review(r) for r in other_reviews]
+
 
 
     edit_mode = request.GET.get("edit") == "1"
@@ -269,6 +296,9 @@ def movie_detail(request, movie_id):
     "hype_score": hype_score,
     "user_hype_vote": user_hype_vote,
     "hype_not_excited_percent": hype_not_excited_percent,
+    "sort": sort,
+"total_reviews_count": total_reviews_count,
+
 
     }
 
@@ -277,12 +307,6 @@ def movie_detail(request, movie_id):
 
 @login_required
 def vote_movie(request, movie_id):
-    """
-    Handle movie voting.
-    
-    POST-only endpoint that creates/updates/deletes user votes.
-    Redirects back to movie detail page.
-    """
     if request.method != "POST":
         return redirect('movie-detail', movie_id=movie_id)
     
@@ -342,17 +366,22 @@ def toggle_watchlist(request, movie_id):
 
     return redirect('movie-detail', movie_id=movie_id)
 
-
 @login_required
 def watchlist_page(request):
-    """
-    Display user's watchlist.
-    
-    Shows all movies user has saved to watchlist.
-    """
-    watchlist_qs = Watchlist.objects.filter(
-        user=request.user
-    ).select_related("movie").order_by("-created_at")
+    watchlist_qs = (
+        Watchlist.objects
+        .filter(user=request.user)
+        .select_related("movie")
+        .prefetch_related("movie__categories")
+        .annotate(
+            excited_count=Count(
+                "movie__hype_votes",
+                filter=Q(movie__hype_votes__vote="excited")
+            ),
+            total_hype_votes=Count("movie__hype_votes"),
+        )
+        .order_by("-created_at")
+    )
 
     context = {
         "watchlist_movies": watchlist_qs,
@@ -381,7 +410,7 @@ def submit_review(request, movie_id):
         review = form.save(commit=False)
         review.user = request.user
         review.movie = movie
-        
+   
         review.save()
         
         if existing_review:
@@ -636,3 +665,63 @@ def hype_vote_movie(request, movie_id):
 
     messages.success(request, "Hype vote saved.")
     return redirect("movie-detail", movie_id=movie_id)
+
+
+@login_required
+def all_reviews_page(request, movie_id):
+    movie = get_object_or_404(Movie, id=movie_id)
+
+    sort = request.GET.get("sort", "liked").strip().lower()
+    if sort not in ["liked", "latest"]:
+        sort = "liked"
+
+    reviews_qs = (
+        MovieReview.objects
+        .filter(movie=movie)
+        .select_related("user")
+        .annotate(like_count=Count("likes"))
+        .prefetch_related(
+            Prefetch(
+                "likes",
+                queryset=ReviewLike.objects.filter(user=request.user),
+                to_attr="user_likes"
+            ),
+            Prefetch(
+                "comments",
+                queryset=ReviewComment.objects.select_related("user").order_by("created_at")
+            )
+        )
+    )
+
+    if sort == "latest":
+        reviews_qs = reviews_qs.order_by("-created_at")
+    else:
+        reviews_qs = reviews_qs.order_by("-like_count", "-created_at")
+
+    paginator = Paginator(reviews_qs, 20)
+    page_obj = paginator.get_page(request.GET.get("page", "1"))
+
+    reviews = list(page_obj.object_list)
+
+    for review in reviews:
+        review.is_liked = bool(review.user_likes)
+        review.comment_count = review.comments.count()
+
+        text = (review.review_text or "").strip()
+        review.show_more = (len(text.splitlines()) > 3) or (len(text) > 150)
+
+        review.user_vote = MovieVote.objects.filter(
+            movie=movie,
+            user=review.user
+        ).first()
+
+    return render(request, "movies/all_reviews.html", {
+        "movie": movie,
+        "reviews": reviews,
+        "page_obj": page_obj,
+        "sort": sort,
+        "total_reviews_count": reviews_qs.count(),
+    })
+
+
+

@@ -115,7 +115,6 @@ class MovieReview(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
     
-
     rating = models.PositiveSmallIntegerField(
         choices=[(i, i) for i in range(1, 6)]
     )
@@ -180,3 +179,33 @@ class MovieHypeVote(models.Model):
         unique_together = ("user", "movie")
 
   
+
+
+
+class AIRequestLog(models.Model):
+    ACTION_CHOICES = [
+        ("rewrite", "Rewrite"),
+        ("shorten", "Shorten"),
+        ("funny", "Funny"),
+        ("roast", "Roast"),
+        ("professional", "Professional"),
+        ("hype", "Hype"),
+        ("savage_1star", "Savage 1-Star"),
+        ("pros_cons", "Pros & Cons"),
+    ]
+
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    movie = models.ForeignKey("movies.Movie", on_delete=models.SET_NULL, null=True, blank=True)
+
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    input_text = models.TextField()
+    output_text = models.TextField(blank=True)
+
+    success = models.BooleanField(default=False)
+    error_message = models.CharField(max_length=255, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user_id} - {self.action} - {self.success}"

@@ -16,4 +16,5 @@ urlpatterns = [
 
     path("<int:user_id>/", views.public_profile, name="public_profile"),
     path("my-reviews/", views.my_reviews, name="my-reviews"),
+    
 ]

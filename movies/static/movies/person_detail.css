@@ -187,3 +187,18 @@ body {
   border-color: rgba(239, 68, 68, 0.4);
   color: #f87171;
 }
+
+@media (max-width: 600px) {
+  .person-meta {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .person-info h1 {
+    font-size: 28px;
+  }
+
+  .photo-placeholder {
+    height: 360px;
+  }
+}

@@ -80,6 +80,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  
 }
 
 /* COMMENT ROW (IG STYLE) */
@@ -336,4 +337,34 @@
     height: 44px;
     flex: 0 0 44px;
   }
+}
+
+
+
+.comment-form textarea,
+.reply-form textarea {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+/* Chrome / Edge */
+.comment-form textarea::-webkit-scrollbar,
+.reply-form textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comment-form textarea::-webkit-scrollbar-track,
+.reply-form textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comment-form textarea::-webkit-scrollbar-thumb,
+.reply-form textarea::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.comment-form textarea::-webkit-scrollbar-thumb:hover,
+.reply-form textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.55);
 }

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}All Reviews | {{ movie.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'movies/all_reviews.css' %}">
+<link rel="stylesheet" href="{% static 'movies/review_card.css' %}">
+{% endblock %}
+
+{% block navbar %}
+  {% include "includes/navbar.html" with mode="mini" %}
+{% endblock %}
+
+{% block content %}
+<div class="all-reviews-page">
+
+  <div class="all-reviews-header">
+    <div class="header-left">
+      <h1 class="all-reviews-title">All Reviews ({{ total_reviews_count }})</h1>
+      <p class="all-reviews-subtitle">{{ movie.title }}</p>
+    </div>
+
+    <div class="header-right">
+      <form method="get" class="sort-form">
+        <select name="sort" onchange="this.form.submit()">
+          <option value="liked" {% if sort == "liked" %}selected{% endif %}>Most Liked</option>
+          <option value="latest" {% if sort == "latest" %}selected{% endif %}>Latest</option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <div class="all-reviews-wrap">
+{% for review in reviews %}
+
+  {% if review.user_id == request.user.id %}
+    {% include "movies/review_card.html" with review=review movie=movie is_owner=True %}
+  {% else %}
+    {% include "movies/review_card.html" with review=review movie=movie is_owner=False %}
+  {% endif %}
+
+{% endfor %}
+
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination-wrapper">
+    <div class="pagination">
+
+      {% if page_obj.has_previous %}
+        <a class="page-btn" href="?sort={{ sort }}&page={{ page_obj.previous_page_number }}">← Prev</a>
+      {% endif %}
+
+      <span class="page-info">
+        Page <strong>{{ page_obj.number }}</strong> of <strong>{{ page_obj.paginator.num_pages }}</strong>
+      </span>
+
+      {% if page_obj.has_next %}
+        <a class="page-btn" href="?sort={{ sort }}&page={{ page_obj.next_page_number }}">Next →</a>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/detail.js' %}"></script>
+
+{% endblock %}

@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{% static 'movies/detail.css' %}" />
 <link rel="stylesheet" href="{% static 'movies/review_card.css' %}" />
 <link rel="stylesheet" href="{% static 'movies/likes_modal.css' %}" />
+<link rel="stylesheet" href="{% static 'movies/all_reviews.css' %}">
 {% endblock %}
 
 {% block navbar %}
@@ -164,6 +165,54 @@
   {% endif %}
 
 
+  
+  {% if not movie.is_released %}
+  <!-- HYPE METER (Upcoming Only) -->
+  <section class="meter-section">
+    <div class="meter-wrap">
+      <div class="meter-head">
+        <div>
+          <h2>Hype Meter</h2>
+          <p class="meter-subtitle">How excited are people for this movie?</p>
+        </div>
+
+        <div class="vote-summary">
+          <span class="vote-pill">
+            Hype Score: {{ hype_score }}%
+          </span>
+        </div>
+      </div>
+
+      <form method="post" action="{% url 'hype-vote-movie' movie.id %}">
+        {% csrf_token %}
+
+        <div class="meter-container">
+
+          <div class="meter-row good {% if user_hype_vote == 'excited' %}selected{% endif %}">
+            <button type="submit" name="vote" value="excited" class="meter-name">Excited</button>
+            <div class="meter-track">
+              <div class="fill" style="--w: {{ hype_score }}%"></div>
+            </div>
+            <span class="meter-pct">{{ hype_counts.excited }} Votes</span>
+          </div>
+
+          <div class="meter-row bad {% if user_hype_vote == 'not_excited' %}selected{% endif %}">
+            <button type="submit" name="vote" value="not_excited" class="meter-name">Not Excited</button>
+            <div class="meter-track">
+              <div class="fill" style="--w: {{ hype_not_excited_percent }}%"></div>
+
+            </div>
+            <span class="meter-pct">{{ hype_counts.not_excited }}Votes</span>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </section>
+
+  {% endif %}
+
+
   <!-- CAST -->
   {% if movie.cast.exists %}
   <section class="cast-section">
@@ -245,8 +294,10 @@
 
       <div class="review-textarea-wrap">
         <textarea name="review_text" maxlength="1000" placeholder="Write your review...">{% if edit_mode and my_review %}{{ my_review.review_text }}{% endif %}</textarea>
+        <textarea id="ai-original-text" hidden></textarea>
 
         <p class="review-error" id="review-text-error" hidden></p>
+
 
         <div class="char-counter">
           <span id="char-count">
@@ -260,11 +311,14 @@
       </div>
 
       <div class="review-form-footer">
+        
         <label class="spoiler-check">
           <input type="checkbox" name="contains_spoiler"
             {% if edit_mode and my_review and my_review.contains_spoiler %}checked{% endif %}>
           <span>Contains spoilers</span>
         </label>
+
+    
 
         <button type="submit" class="submit-review-btn">
           {% if edit_mode and my_review %}Update Review{% else %}Submit Review{% endif %}
@@ -273,19 +327,78 @@
 
     </form>
   </section>
+<div class="review-ai-studio">
+  <div class="ai-studio-top">
+    <div class="ai-studio-title">AI Review </div>
+    <div class="ai-studio-subtitle">Write your review in different styles</div>
+  </div>
+
+  <div class="ai-controls">
+    <div class="ai-control-left">
+      <select id="ai-mode" class="ai-select">
+        <option value="rewrite">Rewrite (Clean + Polished)</option>
+        <option value="shorten">Shorten (Compact)</option>
+        <option value="funny">Funny Version</option>
+        <option value="roast">Roast Version</option>
+        <option value="professional">Professional</option>
+        <option value="hype">Hype It Up</option>
+        <option value="savage_1star">1-Star Savage</option>
+      </select>
+    </div>
+
+    <div class="ai-control-right">
+      <button type="button"
+              class="ai-btn ai-primary"
+              id="ai-generate-btn"
+              data-url="{% url 'ai-review-assistant' movie.id %}">
+        Generate
+      </button>
+
+      <button type="button"
+              class="ai-btn ai-secondary"
+              id="ai-proscons-btn"
+              data-url="{% url 'ai-pros-cons' movie.id %}">
+      Pros/Cons
+      </button>
+
+      <button type="button"
+              class="ai-btn ai-danger"
+              id="ai-undo-btn"
+              disabled>
+        Undo
+      </button>
+    </div>
+  </div>
+
+  <div class="ai-status" id="ai-status" hidden></div>
+</div>
+
 
 
   <!-- REVIEWS SECTION -->
+
   <section class="reviews-section">
     <div class="reviews-wrap">
       <h2 class="reviews-title">
         Reviews
         <span class="reviews-subtitle">What people are saying</span>
       </h2>
+         <div class="reviews-toolbar">
+
+</div>
 
       {% if my_review %}
+        <form method="get" class="sort-form" style="margin-bottom:50px;">
+    <select name="sort" onchange="this.form.submit()">
+      <option value="liked" {% if sort == "liked" %}selected{% endif %}>Most Liked</option>
+      <option value="latest" {% if sort == "latest" %}selected{% endif %}>Latest</option>
+    </select>
+  </form>
         {% include "movies/review_card.html" with review=my_review movie=movie is_owner=True %}
       {% endif %}
+
+   
+
 
       {% if other_reviews %}
         {% for review in other_reviews %}
@@ -299,58 +412,34 @@
     </div>
   </section>
   {% endif %}
-
-
-  {% if not movie.is_released %}
-  <!-- HYPE METER (Upcoming Only) -->
-  <section class="meter-section">
-    <div class="meter-wrap">
-      <div class="meter-head">
-        <div>
-          <h2>Hype Meter</h2>
-          <p class="meter-subtitle">How excited are people for this movie?</p>
-        </div>
-
-        <div class="vote-summary">
-          <span class="vote-pill">
-            Hype Score: {{ hype_score }}%
-          </span>
-        </div>
-      </div>
-
-      <form method="post" action="{% url 'hype-vote-movie' movie.id %}">
-        {% csrf_token %}
-
-        <div class="meter-container">
-
-          <div class="meter-row good {% if user_hype_vote == 'excited' %}selected{% endif %}">
-            <button type="submit" name="vote" value="excited" class="meter-name">Excited</button>
-            <div class="meter-track">
-              <div class="fill" style="--w: {{ hype_score }}%"></div>
-            </div>
-            <span class="meter-pct">{{ hype_counts.excited }} Votes</span>
-          </div>
-
-          <div class="meter-row bad {% if user_hype_vote == 'not_excited' %}selected{% endif %}">
-            <button type="submit" name="vote" value="not_excited" class="meter-name">Not Excited</button>
-            <div class="meter-track">
-              <div class="fill" style="--w: {{ hype_not_excited_percent }}%"></div>
-
-            </div>
-            <span class="meter-pct">{{ hype_counts.not_excited }}Votes</span>
-          </div>
-
-        </div>
-      </form>
-    </div>
-  </section>
-
-  {% endif %}
+{% if total_reviews_count > 0 %}
+  <a href="{% url 'all-reviews' movie.id %}?sort={{ sort }}" class="show-all-btn">
+    Show All Reviews ({{ total_reviews_count }})
+  </a>
+{% endif %}
 
 </div>
+<div id="ai-modal" class="ai-modal" hidden>
+  <div class="ai-modal-backdrop" data-ai-close></div>
+
+  <div class="ai-modal-card">
+    <div class="ai-modal-head">
+      <div class="ai-modal-title" id="ai-modal-title">Pros & Cons</div>
+      <button type="button" class="ai-modal-close" data-ai-close>✕</button>
+    </div>
+
+    <div class="ai-modal-body" id="ai-modal-body">
+      Loading...
+    </div>
+  </div>
+</div>
+
 
 {% endblock %}
 
+
+
 {% block extra_js %}
 <script src="{% static 'js/detail.js' %}"></script>
+<script src="{% static 'js/detail_ai.js' %}"></script>
 {% endblock %}

@@ -149,13 +149,27 @@
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+
+
+@media (max-width: 480px) {
   .watchlist-header {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 14px;
+    gap: 12px;
   }
 
-  .watchlist-page {
-    padding: 24px 14px 60px;
+  .browse-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .watchlist-title h1 {
+    font-size: 22px;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .movie-grid {
+    gap: 16px;
   }
 }
