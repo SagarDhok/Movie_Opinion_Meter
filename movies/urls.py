@@ -29,7 +29,6 @@ urlpatterns = [
     path("movie/<int:movie_id>/ai/assist/", views_ai.ai_review_assistant, name="ai-review-assistant"),
     path("movie/<int:movie_id>/ai/pros-cons/",views_ai.ai_pros_cons, name="ai-pros-cons"),
     path("review/<int:review_id>/ai/pros-cons/", views_ai.ai_pros_cons_review, name="ai-pros-cons-review"),
-    path("admin/sync-tmdb/", sync_tmdb),
 
 
 

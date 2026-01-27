@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
+from movies.admin_sync import sync_tmdb
 
 
 
@@ -26,7 +27,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('', include('movies.urls')),
     path("api/", include("movies.api.urls")),
-
+    path("admin/sync-tmdb/", sync_tmdb),
 ]
 
 if settings.DEBUG:
