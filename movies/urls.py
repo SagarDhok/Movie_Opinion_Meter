@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views,views_ai
+from movies.admin_sync import sync_tmdb
 
 urlpatterns = [
     path("", views.home, name="movies-home"),
@@ -28,6 +29,8 @@ urlpatterns = [
     path("movie/<int:movie_id>/ai/assist/", views_ai.ai_review_assistant, name="ai-review-assistant"),
     path("movie/<int:movie_id>/ai/pros-cons/",views_ai.ai_pros_cons, name="ai-pros-cons"),
     path("review/<int:review_id>/ai/pros-cons/", views_ai.ai_pros_cons_review, name="ai-pros-cons-review"),
+    path("admin/sync-tmdb/", sync_tmdb),
+
 
 
 

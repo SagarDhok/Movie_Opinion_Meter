@@ -12,6 +12,18 @@
  python manage.py sync_tmdb_cast
 
 
+3️⃣ Use it (THIS IS IT)
+
+Open production:
+
+https://movie-opinion-meter.onrender.com/admin/
+
+
+Login as superuser
+
+Open:
+
+/admin/sync-tmdb/
 
 next
 
