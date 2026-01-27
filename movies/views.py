@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from .models import (Movie, Genre, MovieVote, Watchlist, Person, Cast, Crew, MovieReview, ReviewLike, ReviewComment, MovieHypeVote)
 from .forms import MovieReviewForm
 from collections import defaultdict
+
 import logging
 logger = logging.getLogger(__name__)
 
