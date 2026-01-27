@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 
-def health(request):
-    return HttpResponse("OK")
 
 
 

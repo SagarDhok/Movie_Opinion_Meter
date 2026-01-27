@@ -1,15 +1,17 @@
 import time
 from datetime import date
-
 from movies.models import Movie, Genre
 from .client import (
     fetch_genres,
-    fetch_popular_india,
-    fetch_now_playing_india,
-    fetch_upcoming_india,
-    fetch_trending_week,
-    fetch_indian_language_movies,
+    fetch_indian_recent_released_movies,
+    fetch_indian_upcoming_movies,
+    fetch_movie_by_id,
 )
+
+
+IMPORTANT_TMDB_IDS = [
+
+]
 
 
 def sync_genres():
@@ -51,46 +53,66 @@ def save_movie_to_db(movie_data, genre_map):
     return movie
 
 
-def sync_all_movies(limit=200):
-    print(f"🎬 Syncing Indian + Pop Culture movies (limit={limit})")
+def sync_priority_movies(genre_map):
+    for tmdb_id in IMPORTANT_TMDB_IDS:
+        try:
+            movie_data = fetch_movie_by_id(tmdb_id)
+            save_movie_to_db(movie_data, genre_map)
+            time.sleep(0.4)
+        except Exception:
+            continue
+
+def sync_all_movies(limit=50):
+    print("🎬 Syncing Indian movies (last 1 year + upcoming)")
 
     genre_map = sync_genres()
-    synced = 0
 
-    # Order matters:
-    # 1. Indian popular + Hollywood Indians care about
-    # 2. Now playing (India)
-    # 3. Upcoming (big franchises show up here)
-    # 4. Trending (pure pop culture)
-    # 5. Indian regional cinema
-    sources = [
-        fetch_popular_india,
-        fetch_now_playing_india,
-        fetch_upcoming_india,
-        fetch_trending_week,
-        fetch_indian_language_movies,
-    ]
+    released_limit = 30
+    upcoming_limit = 20
 
-    for fetch_fn in sources:
-        page = 1
+    synced_released = 0
+    synced_upcoming = 0
 
-        while synced < limit:
-            data = fetch_fn(page)
-            results = data.get("results", [])
+    # -------- Released (last 1 year) --------
+    page = 1
+    while synced_released < released_limit:
+        data = fetch_indian_recent_released_movies(page)
+        results = data.get("results", [])
 
-            if not results:
+        if not results:
+            break
+
+        for movie_data in results:
+            if synced_released >= released_limit:
                 break
 
-            for movie_data in results:
-                if synced >= limit:
-                    break
+            save_movie_to_db(movie_data, genre_map)
+            synced_released += 1
+            time.sleep(0.3)
 
-                save_movie_to_db(movie_data, genre_map)
-                synced += 1
+        page += 1
 
-                # TMDB safety (VERY IMPORTANT)
-                time.sleep(0.25)
+    # -------- Upcoming --------
+    page = 1
+    while synced_upcoming < upcoming_limit:
+        data = fetch_indian_upcoming_movies(page)
+        results = data.get("results", [])
 
-            page += 1
+        if not results:
+            break
 
-    print(f"✅ Sync complete — {synced} movies saved")
+        for movie_data in results:
+            if synced_upcoming >= upcoming_limit:
+                break
+
+            save_movie_to_db(movie_data, genre_map)
+            synced_upcoming += 1
+            time.sleep(0.3)
+
+        page += 1
+
+    total = synced_released + synced_upcoming
+    print(
+        f"✅ Sync complete — {total} movies "
+        f"({synced_released} released, {synced_upcoming} upcoming)"
+    )

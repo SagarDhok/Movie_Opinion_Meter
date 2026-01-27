@@ -1,4 +1,5 @@
 import requests
+from datetime import date
 from django.conf import settings
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -33,78 +34,48 @@ def fetch_genres():
     return r.json()["genres"]
 
 
-# 🔥 Popular movies Indians care about (Hollywood + Indian)
-def fetch_popular_india(page=1):
+def fetch_indian_recent_released_movies(page=1):
+    one_year_ago = date.today().replace(year=date.today().year - 1)
+
     r = session.get(
         f"{TMDB_BASE_URL}/discover/movie",
         params={
             "api_key": settings.TMDB_API_KEY,
             "region": "IN",
-            "sort_by": "popularity.desc",
-            "vote_count.gte": 100,
-            "page": page,
-        },
-        timeout=20,
-    )
-    r.raise_for_status()
-    return r.json()
-
-
-# 🎬 Now playing in India
-def fetch_now_playing_india(page=1):
-    r = session.get(
-        f"{TMDB_BASE_URL}/movie/now_playing",
-        params={
-            "api_key": settings.TMDB_API_KEY,
-            "region": "IN",
-            "page": page,
-        },
-        timeout=20,
-    )
-    r.raise_for_status()
-    return r.json()
-
-
-# 🚀 Upcoming India releases (big Hollywood + Indian)
-def fetch_upcoming_india(page=1):
-    r = session.get(
-        f"{TMDB_BASE_URL}/movie/upcoming",
-        params={
-            "api_key": settings.TMDB_API_KEY,
-            "region": "IN",
-            "page": page,
-        },
-        timeout=20,
-    )
-    r.raise_for_status()
-    return r.json()
-
-
-# 🔥 Trending (global pop culture)
-def fetch_trending_week(page=1):
-    r = session.get(
-        f"{TMDB_BASE_URL}/trending/movie/week",
-        params={
-            "api_key": settings.TMDB_API_KEY,
-            "page": page,
-        },
-        timeout=20,
-    )
-    r.raise_for_status()
-    return r.json()
-
-
-# 🇮🇳 Indian regional cinema
-def fetch_indian_language_movies(page=1):
-    r = session.get(
-        f"{TMDB_BASE_URL}/discover/movie",
-        params={
-            "api_key": settings.TMDB_API_KEY,
             "with_original_language": "hi|te|ta|ml|kn",
+            "primary_release_date.gte": one_year_ago.isoformat(),
+            "primary_release_date.lte": date.today().isoformat(),
             "sort_by": "popularity.desc",
-            "vote_count.gte": 50,
             "page": page,
         },
+        timeout=20,
+    )
+    r.raise_for_status()
+    return r.json()
+
+
+def fetch_indian_upcoming_movies(page=1):
+    r = session.get(
+        f"{TMDB_BASE_URL}/discover/movie",
+        params={
+            "api_key": settings.TMDB_API_KEY,
+            "region": "IN",
+            "with_original_language": "hi|te|ta|ml|kn",
+            "primary_release_date.gte": date.today().isoformat(),
+            "sort_by": "popularity.desc",
+            "page": page,
+        },
+        timeout=20,
+    )
+    r.raise_for_status()
+    return r.json()
+
+
+
+def fetch_movie_by_id(tmdb_id):
+    r = session.get(
+        f"{TMDB_BASE_URL}/movie/{tmdb_id}",
+        params={"api_key": settings.TMDB_API_KEY},
         timeout=20,
     )
     r.raise_for_status()
@@ -123,7 +94,6 @@ def fetch_movie_full(tmdb_id):
     r.raise_for_status()
     return r.json()
 
-
 def fetch_person_details(tmdb_person_id):
     r = session.get(
         f"{TMDB_BASE_URL}/person/{tmdb_person_id}",
@@ -132,4 +102,3 @@ def fetch_person_details(tmdb_person_id):
     )
     r.raise_for_status()
     return r.json()
-
