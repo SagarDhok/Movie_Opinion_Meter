@@ -11,6 +11,10 @@ from movies.models import MovieReview, MovieVote,Watchlist
 from django.db.models import Prefetch
 from .models import User
 from .forms import SignupForm, LoginForm, ProfileUpdateForm, ForgotPasswordForm, ResetPasswordForm
+from .supabase_client import supabase
+from django.conf import settings
+import uuid
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -252,12 +256,11 @@ def profile_view(request):
     if request.method == "POST":
 
         if "remove_image" in request.POST:
-            if request.user.profile_image:
-                request.user.profile_image.delete(save=False)
-                request.user.profile_image = None
-                request.user.save()
+            request.user.profile_image = None
+            request.user.save()
             messages.success(request, "Profile photo removed")
             return redirect("profile")
+
 
         if "upload_photo" in request.POST:
             image = request.FILES.get("profile_image")
@@ -275,11 +278,36 @@ def profile_view(request):
                 messages.error(request, "Invalid image format. Use JPG, PNG, or WEBP")
                 return redirect("profile")
 
-            if request.user.profile_image:
-                request.user.profile_image.delete(save=False)
 
-            request.user.profile_image = image
+            ext = image.name.split(".")[-1]
+            file_name = f"{request.user.id}/{uuid.uuid4().hex}.{ext}"
+
+            file_bytes = image.read()
+
+            try:
+                supabase.storage.from_(settings.SUPABASE_BUCKET).upload(
+                    file_name,
+                    file_bytes,
+                    {
+                        "content-type": image.content_type,
+                        "upsert": True
+                    }
+                )
+            except Exception as e:
+                logger.error("Supabase upload failed", exc_info=e)
+                messages.error(request, "Failed to upload image. Try again.")
+                return redirect("profile")
+
+                    
+
+            public_url = supabase.storage.from_(
+                settings.SUPABASE_BUCKET
+            ).get_public_url(file_name)
+
+            request.user.profile_image = public_url["publicUrl"]
             request.user.save()
+
+
 
             messages.success(request, "Profile photo updated")
             return redirect("profile")
