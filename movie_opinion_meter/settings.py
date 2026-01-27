@@ -191,3 +191,9 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+
+
+if os.getenv("RUN_CREATE_SUPERUSER", "False") == "True":
+    from django.core.management import call_command
+    call_command("createsuperuser", interactive=False)
