@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views,views_ai
-from movies.admin_sync import sync_tmdb
 
 urlpatterns = [
     path("", views.home, name="movies-home"),
