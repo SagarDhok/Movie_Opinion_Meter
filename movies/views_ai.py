@@ -5,6 +5,9 @@ from datetime import timedelta
 
 from .models import Movie, AIRequestLog
 from .services.ai_service import ai_rewrite_review, ai_extract_pros_cons, clean_text
+import logging
+logger = logging.getLogger(__name__)
+
 
 
 def user_ai_limit_exceeded(user, action, minutes=10, limit=5):
@@ -70,11 +73,29 @@ def ai_review_assistant(request, movie_id):
         log.success = True
         log.save()
 
+        logger.info(
+            "AI review generated",
+            extra={
+                "user_id": request.user.id,
+                "movie_id": movie.id if movie else None,
+                "mode": mode,
+            }
+        )
+
+
         return JsonResponse({"ok": True, "result": output})
 
     except Exception as e:
         log.error_message = str(e)[:255]
         log.save()
+
+        logger.error(
+        "AI review failed",
+        extra={
+            "user_id": request.user.id,
+            "movie_id": movie.id if movie else None,
+            "mode": mode,
+            "error": str(e),})
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
     
 
@@ -88,8 +109,10 @@ def ai_pros_cons(request, movie_id):
 
     text = clean_text(request.POST.get("text", ""))
     
+   
     if not text:
-     return JsonResponse({"ok": False, "error": "Review is empty"}, status=400)
+      return JsonResponse({"ok": False, "error": "Review is empty"}, status=400)
+
 
     if len(text) < 10:
         return JsonResponse({"ok": False, "error": "Review too short"}, status=400)
@@ -115,11 +138,30 @@ def ai_pros_cons(request, movie_id):
         log.success = True
         log.save()
 
+        logger.info(
+            "AI pros/cons generated",
+            extra={
+                "user_id": request.user.id,
+                "movie_id": movie.id if movie else None,
+            }
+        )
+
+
         return JsonResponse({"ok": True, "pros": data["pros"], "cons": data["cons"]})
 
     except Exception as e:
         log.error_message = str(e)[:255]
         log.save()
+
+        logger.error(
+        "AI pros/cons failed",
+        extra={
+            "user_id": request.user.id,
+            "movie_id": movie.id if movie else None,
+            "error": str(e),
+            }
+        )
+
         return JsonResponse({"ok": False, "error": "AI failed"}, status=500)
 
 
@@ -135,8 +177,9 @@ def ai_pros_cons_review(request, review_id):
 
     text = clean_text(review.review_text or "")
 
+  
     if not text:
-     return JsonResponse({"ok": False, "error": "Review is empty"}, status=400)
+      return JsonResponse({"ok": False, "error": "Review is empty"},status=400)
 
     if len(text) < 10:
         return JsonResponse({"ok": False, "error": "Write at least 10 characters"}, status=400)
@@ -155,12 +198,35 @@ def ai_pros_cons_review(request, review_id):
 
     try:
         data = ai_extract_pros_cons(text)
+        
         log.output_text = f"Pros: {data.get('pros')} | Cons: {data.get('cons')}"
         log.success = True
         log.save()
+
+        logger.info(
+            "AI pros/cons generated",
+            extra={
+                "user_id": request.user.id,
+                "review_id": review.id,
+                "movie_id": review.movie.id,
+            }
+        )
+
+    
+
 
         return JsonResponse({"ok": True, "pros": data["pros"], "cons": data["cons"]})
     except Exception as e:
         log.error_message = str(e)[:255]
         log.save()
+
+        logger.error(
+            "AI pros/cons failed",
+            extra={
+                "user_id": request.user.id,
+                "review_id": review.id,
+                "movie_id": review.movie.id,
+                "error": str(e),
+            }
+        )
         return JsonResponse({"ok": False, "error": "AI failed"}, status=500)

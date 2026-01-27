@@ -8,6 +8,9 @@ from datetime import date, timedelta
 from .models import (Movie, Genre, MovieVote, Watchlist, Person, Cast, Crew, MovieReview, ReviewLike, ReviewComment, MovieHypeVote)
 from .forms import MovieReviewForm
 from collections import defaultdict
+import logging
+logger = logging.getLogger(__name__)
+
 
 
 
@@ -325,7 +328,13 @@ def vote_movie(request, movie_id):
             user=request.user, 
             movie=movie
         ).delete()[0]
-        
+
+        logger.info(
+        "Movie vote removed",
+        extra={
+            "user_id": request.user.id,
+            "movie_id": movie.id,})
+
         if deleted_count:
             messages.success(request, "Vote removed successfully")
         return redirect('movie-detail', movie_id=movie_id)
@@ -336,6 +345,13 @@ def vote_movie(request, movie_id):
         movie=movie,
         defaults={"vote": vote}
     )
+    logger.info(
+    "Movie vote updated",
+    extra={
+        "user_id": request.user.id,
+        "movie_id": movie.id,
+        "vote": vote,})
+
     messages.success(request, f"Voted: {vote.title()}")
     
     return redirect('movie-detail', movie_id=movie_id)
@@ -359,9 +375,23 @@ def toggle_watchlist(request, movie_id):
 
     if watchlist_item.exists():
         watchlist_item.delete()
+        logger.info(
+        "Watchlist item removed",
+        extra={
+            "user_id": request.user.id,
+            "movie_id": movie.id,
+        }
+        )
         messages.info(request, f"Removed '{movie.title}' from watchlist")
     else:
         Watchlist.objects.create(user=request.user, movie=movie)
+        logger.info(
+        "Watchlist item added",
+        extra={
+            "user_id": request.user.id,
+            "movie_id": movie.id,
+        }
+    )
         messages.success(request, f"Added '{movie.title}' to watchlist")
 
     return redirect('movie-detail', movie_id=movie_id)
@@ -412,6 +442,13 @@ def submit_review(request, movie_id):
         review.movie = movie
    
         review.save()
+        logger.info("Review saved",extra={
+        "user_id": request.user.id,
+        "movie_id": movie.id,
+        "review_id": review.id,
+        "updated": bool(existing_review),
+        })
+
         
         if existing_review:
             messages.success(request, "Review updated successfully")
@@ -438,6 +475,10 @@ def delete_review(request, movie_id):
     ).delete()[0]
     
     if deleted_count:
+        logger.info("Review deleted",extra={
+        "user_id": request.user.id,
+        "movie_id": movie.id,})
+
         messages.success(request, "Review deleted successfully")
     else:
         messages.error(request, "Review not found")
@@ -462,6 +503,14 @@ def toggle_review_like(request, review_id):
     else:
         ReviewLike.objects.create(user=request.user, review=review)
         liked = True
+    logger.info(
+    "Review like toggled",
+    extra={
+        "user_id": request.user.id,
+        "review_id": review.id,
+        "liked": liked,
+    }
+)
 
     like_count = ReviewLike.objects.filter(review=review).count()
 
@@ -661,6 +710,15 @@ def hype_vote_movie(request, movie_id):
         user=request.user,
         movie=movie,
         defaults={"vote": vote},
+    )
+
+    logger.info(
+        "Hype vote updated",
+        extra={
+            "user_id": request.user.id,
+            "movie_id": movie.id,
+            "vote": vote,
+        }
     )
 
     messages.success(request, "Hype vote saved.")
