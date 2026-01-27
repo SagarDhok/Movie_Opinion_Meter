@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'movies',
     "django.contrib.humanize",
     'rest_framework',
-    "storages",
 
 
 ]
