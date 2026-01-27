@@ -20,4 +20,5 @@ COPY . .
 
 RUN python manage.py collectstatic --noinput
 
+
 CMD ["gunicorn", "movie_opinion_meter.wsgi:application", "--bind", "0.0.0.0:10000"]
