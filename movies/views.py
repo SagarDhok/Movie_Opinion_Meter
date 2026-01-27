@@ -8,10 +8,17 @@ from datetime import date, timedelta
 from .models import (Movie, Genre, MovieVote, Watchlist, Person, Cast, Crew, MovieReview, ReviewLike, ReviewComment, MovieHypeVote)
 from .forms import MovieReviewForm
 from collections import defaultdict
+from django.http import HttpResponse
+
+
 
 import logging
 logger = logging.getLogger(__name__)
 
+
+
+def health(request):
+    return HttpResponse("OK")
 
 
 
