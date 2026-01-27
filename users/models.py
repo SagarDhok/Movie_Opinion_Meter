@@ -19,7 +19,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
-    profile_image = models.ImageField(upload_to=user_profile_upload_path, blank=True, null=True) #pip install pillow 
+    profile_image = models.FileField(
+    upload_to=user_profile_upload_path,
+    blank=True,
+    null=True
+)
+ 
 
 
     USERNAME_FIELD = 'email'  #bydefault django username
