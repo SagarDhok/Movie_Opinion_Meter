@@ -82,16 +82,19 @@ WSGI_APPLICATION = 'movie_opinion_meter.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+USE_POSTGRES = os.getenv("USE_POSTGRES", "False") == "True"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql"
-        if os.getenv("USE_POSTGRES", "False") == "True"
-        else "django.db.backends.sqlite3",
+        "ENGINE": (
+            "django.db.backends.postgresql"
+            if USE_POSTGRES
+            else "django.db.backends.sqlite3"
+        ),
 
         "NAME": (
             os.getenv("POSTGRES_DB")
-            if os.getenv("USE_POSTGRES", "False") == "True"
+            if USE_POSTGRES
             else BASE_DIR / "db.sqlite3"
         ),
 
@@ -99,9 +102,18 @@ DATABASES = {
         "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
         "HOST": os.getenv("POSTGRES_HOST", ""),
         "PORT": os.getenv("POSTGRES_PORT", "5432"),
+
+        **(
+            {
+                "OPTIONS": {
+                    "client_encoding": "UTF8",
+                }
+            }
+            if USE_POSTGRES
+            else {}
+        ),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
