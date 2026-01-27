@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
-from movies.admin_sync import sync_movies,sync_cast
 
 
 
@@ -27,8 +26,6 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('', include('movies.urls')),
     path("api/", include("movies.api.urls")),
-    path("admin/sync-movies/", sync_movies),
-    path("admin/sync-cast/", sync_cast),
 
 ]
 

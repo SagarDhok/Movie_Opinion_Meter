@@ -1,4 +1,6 @@
+import time
 from datetime import date
+
 from movies.models import Movie, Genre
 from .client import (
     fetch_genres,
@@ -12,25 +14,28 @@ from .client import (
 
 def sync_genres():
     genre_map = {}
+
     for g in fetch_genres():
         genre, _ = Genre.objects.get_or_create(name=g["name"])
         genre_map[g["id"]] = genre
+
     return genre_map
 
-from datetime import date
-from movies.models import Movie, Genre
 
 def save_movie_to_db(movie_data, genre_map):
     release_date = movie_data.get("release_date")
     is_released = False
 
     if release_date:
-        is_released = date.fromisoformat(release_date) <= date.today()
+        try:
+            is_released = date.fromisoformat(release_date) <= date.today()
+        except ValueError:
+            release_date = None
 
     movie, _ = Movie.objects.update_or_create(
         tmdb_id=movie_data["id"],
         defaults={
-            "title": movie_data["title"],
+            "title": movie_data.get("title", ""),
             "poster_path": movie_data.get("poster_path"),
             "release_date": release_date,
             "is_released": is_released,
@@ -38,61 +43,54 @@ def save_movie_to_db(movie_data, genre_map):
         },
     )
 
-    genre_ids = movie_data.get("genre_ids")
-    if genre_ids:
-        movie.categories.set(
-            [genre_map[g] for g in genre_ids if g in genre_map]
-        )
+    genre_ids = movie_data.get("genre_ids") or []
+    movie.categories.set(
+        [genre_map[g] for g in genre_ids if g in genre_map]
+    )
 
     return movie
 
 
+def sync_all_movies(limit=200):
+    print(f"🎬 Syncing Indian + Pop Culture movies (limit={limit})")
 
-def sync_popular_movies(pages=10):
     genre_map = sync_genres()
-    for page in range(1, pages + 1):
-        data = fetch_popular_india(page)
-        for m in data.get("results", []):
-            save_movie_to_db(m, genre_map)
+    synced = 0
 
+    # Order matters:
+    # 1. Indian popular + Hollywood Indians care about
+    # 2. Now playing (India)
+    # 3. Upcoming (big franchises show up here)
+    # 4. Trending (pure pop culture)
+    # 5. Indian regional cinema
+    sources = [
+        fetch_popular_india,
+        fetch_now_playing_india,
+        fetch_upcoming_india,
+        fetch_trending_week,
+        fetch_indian_language_movies,
+    ]
 
-def sync_now_playing(pages=5):
-    genre_map = sync_genres()
-    for page in range(1, pages + 1):
-        data = fetch_now_playing_india(page)
-        for m in data.get("results", []):
-            save_movie_to_db(m, genre_map)
+    for fetch_fn in sources:
+        page = 1
 
+        while synced < limit:
+            data = fetch_fn(page)
+            results = data.get("results", [])
 
-def sync_upcoming(pages=5):
-    genre_map = sync_genres()
-    for page in range(1, pages + 1):
-        data = fetch_upcoming_india(page)
-        for m in data.get("results", []):
-            save_movie_to_db(m, genre_map)
+            if not results:
+                break
 
+            for movie_data in results:
+                if synced >= limit:
+                    break
 
-def sync_trending(pages=3):
-    genre_map = sync_genres()
-    for page in range(1, pages + 1):
-        data = fetch_trending_week(page)
-        for m in data.get("results", []):
-            save_movie_to_db(m, genre_map)
+                save_movie_to_db(movie_data, genre_map)
+                synced += 1
 
+                # TMDB safety (VERY IMPORTANT)
+                time.sleep(0.25)
 
-def sync_indian_movies(pages=5):
-    genre_map = sync_genres()
-    for page in range(1, pages + 1):
-        data = fetch_indian_language_movies(page)
-        for m in data.get("results", []):
-            save_movie_to_db(m, genre_map)
+            page += 1
 
-
-def sync_all_movies():
-    print("🎬 Syncing Indian + Pop Culture Movies")
-    sync_popular_movies()
-    sync_now_playing()
-    sync_upcoming()
-    sync_trending()
-    sync_indian_movies()
-    print("✅ Sync complete")
+    print(f"✅ Sync complete — {synced} movies saved")

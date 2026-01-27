@@ -32,6 +32,9 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
+if DEBUG:
+    ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
+
 
 # Application definition
 
@@ -82,38 +85,21 @@ WSGI_APPLICATION = 'movie_opinion_meter.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-USE_POSTGRES = os.getenv("USE_POSTGRES", "False") == "True"
 
 DATABASES = {
     "default": {
-        "ENGINE": (
-            "django.db.backends.postgresql"
-            if USE_POSTGRES
-            else "django.db.backends.sqlite3"
-        ),
-
-        "NAME": (
-            os.getenv("POSTGRES_DB")
-            if USE_POSTGRES
-            else BASE_DIR / "db.sqlite3"
-        ),
-
-        "USER": os.getenv("POSTGRES_USER", ""),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-        "HOST": os.getenv("POSTGRES_HOST", ""),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
         "PORT": os.getenv("POSTGRES_PORT", "5432"),
-
-        **(
-            {
-                "OPTIONS": {
-                    "client_encoding": "UTF8",
-                }
-            }
-            if USE_POSTGRES
-            else {}
-        ),
+        "OPTIONS": {
+            "client_encoding": "UTF8",
+        },
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

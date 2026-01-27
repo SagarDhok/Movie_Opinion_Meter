@@ -9,8 +9,3 @@ services:
       python manage.py create_superuser_if_not_exists
 
     startCommand: gunicorn movie_opinion_meter.wsgi:application
-
-    postdeploy: |
-      python manage.py create_superuser_if_not_exists
-      python manage.py fetch_movies
-      python manage.py fetch_cast
