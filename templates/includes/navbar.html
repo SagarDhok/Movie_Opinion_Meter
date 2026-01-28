@@ -50,12 +50,12 @@
     <div class="auth">
       {% if user.is_authenticated %}
         <a href="{% url 'profile' %}" class="profile-btn">
-          {% if user.profile_image %}
-            <img src="{{ user.profile_image.url }}" alt="Profile" class="nav-avatar">
-          {% else %}
-            <span class="nav-avatar-fallback">👤</span>
-          {% endif %}
-          <span class="nav-username">{{ user.first_name }} {{ user.last_name }}</span>
+            {% if user.profile_image %}
+              <img src="{{ user.profile_image }}" alt="Profile" class="nav-avatar">
+            {% else %}
+              <span class="nav-avatar-fallback">👤</span>
+            {% endif %}
+            <span class="nav-username">{{ user.first_name }} {{ user.last_name }}</span>
         </a>
       {% else %}
         <a href="{% url 'login' %}" class="nav-link">Login</a>
