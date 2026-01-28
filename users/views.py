@@ -12,7 +12,6 @@ from django.db.models import Prefetch
 from .models import User
 from .forms import SignupForm, LoginForm, ProfileUpdateForm, ForgotPasswordForm, ResetPasswordForm
 from .supabase_client import get_supabase
-from django.views.decorators.cache import cache_page
 from django.conf import settings
 import uuid
 
@@ -347,7 +346,6 @@ def profile_view(request):
     return render(request, "users/profile.html", context)
 
     
-@cache_page(60 * 5)
 def public_profile(request, user_id):
 
     user_obj = get_object_or_404(User, id=user_id)
