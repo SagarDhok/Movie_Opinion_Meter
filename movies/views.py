@@ -9,7 +9,6 @@ from .models import (Movie, Genre, MovieVote, Watchlist, Person, Cast, Crew, Mov
 from .forms import MovieReviewForm
 from collections import defaultdict
 from django.http import HttpResponse
-from django.views.decorators.cache import 
 
 
 
