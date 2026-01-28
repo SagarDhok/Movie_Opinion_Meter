@@ -334,7 +334,7 @@ def profile_view(request):
             except Exception as e:
                             # Log the full exception with traceback
                             logger.exception(f"Supabase upload failed with error: {str(e)}")
-                            messages.error(request, f"Failed to upload image: {str(e)}")
+                            messages.error(request, "Failed to upload image ")
                             return redirect("profile")
 
 
