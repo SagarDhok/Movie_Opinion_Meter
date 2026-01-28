@@ -313,7 +313,7 @@ def profile_view(request):
                 settings.SUPABASE_BUCKET
             ).get_public_url(file_name)
 
-            request.user.profile_image = public_url["publicUrl"]
+            request.user.profile_image = public_url  
             request.user.save()
 
 
