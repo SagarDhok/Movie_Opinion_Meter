@@ -299,7 +299,7 @@ def profile_view(request):
                                 file=file_bytes,
                                 file_options={
                                     "content-type": image.content_type,
-                                    "upsert": True,
+                                    "upsert": "true",
                                 },
                             )
 
