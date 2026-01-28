@@ -11,7 +11,7 @@ from movies.models import MovieReview, MovieVote,Watchlist
 from django.db.models import Prefetch
 from .models import User
 from .forms import SignupForm, LoginForm, ProfileUpdateForm, ForgotPasswordForm, ResetPasswordForm
-from .supabase_client import supabase
+from .supabase_client import get_supabase
 from django.conf import settings
 import uuid
 
@@ -285,6 +285,8 @@ def profile_view(request):
             file_bytes = image.read()
 
             try:
+                supabase = get_supabase()
+
                 supabase.storage.from_(settings.SUPABASE_BUCKET).upload(
                     file_name,
                     file_bytes,
