@@ -102,10 +102,12 @@ DATABASES = {
         "HOST": os.getenv("POSTGRES_HOST"),
         "PORT": os.getenv("POSTGRES_PORT", "5432"),
         "OPTIONS": {
-            "client_encoding": "UTF8",
+            "sslmode": "require",
+            "connect_timeout": 10,
         },
     }
 }
+
 
 
 # Password validation

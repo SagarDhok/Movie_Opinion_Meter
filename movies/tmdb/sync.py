@@ -16,7 +16,7 @@ IMPORTANT_TMDB_IDS = [
 
 def sync_genres():
     genre_map = {}
-
+    
     for g in fetch_genres():
         genre, _ = Genre.objects.get_or_create(name=g["name"])
         genre_map[g["id"]] = genre

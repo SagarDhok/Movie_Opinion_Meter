@@ -13,6 +13,7 @@ retries = Retry(
     backoff_factor=1.5,
     status_forcelist=[429, 500, 502, 503, 504],
     allowed_methods=["GET"],
+    
 )
 
 adapter = HTTPAdapter(max_retries=retries)
