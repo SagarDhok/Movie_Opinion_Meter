@@ -284,23 +284,29 @@ def profile_view(request):
             ext = image.name.split(".")[-1]
             file_name = f"{request.user.id}/{uuid.uuid4().hex}.{ext}"
 
+            image.seek(0)
             file_bytes = image.read()
+
             try:
                 supabase = get_supabase()
-
-                supabase.storage.from_(settings.SUPABASE_BUCKET).upload(
+                res = supabase.storage.from_(settings.SUPABASE_BUCKET).upload(
                     path=file_name,
                     file=file_bytes,
                     file_options={
-                        "contentType": image.content_type,
+                        "content-type": image.content_type,
                         "upsert": True,
                     },
                 )
 
-            except Exception as e:
-                logger.error("Supabase upload failed", exc_info=e)
+                if res.error:
+                    raise Exception(res.error)
+
+
+            except Exception:
+                logger.exception("Supabase upload failed")
                 messages.error(request, "Failed to upload image. Try again.")
                 return redirect("profile")
+
 
                                 
 
