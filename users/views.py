@@ -287,34 +287,59 @@ def profile_view(request):
             file_bytes = image.read()
 
             try:
-                supabase = get_supabase()
-                res = supabase.storage.from_(settings.SUPABASE_BUCKET).upload(
-                    path=file_name,
-                    file=file_bytes,
-                    file_options={
-                        "content-type": image.content_type,
-                        "upsert": True,
-                    },
-                )
+                            supabase = get_supabase()
+                            
+                            # Add debug logging
+                            logger.info(f"Attempting to upload file: {file_name}")
+                            logger.info(f"Bucket: {settings.SUPABASE_BUCKET}")
+                            logger.info(f"File size: {len(file_bytes)} bytes")
+                            
+                            res = supabase.storage.from_(settings.SUPABASE_BUCKET).upload(
+                                path=file_name,
+                                file=file_bytes,
+                                file_options={
+                                    "content-type": image.content_type,
+                                    "upsert": True,
+                                },
+                            )
 
-                if res.error:
-                    raise Exception(res.error)
+                            # Check for errors in different ways
+                            logger.info(f"Upload response type: {type(res)}")
+                            logger.info(f"Upload response: {res}")
+                            
+                            # Try to access error attribute if it exists
+                            if hasattr(res, 'error') and res.error:
+                                logger.error(f"Supabase error attribute: {res.error}")
+                                raise Exception(f"Upload error: {res.error}")
+                                
+                            # Check if response itself indicates an error
+                            if isinstance(res, dict) and 'error' in res:
+                                logger.error(f"Supabase error in dict: {res['error']}")
+                                raise Exception(f"Upload error: {res['error']}")
 
+                            logger.info("Upload successful, getting public URL")
+                            
+                            public_url = supabase.storage.from_(
+                                settings.SUPABASE_BUCKET
+                            ).get_public_url(file_name)
+                            
+                            logger.info(f"Public URL type: {type(public_url)}")
+                            logger.info(f"Public URL: {public_url}")
 
-            except Exception:
-                logger.exception("Supabase upload failed")
-                messages.error(request, "Failed to upload image. Try again.")
-                return redirect("profile")
+                            request.user.profile_image = public_url  
+                            request.user.save()
+                            
+                            logger.info(f"Profile image saved: {request.user.profile_image}")
+                          
+            except Exception as e:
+                            # Log the full exception with traceback
+                            logger.exception(f"Supabase upload failed with error: {str(e)}")
+                            messages.error(request, f"Failed to upload image: {str(e)}")
+                            return redirect("profile")
 
 
                                 
 
-            public_url = supabase.storage.from_(
-                settings.SUPABASE_BUCKET
-            ).get_public_url(file_name)
-
-            request.user.profile_image = public_url  
-            request.user.save()
 
 
 
