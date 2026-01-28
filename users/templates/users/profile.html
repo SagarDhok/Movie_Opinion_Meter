@@ -24,12 +24,13 @@
         <div class="avatar-section">
             <div class="image-wrapper">
                 {% if request.user.profile_image %}
-                    <img src="{{ request.user.profile_image.url }}" alt="Profile" id="avatarPreview">
+                    <img src="{{ request.user.profile_image }}" alt="Profile" id="avatarPreview">
                 {% else %}
                     <div class="avatar-placeholder">
                         <span>{{ request.user.first_name|slice:":1"|upper }}</span>
                     </div>
                 {% endif %}
+
             </div>
 
             <h3 class="username">
