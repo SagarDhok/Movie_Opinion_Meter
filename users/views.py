@@ -191,18 +191,18 @@ def forgot_password_view(request):
                     to_email=user.email,
                     subject="Reset your password – Movie Opinion Meter",
                     text_content=f"""
-Hi {user.first_name},
+                    Hi {user.first_name},
 
-You requested a password reset.
+                    You requested a password reset.
 
-Reset link:
-{reset_url}
+                    Reset link:
+                    {reset_url}
 
-This link expires in 24 hours.
-If you didn't request this, ignore this email.
+                    This link expires in 24 hours.
+                    If you didn't request this, ignore this email.
 
-– Movie Opinion Meter Team""")
-                
+                    – Movie Opinion Meter Team""")
+                                    
                 logger.info(
                         "Password reset requested",
                         extra={"user_id": user.id}
