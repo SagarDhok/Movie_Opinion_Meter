@@ -337,3 +337,6 @@ Made with ❤️ by [Sagar Dhok] |
 
 
 #live links can take time to load because its free tier 
+
+
+Note: The app is deployed on a free hosting tier, so the first load and some page transitions may be slower due to limited resources and cold starts. Functionality, architecture, and backend logic are fully implemented and production-ready.

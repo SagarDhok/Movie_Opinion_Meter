@@ -9,6 +9,7 @@ from .models import (Movie, Genre, MovieVote, Watchlist, Person, Cast, Crew, Mov
 from .forms import MovieReviewForm
 from collections import defaultdict
 from django.http import HttpResponse
+from django.views.decorators.cache import cache_page
 
 
 
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 
-
+@cache_page(60 * 5)
 def home(request):
 
     search_query = request.GET.get("search", "").strip()
