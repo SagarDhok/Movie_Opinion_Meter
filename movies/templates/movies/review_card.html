@@ -107,12 +107,7 @@
 
   <div class="review-footer">
     <div class="review-stats">
-      <form
-        method="post"
-        action="{% url 'toggle-review-like' review.id %}"
-        class="inline-form like-form"
-        data-like-form
-      >
+      <form method="post"action="{% url 'toggle-review-like' review.id %}"class="inline-form like-form"data-like-form >
         {% csrf_token %}
 
         <button
