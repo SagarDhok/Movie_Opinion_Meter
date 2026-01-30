@@ -9,7 +9,8 @@ from .models import (Movie, Genre, MovieVote, Watchlist, Person, Cast, Crew, Mov
 from .forms import MovieReviewForm
 from collections import defaultdict
 from django.http import HttpResponse
-
+from .utils import attach_hype_score
+from django.http import JsonResponse
 
 
 import logging
@@ -18,10 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 
-
-
 def home(request):
-
     search_query = request.GET.get("search", "").strip()
     genre_filter = request.GET.get("genre", "").strip()
     status_filter = request.GET.get("released", "").strip()
@@ -80,11 +78,18 @@ def home(request):
 
 
         #  Most Hyped (Upcoming) movies
-        context["hyped_movies"] = Movie.objects.filter(
+        hyped_qs = Movie.objects.filter(
             is_released=False
         ).annotate(
-            excited_count=Count("hype_votes", filter=Q(hype_votes__vote="excited")),
-            total_hype_votes=Count("hype_votes"),
+            excited_count=Count(
+                "hype_votes",
+                filter=Q(hype_votes__vote="excited"),
+                distinct=True
+            ),
+            total_hype_votes=Count(
+                "hype_votes",
+                distinct=True
+            ),
         ).filter(
             total_hype_votes__gt=0
         ).order_by(
@@ -92,6 +97,13 @@ def home(request):
             "-total_hype_votes",
             "release_date"
         )[:12]
+
+        context["hyped_movies"] = attach_hype_score(list(hyped_qs))
+# objects = [
+#   Movie(excited_count=5, total_hype_votes=8),
+#   Movie(excited_count=12, total_hype_votes=15),
+# ]
+
 
 
                 
@@ -107,68 +119,105 @@ def home(request):
             release_date__lte=soon_limit
         ).prefetch_related("categories").order_by("release_date")[:12]
         
-    
-        context["major_upcoming_movies"] = Movie.objects.filter(
-            is_released=False,
-            release_date__isnull=False,
-            release_date__gt=soon_limit
-        ).prefetch_related("categories").order_by("release_date")[:12]
-
     return render(request, "movies/home.html", context)
+
+
 
 
 def movie_detail(request, movie_id):
     if not request.user.is_authenticated:
         messages.warning(request, "Please login to access the movie detail page.")
-        return redirect(f"{reverse('login')}?next={request.path}")
+        return redirect(f"{reverse('login')}?next={request.path}")  #/login/?next=/movies/42/ LOGIN PAGE + info about where to return
 
-    # Fetch movie with optimized queries
+    #Fetch movie with optimized queries
     movie = get_object_or_404(
         Movie.objects.prefetch_related(
             "categories",
             "cast__person",
             "crew__person",
         ),
-        id=movie_id,
-    )
+        id=movie_id,)
+    
+        #!^  movie.id
+        # movie.title
+        # movie.poster_path
+        # movie.release_date
+        # movie.is_released
+        # movie.overview
+        # movie.categories.all()   # because prefetch
+            
     sort = request.GET.get("sort", "liked").strip().lower()
     if sort not in ["liked", "latest"]:
         sort = "liked"
-  
 
-    # Group crew roles by person
+    crew_map = defaultdict(set)
+    #  crew_map = {}
+    # default value = set()
+
     ROLE_PRIORITY = ["Director", "Producer", "Writer", "Screenplay", 
                      "Story", "Executive Producer"]
-    
-    crew_map = defaultdict(set)
     for crew in movie.crew.all():
         crew_map[crew.person].add(crew.job)
 
+    # Group crew roles by person
     def sort_roles(roles):
         return sorted(
-            roles,
-            key=lambda r: ROLE_PRIORITY.index(r) if r in ROLE_PRIORITY else len(ROLE_PRIORITY)
-        )
+            roles,key=lambda r: ROLE_PRIORITY.index(r) if r in ROLE_PRIORITY else len(ROLE_PRIORITY))
+    # Sort roles so that primary credits appear before secondary ones a person with multiple roles
+
+
 
     def person_priority(jobs):
         for role in ROLE_PRIORITY:
             if role in jobs:
                 return ROLE_PRIORITY.index(role)
         return len(ROLE_PRIORITY)
+    # Rank crew members based on their highest-priority role
+
 
     grouped_crew = sorted(
-        [{"person": person, "jobs": sort_roles(list(jobs))}
-         for person, jobs in crew_map.items()],
-        key=lambda x: person_priority(x["jobs"])
-    )
+        [{"person": person, "jobs": sort_roles(list(jobs))}for person, jobs in crew_map.items()],key=lambda x: person_priority(x["jobs"]))
 
+    # grouped_crew = [
+    #   {
+    #     "person": Nolan,
+    #     "jobs": ["Director", "Producer", "Writer"]
+    #   },
+    #   {
+    #     "person": Hans,
+    #     "jobs": ["Music"]
+    #   }
+    # ]
+
+    #!votes 
     vote_stats_qs = MovieVote.objects.filter(
         movie=movie
     ).values("vote").annotate(count=Count("id"))
+
+    #  vote_stats_qs =   [
+    #   {"vote": "good", "count": 3},
+    #   {"vote": "bad", "count": 1},
+    #   {"vote": "masterpiece", "count": 1},
+    # ]
+
     
     vote_counts = {x["vote"]: x["count"] for x in vote_stats_qs}
+
+    #  votes_count =  {
+    #   "good": 3,
+    #   "bad": 1,
+    #   "masterpiece": 1
+    # }
+
     for key in ["bad", "average", "good", "masterpiece"]:
         vote_counts.setdefault(key, 0)
+    #   votes_count = {
+    #   "bad": 1,
+    #   "average": 0,
+    #   "good": 3,
+    #   "masterpiece": 1
+    # }
+
 
     total_votes = sum(vote_counts.values())
     
@@ -176,45 +225,64 @@ def movie_detail(request, movie_id):
         return round((x / total_votes) * 100) if total_votes > 0 else 0
 
    
-    user_vote = MovieVote.objects.filter(
+    user_vote_obj  = MovieVote.objects.filter(
         user=request.user, 
         movie=movie
     ).first()
 
+    #!hype votes 
     hype_counts = {"excited": 0, "not_excited": 0}
-    hype_score = 0
-    hype_not_excited_percent = 0
+    total_hype_votes = 0
+    hype_percents = {"excited": 0, "not_excited": 0}
     user_hype_vote = ""
+    hype_score = 0
 
     if not movie.is_released:
-        hype_stats = MovieHypeVote.objects.filter(movie=movie).values("vote").annotate(count=Count("id"))
-        hype_counts = {x["vote"]: x["count"] for x in hype_stats}
+        hype_stats = (
+            MovieHypeVote.objects
+            .filter(movie=movie)
+            .values("vote")
+            .annotate(count=Count("id"))
+        )
+        # hype_stats = [
+        #   {"vote": "excited", "count": 1}
+        # ]
 
+        hype_counts = {x["vote"]: x["count"] for x in hype_stats}
         hype_counts.setdefault("excited", 0)
         hype_counts.setdefault("not_excited", 0)
+        # hype_counts = {
+        #   "excited": 1,
+        #   "not_excited": 0
+        # }
 
-        hype_total = hype_counts["excited"] + hype_counts["not_excited"]
+        total_hype_votes = hype_counts["excited"] + hype_counts["not_excited"]
 
-        if hype_total > 0:
-            hype_score = round((hype_counts["excited"] / hype_total) * 100)
-            hype_not_excited_percent = 100 - hype_score
-        else:
-            hype_score = 0
-            hype_not_excited_percent = 0
+        def hype_pct(x):
+            return round((x / total_hype_votes) * 100) if total_hype_votes > 0 else 0
 
-        hype_obj = MovieHypeVote.objects.filter(movie=movie, user=request.user).first()
+        hype_percents = {
+            "excited": hype_pct(hype_counts["excited"]),
+            "not_excited": hype_pct(hype_counts["not_excited"]),
+        }
+        hype_score = hype_percents["excited"]
+
+
+        hype_obj = MovieHypeVote.objects.filter(
+            movie=movie,
+            user=request.user
+        ).first()
         user_hype_vote = hype_obj.vote if hype_obj else ""
 
 
     
-    # Check if movie in watchlist
+    #!Watchlist Check if movie in watchlist
     in_watchlist = Watchlist.objects.filter(
         user=request.user, 
         movie=movie
     ).exists()
 
-    # Fetch reviews with optimized queries
-
+    #!Review Fetch reviews with optimized queries
     reviews_base_qs = (
         MovieReview.objects
         .filter(movie=movie)
@@ -232,7 +300,6 @@ def movie_detail(request, movie_id):
             )
         )
     )
-
     total_reviews_count = reviews_base_qs.count()
 
     if sort == "latest":
@@ -240,13 +307,13 @@ def movie_detail(request, movie_id):
     else:
         ordered_qs = reviews_base_qs.order_by("-like_count", "-created_at")
 
-    my_review = ordered_qs.filter(user=request.user).first()
+    my_review = ordered_qs.filter(user=request.user).first()  #!login user reviews
 
-    other_reviews_qs = ordered_qs
+    other_reviews_qs = ordered_qs                            #!other reviews
     if my_review:
         other_reviews_qs = other_reviews_qs.exclude(id=my_review.id)
 
-    other_reviews = list(other_reviews_qs[:10])
+    other_reviews = list(other_reviews_qs[:10])       #!only 10
 
     review_user_ids = []
 
@@ -296,15 +363,17 @@ def movie_detail(request, movie_id):
             "good": pct(vote_counts["good"]),
             "masterpiece": pct(vote_counts["masterpiece"]),
         },
-        "user_vote": user_vote.vote if user_vote else "",
+        "user_vote": user_vote_obj.vote if user_vote_obj else "",
         "in_watchlist": in_watchlist,
         "my_review": my_review,
         "other_reviews": other_reviews,
          "edit_mode": edit_mode,
-          "hype_counts": hype_counts,
-    "hype_score": hype_score,
-    "user_hype_vote": user_hype_vote,
-    "hype_not_excited_percent": hype_not_excited_percent,
+         "hype_score": hype_score,
+         "hype_counts": hype_counts,
+        "hype_percents": hype_percents,
+        "total_hype_votes": total_hype_votes,
+        "user_hype_vote": user_hype_vote,
+
     "sort": sort,
 "total_reviews_count": total_reviews_count,
 
@@ -334,6 +403,9 @@ def vote_movie(request, movie_id):
             user=request.user, 
             movie=movie
         ).delete()[0]
+          #.delete() → (1, {'movies.MovieVote': 1})
+          # .delete()[0] → 1
+
 
         logger.info(
         "Movie vote removed",
@@ -365,15 +437,12 @@ def vote_movie(request, movie_id):
 
 @login_required
 def toggle_watchlist(request, movie_id):
-    """
-    Toggle movie in user's watchlist.
-    
-    POST-only endpoint that adds/removes movie from watchlist.
-    """
     if request.method != "POST":
         return redirect('movie-detail', movie_id=movie_id)
     
     movie = get_object_or_404(Movie, id=movie_id)
+    # watchlist_item is a Django QuerySet — basically a lazy SQL query wrapper.
+    # SELECT * FROM watchlist WHERE user_id=? AND movie_id=?
     watchlist_item = Watchlist.objects.filter(
         user=request.user, 
         movie=movie
@@ -402,6 +471,8 @@ def toggle_watchlist(request, movie_id):
 
     return redirect('movie-detail', movie_id=movie_id)
 
+
+
 @login_required
 def watchlist_page(request):
     watchlist_qs = (
@@ -412,16 +483,23 @@ def watchlist_page(request):
         .annotate(
             excited_count=Count(
                 "movie__hype_votes",
-                filter=Q(movie__hype_votes__vote="excited")
+                filter=Q(movie__hype_votes__vote="excited"),
+                distinct=True
             ),
-            total_hype_votes=Count("movie__hype_votes"),
+            total_hype_votes=Count(
+                "movie__hype_votes",
+                distinct=True
+            ),
         )
         .order_by("-created_at")
     )
 
+    watchlist_movies = attach_hype_score(list(watchlist_qs))
+
+
     context = {
-        "watchlist_movies": watchlist_qs,
-        "watchlist_count": watchlist_qs.count(),
+         "watchlist_movies": watchlist_movies,
+        "watchlist_count": len(watchlist_movies),
     }
 
     return render(request, "movies/watchlist.html", context)
@@ -430,15 +508,16 @@ def watchlist_page(request):
 @login_required
 def submit_review(request, movie_id):
 
-    movie = get_object_or_404(Movie, id=movie_id)
-    
     if request.method != "POST":
         return redirect('movie-detail', movie_id=movie_id)
+    
+    movie = get_object_or_404(Movie, id=movie_id)
+    
 
     existing_review = MovieReview.objects.filter(
         user=request.user, 
         movie=movie
-    ).first()
+    ).first()   
     
     form = MovieReviewForm(request.POST, instance=existing_review)
     
@@ -492,7 +571,7 @@ def delete_review(request, movie_id):
     return redirect('movie-detail', movie_id=movie_id)
 
 
-from django.http import JsonResponse
+
 
 @login_required
 def toggle_review_like(request, review_id):

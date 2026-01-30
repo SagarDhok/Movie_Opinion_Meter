@@ -6,41 +6,24 @@ from .models import User
 
 
 class SignupForm(forms.ModelForm):
-    """Django form for user registration with validation"""
-    
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'placeholder': 'Password',
-            'class': 'form-input'
-        }),
-        validators=[validate_password],
-        label=''
-    )
+        widget=forms.PasswordInput(attrs={ 'placeholder': 'Password','class': 'form-input'}),
+        validators=[validate_password],  #validators runs when  form.is_valid()
+        label='')
+
+
     confirm_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'placeholder': 'Confirm Password',
-            'class': 'form-input'
-        }),
-        label=''
-    )
+        widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password','class': 'form-input'}),label='')
 
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name']
         widgets = {
-            'email': forms.EmailInput(attrs={
-                'placeholder': 'Email',
-                'class': 'form-input'
-            }),
-            'first_name': forms.TextInput(attrs={
-                'placeholder': 'First Name',
-                'class': 'form-input'
-            }),
-            'last_name': forms.TextInput(attrs={
-                'placeholder': 'Last Name',
-                'class': 'form-input'
-            }),
+            'email': forms.EmailInput(attrs={'placeholder': 'Email', 'class': 'form-input'}),
+            'first_name': forms.TextInput(attrs={'placeholder': 'First Name','class': 'form-input'}),
+            'last_name': forms.TextInput(attrs={ 'placeholder': 'Last Name','class': 'form-input'}),
         }
+        
         labels = {
             'email': '',
             'first_name': '',
@@ -67,7 +50,6 @@ class SignupForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    """Django form for user login"""
     
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
@@ -86,7 +68,6 @@ class LoginForm(forms.Form):
 
 
 class ProfileUpdateForm(forms.ModelForm):
-    """Django form for profile updates"""
     
     class Meta:
         model = User
@@ -121,7 +102,6 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 class ForgotPasswordForm(forms.Form):
-    """Form for requesting password reset"""
     
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
@@ -133,7 +113,6 @@ class ForgotPasswordForm(forms.Form):
 
 
 class ResetPasswordForm(forms.Form):
-    """Form for resetting password"""
     
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={

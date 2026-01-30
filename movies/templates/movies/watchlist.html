@@ -47,11 +47,12 @@
             <span class="view-btn">View Details</span>
           </div>
 
-          {% if item.total_hype_votes > 0 %}
-          <div class="hype-badge">
-            Hype: {{ item.excited_count }}/{{ item.total_hype_votes }}
-          </div>
-          {% endif %}
+          {% if not movie.is_released and item.total_hype_votes > 0 %}
+        <div class="hype-badge">
+          Hype: {{ item.hype_score }}%
+        </div>
+      {% endif %}
+
         </div>
 
         <div class="card-info">

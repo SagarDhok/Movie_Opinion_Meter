@@ -8,14 +8,14 @@ User = settings.AUTH_USER_MODEL
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=100,unique=True,db_index=True)
+    name = models.CharField(max_length=100,unique=True) #unique already creates db_index inside 
 
     def __str__(self):
         return self.name
 
 
 class Movie(models.Model):
-    tmdb_id = models.PositiveIntegerField(unique=True, db_index=True)
+    tmdb_id = models.PositiveIntegerField(unique=True)
     title = models.CharField(max_length=255, db_index=True)
     overview = models.TextField(blank=True, null=True)
     poster_path = models.CharField(max_length=255, blank=True, null=True)
@@ -23,8 +23,6 @@ class Movie(models.Model):
     release_date = models.DateField(blank=True, null=True, db_index=True)
     is_released = models.BooleanField(default=False, db_index=True)
 
-    # 🔥 IMPORTANT
-    is_big_release = models.BooleanField(default=False, db_index=True)
 
     categories = models.ManyToManyField(Genre, related_name="movies")
 
@@ -34,11 +32,6 @@ class Movie(models.Model):
 
     class Meta:
         ordering = ["-release_date"]
-        indexes = [
-            models.Index(fields=["title"]),
-            models.Index(fields=["release_date"]),
-            models.Index(fields=["is_released"]),
-        ]
 
     def __str__(self):
         return self.title
@@ -92,7 +85,6 @@ class Watchlist(models.Model):
     def __str__(self):
         return f"{self.user.email} → {self.movie.title}"
 
-#!Not Inlcluded yet 
 
 class MovieVote(models.Model):
     VOTE_CHOICES = [
@@ -105,7 +97,6 @@ class MovieVote(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey("Movie", on_delete=models.CASCADE, related_name="votes")
     vote = models.CharField(max_length=20, choices=VOTE_CHOICES)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -115,20 +106,15 @@ class MovieReview(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
     
-    rating = models.PositiveSmallIntegerField(
-        choices=[(i, i) for i in range(1, 6)]
-    )
-    review_text = models.TextField(
-        validators=[MaxLengthValidator(1000)]
-    )
+    rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
+    
+    review_text = models.TextField(validators=[MaxLengthValidator(1000)])
 
     created_at = models.DateTimeField(auto_now_add=True)
     contains_spoiler = models.BooleanField(default=False) 
 
     class Meta:
         unique_together = ("user", "movie")
-
-
 
 
 class ReviewLike(models.Model):

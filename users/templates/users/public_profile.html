@@ -20,7 +20,8 @@
   <div class="context-strip">
     <div class="context-left">
       {% if user_obj.profile_image %}
-        <img src="{{ user_obj.profile_image.url }}" class="context-avatar">
+        <img src="{{ user_obj.profile_image }}" class="context-avatar">
+      
       {% else %}
         <div class="context-avatar fallback">
           {{ user_obj.first_name|first }}

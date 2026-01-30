@@ -177,9 +177,27 @@
         </div>
 
         <div class="vote-summary">
-          <span class="vote-pill">
-            Hype Score: {{ hype_score }}%
-          </span>
+          <div class="vote-tooltip">
+            <span class="vote-pill"> Hype Score: {{ hype_score }}% </span>
+
+            <div class="vote-tooltip-box">
+              <div class="tip-title">Hype Breakdown</div>
+
+              <div class="tip-row good">
+                <span>Excited</span>
+                <span class="tip-count">{{ hype_counts.excited }}</span>
+              </div>
+
+              <div class="tip-row bad">
+                <span>Not Excited</span>
+                <span class="tip-count">{{ hype_counts.not_excited }}</span>
+              </div>
+
+              <div class="tip-total">
+                Total Votes: <strong>{{ total_hype_votes }}</strong>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -187,24 +205,25 @@
         {% csrf_token %}
 
         <div class="meter-container">
-
           <div class="meter-row good {% if user_hype_vote == 'excited' %}selected{% endif %}">
-            <button type="submit" name="vote" value="excited" class="meter-name">Excited</button>
+            <button type="submit" name="vote" value="excited" class="meter-name">
+              Excited
+            </button>
             <div class="meter-track">
-              <div class="fill" style="--w: {{ hype_score }}%"></div>
+              <div class="fill" style="--w: {{ hype_percents.excited }}%"></div>
             </div>
-            <span class="meter-pct">{{ hype_counts.excited }} Votes</span>
+            <span class="meter-pct">{{ hype_percents.excited }}%</span>
           </div>
 
           <div class="meter-row bad {% if user_hype_vote == 'not_excited' %}selected{% endif %}">
-            <button type="submit" name="vote" value="not_excited" class="meter-name">Not Excited</button>
+            <button type="submit" name="vote" value="not_excited" class="meter-name">
+              Not Excited
+            </button>
             <div class="meter-track">
-              <div class="fill" style="--w: {{ hype_not_excited_percent }}%"></div>
-
+              <div class="fill" style="--w: {{ hype_percents.not_excited }}%"></div>
             </div>
-            <span class="meter-pct">{{ hype_counts.not_excited }}Votes</span>
+            <span class="meter-pct">{{ hype_percents.not_excited }}%</span>
           </div>
-
         </div>
       </form>
     </div>
@@ -396,9 +415,6 @@
   </form>
         {% include "movies/review_card.html" with review=my_review movie=movie is_owner=True %}
       {% endif %}
-
-   
-
 
       {% if other_reviews %}
         {% for review in other_reviews %}

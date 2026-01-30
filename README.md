@@ -340,3 +340,31 @@ Made with ❤️ by [Sagar Dhok] |
 
 
 Note: The app is deployed on a free hosting tier, so the first load and some page transitions may be slower due to limited resources and cold starts. Functionality, architecture, and backend logic are fully implemented and production-ready.
+
+treding secition
+watchlist 
+hype percentage + everything, votes + percenteage toatl votes eveything 
+cast crew there info biography 
+profile personal review public review
+review
+review spoiler filtering pagination
+
+0️⃣ Review system ka purpose (WHY)
+Tumne review system isliye nahi banaya:
+“Bas text save karne ke liye”
+Tumne banaya:
+1 user = 1 review per movie
+Review ke saath:
+rating
+text
+spoiler flag
+likes
+comments
+sorting (most liked / latest)
+Fast rendering (no N+1)
+Clean templates
+
+Ye already production-grade intent hai.
+likes commets (see how much level)
+ai review 
+pros and cons 

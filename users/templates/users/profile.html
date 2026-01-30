@@ -40,9 +40,9 @@
             <div class="avatar-actions">
 
                 <!-- Upload Photo Form -->
-                    <form method="post" enctype="multipart/form-data" action="{% url 'profile' %}" id="uploadForm">
+                    <form method="post" enctype="multipart/form-data"  id="uploadForm">
                         {% csrf_token %}
-                        <input type="hidden" name="upload_photo" value="1">
+                        <input type="hidden" name="upload_photo">
 
                         <input type="file" name="profile_image" id="fileInput" accept="image/*" hidden>
 
@@ -51,9 +51,9 @@
 
                 <!-- Remove Photo Form -->
                 {% if request.user.profile_image %}
-                <form method="post" action="{% url 'profile' %}">
+                <form method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="remove_image" value="1">
+                    <input type="hidden" name="remove_image" >
                     <button type="submit" class="btn-danger-outline">Remove</button>
                 </form>
                 {% endif %}
@@ -104,6 +104,7 @@
     </div>
 </div>
 
+
 <!-- ===== EDIT NAME MODAL ===== -->
 <div id="nameModal" class="modal-overlay" onclick="if(event.target === this) closeNameModal()">
     <div class="modal-card">
@@ -113,9 +114,9 @@
         </div>
 
         <!-- Name Update Form -->
-        <form method="post" action="{% url 'profile' %}">
+        <form method="post">
             {% csrf_token %}
-            <input type="hidden" name="update_name" value="1">
+            <input type="hidden" name="update_name">
 
             <div class="input-container">
                 <div class="input-group">
@@ -141,7 +142,7 @@
 
 <script>
 function confirmLogout(event) {
-    event.preventDefault();
+    event.preventDefault(); // stops default link navigation
     const logoutUrl = event.currentTarget.getAttribute('href');
 
     Swal.fire({

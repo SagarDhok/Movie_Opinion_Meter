@@ -4,7 +4,6 @@ from django.utils import timezone
 from .managers import UserManager
 
 
-
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=100)
@@ -15,14 +14,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     profile_image = models.URLField(blank=True, null=True)
 
- 
-
-
     USERNAME_FIELD = 'email'  #bydefault django username
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = UserManager()   #py manage.py createsuperuser means User.objects.create_superuser(...) internally
-
 
 
 

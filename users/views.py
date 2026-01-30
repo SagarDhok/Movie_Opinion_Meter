@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 
 
 def signup_view(request):
-
     if request.method == "POST":
         form = SignupForm(request.POST)
         
@@ -32,19 +31,21 @@ def signup_view(request):
                 password=form.cleaned_data['password'],
                 first_name=form.cleaned_data['first_name'],
                 last_name=form.cleaned_data['last_name']
-            )
+                )
+            
 
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            uid = urlsafe_base64_encode(force_bytes(user.pk)) #force_bytes(user.pk)Converts 7 → b'7'  urlsafe_base64_encode(...)->7 → b'7' → "Nw"   uid = "Nw" 
             token = default_token_generator.make_token(user)
             verify_url = request.build_absolute_uri(
                 reverse("verify-email", kwargs={"uid": uid, "token": token})
             )
 
-            send_brevo_email(
+            #funtion call 
+            email_sent= send_brevo_email(
                 to_email=user.email,
                 subject="Verify your email – Movie Opinion Meter",
                 text_content=f"""
-            Hi {user.first_name},
+                Hi {user.first_name},
 
             Please verify your email address to activate your Movie Opinion Meter account.
 
@@ -57,12 +58,22 @@ def signup_view(request):
             – Movie Opinion Meter Team
             """
                         )
+            if not email_sent:
+                logger.error(
+                    "Verification email failed",
+                    extra={"user_id": user.id, "email": user.email}
+                )
+                messages.warning(
+                    request,
+                    "Account created, but we couldn't send the verification email. Please try resending."
+                )
+            else:
 
-            logger.info("User registered", extra={"user_id": user.id})
-            messages.success(
-                request, 
-                "Registration successful! Please check your email to verify your account."
-            )
+                logger.info("User registered", extra={"user_id": user.id})
+                messages.success(
+                    request, 
+                    "Registration successful! Please check your email to verify your account."
+                )
             return redirect('verify-email-success')
     else:
         form = SignupForm()
@@ -71,16 +82,16 @@ def signup_view(request):
 
 
 def verify_email(request, uid, token):
-    """
-    Verify user email from token link.
-    
-    Decodes user ID from URL, validates token, and marks email as verified.
-    """
     try:
-        uid = force_str(urlsafe_base64_decode(uid))
+        uid = force_str(urlsafe_base64_decode(uid))  #back to noramal form 
         user = User.objects.get(pk=uid)
     except (User.DoesNotExist, ValueError, TypeError):
         user = None
+
+    if user and user.is_email_verified:
+        messages.info(request, "Email already verified. Please log in.")
+        return redirect("login")
+
 
     if user and default_token_generator.check_token(user, token):
         user.is_email_verified = True
@@ -92,29 +103,16 @@ def verify_email(request, uid, token):
 
         messages.success(request, "Email verified successfully. You can now login.")
     else:
-        logger.warning(
-    "Email verification failed",
-    extra={"reason": "invalid_or_expired_token"}
-)
-
-
+        logger.warning("Email verification failed",extra={"reason": "invalid_or_expired_token"})
         messages.error(request, "Verification link is invalid or expired.")
-
     return redirect("login")
 
 
 def verify_email_success(request):
-    """Display verification email sent confirmation page."""
     return render(request, "users/verify_email_success.html")
 
 
 def login_view(request):
-    """
-    Handle user login using Django forms.
-    
-    Authenticates user credentials and creates session.
-    Checks for email verification before allowing login.
-    """
     if request.method == "POST":
         form = LoginForm(request.POST)
         
@@ -126,9 +124,8 @@ def login_view(request):
 
             if user is None:
                 logger.warning("Login failed", extra={"reason": "invalid_credentials"})
-
-
                 form.add_error(None, 'Invalid email or password')
+                
             elif not user.is_email_verified:
                 form.add_error('email', 'Please verify your email before logging in')
             else:
@@ -147,7 +144,6 @@ def login_view(request):
                 return redirect("movies-home")
     else:
         form = LoginForm()
-
     return render(request, "users/login.html", {"form": form})
 
 
@@ -162,12 +158,6 @@ def logout_view(request):
 
 
 def forgot_password_view(request):
-    """
-    Handle forgot password request.
-    
-    Sends password reset link to user's email if account exists.
-    Always shows success message for security (prevents user enumeration).
-    """
     if request.method == "POST":
         form = ForgotPasswordForm(request.POST)
         
@@ -263,7 +253,9 @@ def profile_view(request):
             return redirect("profile")
 
 
-        if "upload_photo" in request.POST:
+        if "upload_photo" in request.POST: 
+            # Where does request.FILES come from?
+            # Django builds it when multipart/form-data is used.
             image = request.FILES.get("profile_image")
 
             if not image:
@@ -278,10 +270,11 @@ def profile_view(request):
             if image.content_type not in allowed_types:
                 messages.error(request, "Invalid image format. Use JPG, PNG, or WEBP")
                 return redirect("profile")
+             
+            # image.name= sagar.png [sagar,png]
 
-
-            ext = image.name.split(".")[-1]
-            file_name = f"{request.user.id}/{uuid.uuid4().hex}.{ext}"
+            ext = image.name.split(".")[-1] #png
+            file_name = f"{request.user.id}/{uuid.uuid4().hex}.{ext}"  #7/9f3a2b6a1e2449f9a5b0d4a8e2c7c1b3.png
 
             image.seek(0)
             file_bytes = image.read()
@@ -332,23 +325,16 @@ def profile_view(request):
                             logger.info(f"Profile image saved: {request.user.profile_image}")
                           
             except Exception as e:
-                            # Log the full exception with traceback
                             logger.exception(f"Supabase upload failed with error: {str(e)}")
-                            messages.error(request, f"Failed to upload image: {str(e)}")
+                            messages.error(request, "Failed to upload image")
                             
                             return redirect("profile")
-
-
-                                
-
-
-
 
             messages.success(request, "Profile photo updated")
             return redirect("profile")
 
         if "update_name" in request.POST:
-            name_form = ProfileUpdateForm(request.POST, instance=request.user)
+            name_form = ProfileUpdateForm(request.POST, instance=request.user)   #if not first_name or not first_name.strip():
 
             if name_form.is_valid():
                 name_form.save()
@@ -360,7 +346,8 @@ def profile_view(request):
 
             return redirect("profile")
 
-    watchlist_movies = Watchlist.objects.filter(user=request.user).select_related("movie")
+    watchlist_movies = Watchlist.objects.filter(user=request.user).select_related("movie")  #WHERE watchlist.user_id = current_user.id
+    # “We are displaying movies from the user’s watchlist. Without using select_related, Django would execute an additional database query for each movie when accessing related data. By using select_related("movie"), Django fetches the watchlist entries and their related movie records in a single SQL join, allowing us to access movie.title in the template without triggering multiple database queries.”
     review_count = MovieReview.objects.filter(user=request.user).count()
 
     context = {
