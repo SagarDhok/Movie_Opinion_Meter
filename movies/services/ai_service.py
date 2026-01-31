@@ -19,6 +19,7 @@ def build_prompt(text: str, mode: str, movie_title: str = "", movie_overview: st
     movie_overview = (movie_overview or "").strip()
 
     context = ""
+    
     if movie_title:
         context += f"Movie title: {movie_title}\n"
     if movie_overview:
@@ -79,6 +80,30 @@ def groq_chat(messages: list) -> str:
         data = res.json()
         return data["choices"][0]["message"]["content"].strip()
 
+
+        #  {
+        #   "id": "chatcmpl-9f3a1b",
+        #   "object": "chat.completion",
+        #   "created": 1712312456,
+        #   "model": "llama-3.3-70b-versatile",
+        #   "choices": [
+        #     {
+        #       "index": 0,
+        #       "message": {
+        #         "role": "assistant",
+        #         "content": "The movie starts with strong performances and engaging moments, but the final act feels rushed and underwhelming. While the first half keeps you invested, the climax fails to deliver the emotional payoff it promises."
+        #       },
+        #       "finish_reason": "stop"
+        #     }
+        #   ],
+        #   "usage": {
+        #     "prompt_tokens": 210,
+        #     "completion_tokens": 78,
+        #     "total_tokens": 288
+        #   }
+        # }
+
+
     try:
         return call_model(GROQ_MODEL_PRIMARY)
     except Exception:
@@ -137,11 +162,16 @@ def ai_extract_pros_cons(text: str) -> dict:
     ]
 
     raw = groq_chat(messages)
+    # {"pros":["Strong performances"],"cons":["Weak storyline"]}
+
 
     try:
         data = json.loads(raw)
         pros = data.get("pros", [])
         cons = data.get("cons", [])
+        # pros = ["Strong performances"]
+        # cons = ["Weak storyline"]
+
         return {
             "pros": pros[:6] if isinstance(pros, list) else [],
             "cons": cons[:6] if isinstance(cons, list) else [],

@@ -183,11 +183,11 @@ class AIRequestLog(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey("movies.Movie", on_delete=models.SET_NULL, null=True, blank=True)
-
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+
+
     input_text = models.TextField()
     output_text = models.TextField(blank=True)
-
     success = models.BooleanField(default=False)
     error_message = models.CharField(max_length=255, blank=True)
 
@@ -195,3 +195,5 @@ class AIRequestLog(models.Model):
 
     def __str__(self):
         return f"{self.user_id} - {self.action} - {self.success}"
+    
+    

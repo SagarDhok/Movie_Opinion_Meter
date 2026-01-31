@@ -9,19 +9,28 @@ from .client import (
 )
 
 
-IMPORTANT_TMDB_IDS = [
 
-]
+# fetch_genres
+# [
+#  {"id": 28, "name": "Action"},
+#   {"id": 18, "name": "Drama"}
+# ]
+
+
 
 
 def sync_genres():
     genre_map = {}
-    
+#     {
+#   28: <Genre: Action>,
+#   18: <Genre: Drama>
+# }
     for g in fetch_genres():
-        genre, _ = Genre.objects.get_or_create(name=g["name"])
+        genre, _ = Genre.objects.get_or_create(name=g["name"])  #(<Genre: Action>, True) funtion op and in db onlyl aciton is saved direct name 
         genre_map[g["id"]] = genre
 
     return genre_map
+
 
 
 def save_movie_to_db(movie_data, genre_map):
@@ -31,7 +40,7 @@ def save_movie_to_db(movie_data, genre_map):
     if release_date:
         try:
             is_released = date.fromisoformat(release_date) <= date.today()
-        except ValueError:
+        except ValueError: #if realsed data is not value
             release_date = None
 
     movie, _ = Movie.objects.update_or_create(
@@ -49,23 +58,24 @@ def save_movie_to_db(movie_data, genre_map):
     movie.categories.set(
         [genre_map[g] for g in genre_ids if g in genre_map]
     )
-
+# movie.categories.set([
+#    <Genre: Action>,
+#    <Genre: Drama>
+# ])
     return movie
 
 
-def sync_priority_movies(genre_map):
-    for tmdb_id in IMPORTANT_TMDB_IDS:
-        try:
-            movie_data = fetch_movie_by_id(tmdb_id)
-            save_movie_to_db(movie_data, genre_map)
-            time.sleep(0.4)
-        except Exception:
-            continue
 
 def sync_all_movies(limit=50):
     print("🎬 Syncing Indian movies (last 1 year + upcoming)")
 
     genre_map = sync_genres()
+#     genre_map = {
+#   28: <Genre: Action>,
+#   18: <Genre: Drama>,
+#   ...
+# }
+
 
     released_limit = 30
     upcoming_limit = 20
@@ -76,9 +86,19 @@ def sync_all_movies(limit=50):
     # -------- Released (last 1 year) --------
     page = 1
     while synced_released < released_limit:
-        data = fetch_indian_recent_released_movies(page)
-        results = data.get("results", [])
 
+        #  data =    {
+        #  "results": [
+        #    {"id": 101, "title": "...", "genre_ids": [28, 18]},
+        #    {"id": 102, "title": "...", "genre_ids": [18]}
+        #  ]
+        data = fetch_indian_recent_released_movies(page)
+
+        # "results": [
+        #    {"id": 101, "title": "...", "genre_ids": [28, 18]},
+        #    {"id": 102, "title": "...", "genre_ids": [18]}
+        #  ]
+        results = data.get("results", [])
         if not results:
             break
 

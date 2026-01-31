@@ -1,8 +1,9 @@
 import requests
-from datetime import date
+from datetime import date,timedelta
 from django.conf import settings
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter  
 from urllib3.util.retry import Retry
+# HTTPAdapter + Retry → network failure / rate limit handle
 
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
@@ -26,7 +27,7 @@ session.headers.update({
 
 
 def fetch_genres():
-    r = session.get(
+    r = session.get(  
         f"{TMDB_BASE_URL}/genre/movie/list",
         params={"api_key": settings.TMDB_API_KEY},
         timeout=20,
@@ -34,9 +35,25 @@ def fetch_genres():
     r.raise_for_status()
     return r.json()["genres"]
 
+# tmdb response
+# {
+#   "genres": [
+#     { "id": 28, "name": "Action" },
+#     { "id": 18, "name": "Drama" },
+#     { "id": 35, "name": "Comedy" }
+#   ]
+# }
+
+# [
+#   {"id": 28, "name": "Action"},
+#   {"id": 18, "name": "Drama"}
+# ]
+
+
+
 
 def fetch_indian_recent_released_movies(page=1):
-    one_year_ago = date.today().replace(year=date.today().year - 1)
+    one_year_ago = date.today() - timedelta(days=365)
 
     r = session.get(
         f"{TMDB_BASE_URL}/discover/movie",
@@ -62,13 +79,13 @@ def fetch_indian_upcoming_movies(page=1):
             "api_key": settings.TMDB_API_KEY,
             "region": "IN",
             "with_original_language": "hi|te|ta|ml|kn",
-            "primary_release_date.gte": date.today().isoformat(),
+            "primary_release_date.gte": date.today().isoformat(),  #isoformat() - 2026-01-31
             "sort_by": "popularity.desc",
             "page": page,
         },
         timeout=20,
     )
-    r.raise_for_status()
+    r.raise_for_status()  #if error then runs returns error if no error then pass
     return r.json()
 
 

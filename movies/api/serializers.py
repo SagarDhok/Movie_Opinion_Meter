@@ -1,51 +1,97 @@
 from rest_framework import serializers
-from movies.models import Movie, MovieReview, Genre
+from movies.models import (Movie,Genre,MovieReview,Cast, Crew, Person)
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ["id", "name"]
 
 
 class MovieListSerializer(serializers.ModelSerializer):
-    genres = serializers.StringRelatedField(many=True, source="categories")
+    categories = GenreSerializer(many=True)
 
     class Meta:
         model = Movie
         fields = [
             "id",
             "title",
-            "is_released",
+            "poster_path",
             "release_date",
-            "genres",
+            "is_released",
+            "categories",
         ]
 
 
 class MovieDetailSerializer(serializers.ModelSerializer):
-    genres = serializers.StringRelatedField(many=True, source="categories")
-
+    categories = GenreSerializer(many=True)
     class Meta:
         model = Movie
         fields = [
             "id",
             "title",
             "overview",
-            "is_released",
+            "poster_path",
             "release_date",
-            "genres",
+            "is_released",
+            "categories",
         ]
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    user_name = serializers.CharField(source="user.get_full_name")
-    like_count = serializers.IntegerField()
-    comment_count = serializers.IntegerField()
-    user_vote = serializers.CharField(allow_null=True)
 
+class PersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        fields = [
+            "id",
+            "name",
+            "biography",
+            "profile_path",
+            "known_for_department",
+            "birthday",
+            "place_of_birth",
+        ]
+
+
+class CastSerializer(serializers.ModelSerializer):
+    person = PersonSerializer()
+
+    class Meta:
+        model = Cast
+        fields = [
+            "id",
+            "character",
+            "person",
+        ]
+
+
+class CrewSerializer(serializers.ModelSerializer):
+    person = PersonSerializer()
+    class Meta:
+        model = Crew
+        fields = [
+            "id",
+            "job",
+            "person",
+        ]
+
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
     class Meta:
         model = MovieReview
         fields = [
             "id",
-            "user_name",
+            "user",
             "rating",
             "review_text",
-            "like_count",
-            "comment_count",
-            "user_vote",
+            "contains_spoiler",
             "created_at",
         ]
+
+
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MovieReview
+        fields = ["rating", "review_text", "contains_spoiler"]

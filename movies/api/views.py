@@ -1,209 +1,241 @@
 from rest_framework.views import APIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import PageNumberPagination
-from django.shortcuts import get_object_or_404
-from django.db.models import Count, Q
-
-from movies.models import (
-    Movie, MovieReview, ReviewLike,
-    MovieVote, Watchlist, MovieHypeVote
-)
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
+from movies.models import Cast, Crew, Person
+from movies.models import Movie, MovieReview, AIRequestLog
 from .serializers import (
     MovieListSerializer,
     MovieDetailSerializer,
-    ReviewSerializer
+    ReviewSerializer,
+    ReviewCreateSerializer,
+    CastSerializer, CrewSerializer, PersonSerializer
+)
+
+from movies.services.ai_service import (
+    ai_rewrite_review,
+    ai_extract_pros_cons,
+    clean_text,
 )
 
 
+# --------------------
+# MOVIES
+# --------------------
 
-class MovieListAPI(APIView):
+class MovieListAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
-        qs = Movie.objects.all().prefetch_related("categories")
+        search = request.GET.get("search", "").strip()
+        genre = request.GET.get("genre", "").strip()
+        status = request.GET.get("status", "").strip()
 
-        paginator = PageNumberPagination()
-        paginator.page_size = 20
-        page = paginator.paginate_queryset(qs, request)
+        qs = Movie.objects.prefetch_related("categories")
 
-        serializer = MovieListSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        if search:
+            qs = qs.filter(title__icontains=search)
+
+        if genre:
+            qs = qs.filter(categories__id=genre)
+
+        if status == "released":
+            qs = qs.filter(is_released=True)
+        elif status == "upcoming":
+            qs = qs.filter(is_released=False)
+
+        qs = qs.distinct().order_by("-release_date")
+
+        serializer = MovieListSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class MovieDetailAPIView(RetrieveAPIView):
+    queryset = Movie.objects.prefetch_related("categories")
+    serializer_class = MovieDetailSerializer
+    permission_classes = [AllowAny]
 
 
 
 
-class MovieDetailAPI(APIView):
+
+class MovieCastAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, movie_id):
-        movie = get_object_or_404(Movie, id=movie_id)
-
-        vote_counts = MovieVote.objects.filter(movie=movie).values("vote").annotate(
-            count=Count("id")
+        cast_qs = (
+            Cast.objects
+            .filter(movie_id=movie_id)
+            .select_related("person")
+            .order_by("id")
         )
 
-        vote_summary = {v["vote"]: v["count"] for v in vote_counts}
-
-        data = MovieDetailSerializer(movie).data
-        data["vote_summary"] = vote_summary
-
-        if not movie.is_released:
-            total = MovieHypeVote.objects.filter(movie=movie).count()
-            excited = MovieHypeVote.objects.filter(movie=movie, vote="excited").count()
-            data["hype_score"] = round((excited / total) * 100) if total else 0
-
-        return Response(data)
+        serializer = CastSerializer(cast_qs, many=True)
+        return Response(serializer.data)
 
 
+class MovieCrewAPIView(APIView):
+    permission_classes = [AllowAny]
 
-class MovieReviewsAPI(APIView):
     def get(self, request, movie_id):
-        sort = request.GET.get("sort", "liked")
+        crew_qs = (
+            Crew.objects
+            .filter(movie_id=movie_id)
+            .select_related("person")
+            .order_by("job")
+        )
 
-        qs = (
+        serializer = CrewSerializer(crew_qs, many=True)
+        return Response(serializer.data)
+
+
+class PersonDetailAPIView(RetrieveAPIView):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    permission_classes = [AllowAny]
+
+
+
+# --------------------
+# REVIEWS
+# --------------------
+
+class MovieReviewsAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, movie_id):
+        reviews = (
             MovieReview.objects
             .filter(movie_id=movie_id)
             .select_related("user")
-            .annotate(
-                like_count=Count("likes"),
-                comment_count=Count("comments"),
-            )
+            .order_by("-created_at")
         )
 
-        if sort == "latest":
-            qs = qs.order_by("-created_at")
-        else:
-            qs = qs.order_by("-like_count", "-created_at")
-
-        paginator = PageNumberPagination()
-        paginator.page_size = 10
-        page = paginator.paginate_queryset(qs, request)
-
-        data = []
-        for r in page:
-            user_vote = MovieVote.objects.filter(
-                movie_id=movie_id,
-                user=r.user
-            ).first()
-
-            r.user_vote = user_vote.vote if user_vote else None
-            data.append(r)
-
-        serializer = ReviewSerializer(data, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
 
 
-
-class ToggleReviewLikeAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, review_id):
-        review = get_object_or_404(MovieReview, id=review_id)
-
-        like = ReviewLike.objects.filter(
-            user=request.user, review=review
-        )
-
-        if like.exists():
-            like.delete()
-            liked = False
-        else:
-            ReviewLike.objects.create(user=request.user, review=review)
-            liked = True
-
-        return Response({
-            "liked": liked,
-            "like_count": ReviewLike.objects.filter(review=review).count()
-        })
-
-
-
-class MovieVoteAPI(APIView):
+class ReviewCreateUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, movie_id):
-        vote = request.data.get("vote")
+        serializer = ReviewCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if vote == "remove":
-            MovieVote.objects.filter(
-                user=request.user,
-                movie_id=movie_id
-            ).delete()
-            return Response({"vote": None})
-
-        obj, _ = MovieVote.objects.update_or_create(
+        MovieReview.objects.update_or_create(
             user=request.user,
             movie_id=movie_id,
-            defaults={"vote": vote}
+            defaults=serializer.validated_data,
         )
 
-        return Response({"vote": obj.vote})
+        return Response({"message": "Review saved successfully"})
 
 
+# --------------------
+# AI HELPERS
+# --------------------
 
-class MeAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        return Response({
-            "id": request.user.id,
-            "name": request.user.get_full_name(),
-            "review_count": MovieReview.objects.filter(user=request.user).count(),
-            "watchlist_count": Watchlist.objects.filter(user=request.user).count(),
-        })
-
-
-class MyWatchlistAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        qs = (
-            Watchlist.objects
-            .filter(user=request.user)
-            .select_related("movie")
-            .annotate(
-                excited=Count(
-                    "movie__hype_votes",
-                    filter=Q(movie__hype_votes__vote="excited")
-                ),
-                total=Count("movie__hype_votes"),
-            )
-        )
-
-        data = []
-        for w in qs:
-            data.append({
-                "movie_id": w.movie.id,
-                "title": w.movie.title,
-                "is_released": w.movie.is_released,
-                "added_at": w.created_at,
-                "hype": {
-                    "excited": w.excited,
-                    "total": w.total,
-                }
-            })
-
-        return Response(data)
+def user_ai_limit_exceeded(user, action, minutes=10, limit=10):
+    since = timezone.now() - timedelta(minutes=minutes)
+    count = AIRequestLog.objects.filter(
+        user=user,
+        action=action,
+        created_at__gte=since,
+    ).count()
+    return count >= limit
 
 
-
-class ToggleWatchlistAPI(APIView):
+class AIRewriteReviewAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, movie_id):
-        obj = Watchlist.objects.filter(
+        text = clean_text(request.data.get("text", ""))
+        mode = request.data.get("mode", "rewrite")
+
+        allowed_modes = {
+            "rewrite",
+            "shorten",
+            "funny",
+            "roast",
+            "professional",
+            "hype",
+            "savage_1star",
+        }
+
+        if mode not in allowed_modes:
+            return Response({"error": "Invalid mode"}, status=400)
+
+        if user_ai_limit_exceeded(request.user, mode):
+            return Response({"error": "Rate limit exceeded"}, status=429)
+
+        movie = Movie.objects.filter(id=movie_id).first()
+
+        log = AIRequestLog.objects.create(
             user=request.user,
-            movie_id=movie_id
+            movie=movie,
+            action=mode,
+            input_text=text,
+            success=False,
         )
 
-        if obj.exists():
-            obj.delete()
-            in_watchlist = False
-        else:
-            Watchlist.objects.create(
-                user=request.user,
-                movie_id=movie_id
+        try:
+            output = ai_rewrite_review(
+                text=text,
+                mode=mode,
+                movie_title=movie.title if movie else "",
+                movie_overview=movie.overview if movie else "",
             )
-            in_watchlist = True
 
-        return Response({"in_watchlist": in_watchlist})
+            log.output_text = output
+            log.success = True
+            log.save()
+
+            return Response({"result": output})
+
+        except Exception as e:
+            log.error_message = str(e)[:255]
+            log.save()
+            return Response({"error": "AI failed"}, status=500)
 
 
+class AIProsConsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request, movie_id):
+        text = clean_text(request.data.get("text", ""))
+
+        if not text:
+            return Response({"error": "Text required"}, status=400)
+
+        if user_ai_limit_exceeded(request.user, "pros_cons"):
+            return Response({"error": "Rate limit exceeded"}, status=429)
+
+        movie = Movie.objects.filter(id=movie_id).first()
+
+        log = AIRequestLog.objects.create(
+            user=request.user,
+            movie=movie,
+            action="pros_cons",
+            input_text=text,
+            success=False,
+        )
+
+        try:
+            data = ai_extract_pros_cons(text)
+
+            log.output_text = f"Pros: {data['pros']} | Cons: {data['cons']}"
+            log.success = True
+            log.save()
+
+            return Response({
+                "pros": data["pros"],
+                "cons": data["cons"],
+            })
+
+        except Exception:
+            log.error_message = "AI failed"
+            log.save()
+            return Response({"error": "AI failed"}, status=500)

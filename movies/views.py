@@ -11,6 +11,7 @@ from collections import defaultdict
 from django.http import HttpResponse
 from .utils import attach_hype_score
 from django.http import JsonResponse
+from django.db.models import F, FloatField, ExpressionWrapper, Case, When, Value
 
 
 import logging
@@ -69,44 +70,56 @@ def home(request):
         recent_limit = today - timedelta(days=120)
         
         #trednding section 
-        context["trending_movies"] = Movie.objects.filter(
-            is_released=True,
-            release_date__gte=recent_limit
-        ).prefetch_related("categories").annotate(
-            vote_count=Count("votes")
-        ).order_by("-vote_count", "-release_date")[:12]
+        context["trending_movies"] = (
+            Movie.objects.filter(
+                is_released=True,
+                release_date__gte=recent_limit
+            )
+            .annotate(vote_count=Count("votes"))
+            .filter(vote_count__gt=0)
+            .order_by("-vote_count", "-release_date")[:12]
+        )
 
 
         #  Most Hyped (Upcoming) movies
-        hyped_qs = Movie.objects.filter(
-            is_released=False
-        ).annotate(
-            excited_count=Count(
-                "hype_votes",
-                filter=Q(hype_votes__vote="excited"),
-                distinct=True
-            ),
-            total_hype_votes=Count(
-                "hype_votes",
-                distinct=True
-            ),
-        ).filter(
-            total_hype_votes__gt=0
-        ).order_by(
-            "-excited_count",
-            "-total_hype_votes",
-            "release_date"
-        )[:12]
+        hyped_qs = (
+            Movie.objects.filter(is_released=False)
+            .annotate(
+                excited_count=Count(
+                    "hype_votes",
+                    filter=Q(hype_votes__vote="excited"),
+                    distinct=True
+                ),
+                total_hype_votes=Count("hype_votes", distinct=True),
+            )
+            .annotate(
+                hype_score=Case(
+                    When(
+                        total_hype_votes__gt=0,
+                        then=ExpressionWrapper(
+                            F("excited_count") * 100.0 / F("total_hype_votes"),
+                            output_field=FloatField(),
+                        ),
+                    ),
+                    default=Value(0.0),
+                    output_field=FloatField(),
+                )
+            )
+            .filter(total_hype_votes__gt=0)
+            .order_by(
+                "-hype_score",          # ✅ percentage first
+                "-total_hype_votes",    # tie-breaker
+                "release_date"
+            )[:12]
+        )
+
 
         context["hyped_movies"] = attach_hype_score(list(hyped_qs))
 # objects = [
 #   Movie(excited_count=5, total_hype_votes=8),
 #   Movie(excited_count=12, total_hype_votes=15),
 # ]
-
-
-
-                
+# 
         # Latest released
         context["latest_released_movies"] = Movie.objects.filter(
             is_released=True

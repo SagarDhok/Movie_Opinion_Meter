@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 
-def user_ai_limit_exceeded(user, action, minutes=10, limit=5):
-    since = timezone.now() - timedelta(minutes=minutes)
+def user_ai_limit_exceeded(user, action, minutes=10, limit=10):
+    since = timezone.now() - timedelta(minutes=minutes) #10 minutes  
     count = AIRequestLog.objects.filter(user=user, action=action, created_at__gte=since).count()
     return count >= limit
 
@@ -49,7 +49,7 @@ def ai_review_assistant(request, movie_id):
     if len(text) > 1000:
         return JsonResponse({"ok": False, "error": "Review too long"}, status=400)
 
-    if user_ai_limit_exceeded(request.user, mode, minutes=10, limit=100):#developer mode now 
+    if user_ai_limit_exceeded(request.user, mode, minutes=10, limit=10):
         return JsonResponse({"ok": False, "error": "Too many requests. Try later."}, status=429)
 
     log = AIRequestLog.objects.create(
@@ -59,6 +59,7 @@ def ai_review_assistant(request, movie_id):
         input_text=text,
         success=False,
     )
+
 
     try:
         output = ai_rewrite_review(
@@ -120,7 +121,7 @@ def ai_pros_cons(request, movie_id):
     if len(text) > 1000:
         return JsonResponse({"ok": False, "error": "Review too long"}, status=400)
 
-    if user_ai_limit_exceeded(request.user, "pros_cons", minutes=10, limit=100): #for developer mode now 
+    if user_ai_limit_exceeded(request.user, "pros_cons", minutes=10, limit=10):
 
         return JsonResponse({"ok": False, "error": "Too many requests. Try later."}, status=429)
 
