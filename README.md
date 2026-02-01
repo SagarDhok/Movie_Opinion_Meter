@@ -183,4 +183,4 @@ Backend Developer | Python | Django | REST APIs
 
 ---
 
-**This project is designed for technical interviews.** It demonstrates backend fundamentals—data modeling, API design, query optimization, constraint usage—without over-engineering. Ready to discuss architecture, scaling decisions, and trade-offs in depth.
+
