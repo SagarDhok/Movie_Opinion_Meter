@@ -189,33 +189,78 @@ width: 28px;
   height: 26px;
 }
 
-/* Mobile */
+
+
+
 @media (max-width: 900px) {
   .nav-container {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 18px;
   }
 
   .nav-search-group {
-    flex-direction: column;
-    width: 100%;
+    flex: 1;
+    gap: 10px;
   }
 
   .search-form {
     width: 100%;
+    padding: 0 12px;
+    border-radius: 12px;
+      max-width: 420px;
+  }
+
+  .search-form input {
+    padding: 8px 0;
+    font-size: 14px;
+  }
+
+  .search-btn {
+    font-size: 14px;
   }
 
   .nav-filters {
-    width: 100%;
-    justify-content: space-between;
+    gap: 6px;
   }
 
-  .nav-filters select,
+  .nav-filters select {
+    padding: 6px 8px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
   .apply-btn {
-    width: 32%;
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 8px;
+    max-width: none;
+
   }
 
-  .auth {
-    justify-content: flex-end;
+  .profile-btn {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .nav-username {
+    display: none;
+  }
+
+  .nav-avatar,
+  .nav-avatar-fallback {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Reduce navbar height */
+  .navbar {
+    padding: 8px 14px;
+  }
+
+  .navbar-spacer {
+    height: 18px;
   }
 }
