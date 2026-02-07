@@ -36,13 +36,14 @@
     border: 1px solid #1e293b;
     background: #0f172a !important;
     color: #f8fafc !important;
-    font-size: 16px; /* 16px prevents iOS zoom on focus */
+    font-size: 16px;
+    /* 16px prevents iOS zoom on focus */
     transition: all 0.2s ease;
     box-sizing: border-box;
 }
 
 .auth-card input:-webkit-autofill,
-.auth-card input:-webkit-autofill:hover, 
+.auth-card input:-webkit-autofill:hover,
 .auth-card input:-webkit-autofill:focus {
     -webkit-text-fill-color: #f8fafc !important;
     -webkit-box-shadow: 0 0 0px 1000px #0f172a inset !important;
@@ -137,11 +138,21 @@
 }
 
 /* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+    .auth-page {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        padding-top: 40px;
+    }
+}
+
 @media (max-width: 480px) {
     .auth-page {
         padding: 15px;
-        align-items: flex-start; /* Better for long forms on small screens */
-        padding-top: 50px;
+        padding-top: 30px;
+        gap: 16px;
     }
 
     .auth-card {
@@ -155,7 +166,8 @@
     }
 
     .name-row {
-        flex-direction: column; /* Stack first/last name vertically */
+        flex-direction: column;
+        /* Stack first/last name vertically */
         gap: 0;
     }
 
@@ -169,11 +181,9 @@
     margin-top: 28px;
     padding: 18px;
     border-radius: 14px;
-    background: linear-gradient(
-        145deg,
-        rgba(56, 189, 248, 0.08),
-        rgba(56, 189, 248, 0.02)
-    );
+    background: linear-gradient(145deg,
+            rgba(56, 189, 248, 0.08),
+            rgba(56, 189, 248, 0.02));
     border: 1px dashed rgba(56, 189, 248, 0.3);
 }
 
@@ -221,7 +231,7 @@
 @media (max-width: 768px) {
     .demo-credentials {
         margin-left: 0;
-        margin-top: 20px;
+        margin-top: 0;
         width: 100%;
         max-width: 420px;
     }
