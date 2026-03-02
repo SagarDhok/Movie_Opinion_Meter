@@ -48,8 +48,8 @@
               </div>
 
               <div class="card-info">
-                <span class="status-badge {% if movie.is_released %}released{% else %}upcoming{% endif %}">
-                  {% if movie.is_released %}Released{% else %}Upcoming{% endif %}
+                <span class="status-badge {% if movie.is_released_now %}released{% else %}upcoming{% endif %}">
+                  {% if movie.is_released_now %}Released{% else %}Upcoming{% endif %}
                 </span>
 
                 <h3 class="movie-title">{{ movie.title }}</h3>
@@ -166,7 +166,7 @@
                 <span class="view-btn">View Details</span>
               </div>
 
-          {% if not movie.is_released and movie.total_hype_votes > 0 %}
+          {% if not movie.is_released_now and movie.total_hype_votes > 0 %}
             <div class="hype-badge">
               Hype: {{ movie.hype_score }}%
             </div>
@@ -342,8 +342,8 @@
               </div>
 
               <div class="card-info">
-                <span class="status-badge {% if movie.is_released %}released{% else %}upcoming{% endif %}">
-                  {% if movie.is_released %}Released{% else %}Upcoming{% endif %}
+                <span class="status-badge {% if movie.is_released_now %}released{% else %}upcoming{% endif %}">
+                  {% if movie.is_released_now %}Released{% else %}Upcoming{% endif %}
                 </span>
 
                 <h3 class="movie-title">{{ movie.title }}</h3>

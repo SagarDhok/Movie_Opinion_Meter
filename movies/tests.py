@@ -252,3 +252,32 @@ class MoviesTestCase(TestCase):
         obj.total_hype_votes = 100
         result = attach_hype_score([obj])
         self.assertEqual(result[0].hype_score, 50)
+
+    def test_home_status_and_coming_soon_use_release_date(self):
+        stale_released = Movie.objects.create(
+            tmdb_id=99901,
+            title="Stale Released",
+            is_released=False,
+            release_date=date.today() - timedelta(days=10),
+        )
+        stale_upcoming = Movie.objects.create(
+            tmdb_id=99902,
+            title="Stale Upcoming",
+            is_released=True,
+            release_date=date.today() + timedelta(days=10),
+        )
+
+        released_resp = self.client.get(reverse("movies-home"), {"released": "released"})
+        released_titles = {m.title for m in released_resp.context["movies"]}
+        self.assertIn(stale_released.title, released_titles)
+        self.assertNotIn(stale_upcoming.title, released_titles)
+
+        upcoming_resp = self.client.get(reverse("movies-home"), {"released": "upcoming"})
+        upcoming_titles = {m.title for m in upcoming_resp.context["movies"]}
+        self.assertIn(stale_upcoming.title, upcoming_titles)
+        self.assertNotIn(stale_released.title, upcoming_titles)
+
+        home_resp = self.client.get(reverse("movies-home"))
+        coming_soon_titles = {m.title for m in home_resp.context["coming_soon_movies"]}
+        self.assertIn(stale_upcoming.title, coming_soon_titles)
+        self.assertNotIn(stale_released.title, coming_soon_titles)

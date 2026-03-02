@@ -10,11 +10,19 @@ from .forms import MovieReviewForm
 from collections import defaultdict
 from .utils import attach_hype_score
 from django.http import JsonResponse
-from django.db.models import F, FloatField, ExpressionWrapper, Case, When, Value
+from django.db.models import F, FloatField, ExpressionWrapper, Case, When, Value, BooleanField
 
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def released_movies_q(today):
+    return Q(release_date__isnull=False, release_date__lte=today)
+
+
+def upcoming_movies_q(today):
+    return Q(release_date__isnull=True) | Q(release_date__gt=today)
 
 
 
@@ -24,6 +32,7 @@ def home(request):
     genre_filter = request.GET.get("genre", "").strip()
     status_filter = request.GET.get("released", "").strip()
     page_number = request.GET.get("page", "1")
+    today = date.today()
 
     # Base queryset with optimized prefetch
     base_qs = Movie.objects.all().prefetch_related("categories")
@@ -37,9 +46,9 @@ def home(request):
         movies_qs = movies_qs.filter(categories__id=genre_filter).distinct()
 
     if status_filter == "released":
-        movies_qs = movies_qs.filter(is_released=True)
+        movies_qs = movies_qs.filter(released_movies_q(today))
     elif status_filter == "upcoming":
-        movies_qs = movies_qs.filter(is_released=False)
+        movies_qs = movies_qs.filter(upcoming_movies_q(today))
 
     # If any filters applied, show filtered results
     if search_query or genre_filter or status_filter:
@@ -53,7 +62,17 @@ def home(request):
             "genres": Genre.objects.all(),
         })
 
-    all_movies = base_qs.order_by("-is_released", "-release_date")
+    all_movies = (
+        base_qs
+        .annotate(
+            is_released_dynamic=Case(
+                When(released_movies_q(today), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+        .order_by("-is_released_dynamic", "-release_date")
+    )
     paginator = Paginator(all_movies, 24)
     page_obj = paginator.get_page(page_number)
 
@@ -64,14 +83,14 @@ def home(request):
     }
 
     if str(page_number) == "1":
-        today = date.today()
         soon_limit = today + timedelta(days=60)
         recent_limit = today - timedelta(days=120)
         
         #trednding section 
         context["trending_movies"] = (
             Movie.objects.filter(
-                is_released=True,
+                release_date__isnull=False,
+                release_date__lte=today,
                 release_date__gte=recent_limit
             )
             .annotate(vote_count=Count("votes"))
@@ -82,7 +101,7 @@ def home(request):
 
         #  Most Hyped (Upcoming) movies
         hyped_qs = (
-            Movie.objects.filter(is_released=False)
+            Movie.objects.filter(upcoming_movies_q(today))
             .annotate(
                 excited_count=Count(
                     "hype_votes",
@@ -120,14 +139,16 @@ def home(request):
 # ]
 # 
         # Latest released
-        context["latest_released_movies"] = Movie.objects.filter(
-            is_released=True
-        ).prefetch_related("categories").order_by("-release_date")[:12]
-        
+        context["latest_released_movies"] = (
+            Movie.objects.filter(released_movies_q(today))
+            .prefetch_related("categories")
+            .order_by("-release_date")[:12]
+        )
+
         # Coming soon (next 60 days)
         context["coming_soon_movies"] = Movie.objects.filter(
-            is_released=False,
             release_date__isnull=False,
+            release_date__gte=today,
             release_date__lte=soon_limit
         ).prefetch_related("categories").order_by("release_date")[:12]
         
@@ -149,6 +170,7 @@ def movie_detail(request, movie_id):
             "crew__person",
         ),
         id=movie_id,)
+    movie_is_released = movie.is_released_now
     
         #!^  movie.id
         # movie.title
@@ -249,7 +271,7 @@ def movie_detail(request, movie_id):
     user_hype_vote = ""
     hype_score = 0
 
-    if not movie.is_released:
+    if not movie_is_released:
         hype_stats = (
             MovieHypeVote.objects
             .filter(movie=movie)
@@ -382,9 +404,10 @@ def movie_detail(request, movie_id):
          "edit_mode": edit_mode,
          "hype_score": hype_score,
          "hype_counts": hype_counts,
-        "hype_percents": hype_percents,
+         "hype_percents": hype_percents,
         "total_hype_votes": total_hype_votes,
         "user_hype_vote": user_hype_vote,
+        "movie_is_released": movie_is_released,
 
     "sort": sort,
 "total_reviews_count": total_reviews_count,
@@ -787,7 +810,7 @@ def hype_vote_movie(request, movie_id):
 
     movie = get_object_or_404(Movie, id=movie_id)
 
-    if movie.is_released:
+    if movie.is_released_now:
         messages.error(request, "Hype voting is only for upcoming movies.")
         return redirect("movie-detail", movie_id=movie_id)
 

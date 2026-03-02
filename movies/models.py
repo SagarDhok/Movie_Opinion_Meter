@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MaxLengthValidator
+from django.utils import timezone
 User = settings.AUTH_USER_MODEL
 
 
@@ -35,6 +36,13 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_released_now(self):
+        # Compute from date first so status stays correct between TMDB sync runs.
+        if self.release_date is None:
+            return self.is_released
+        return self.release_date <= timezone.localdate()
     
 class Person(models.Model):
     tmdb_id = models.IntegerField(unique=True, db_index=True)

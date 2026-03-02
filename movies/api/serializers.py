@@ -10,6 +10,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class MovieListSerializer(serializers.ModelSerializer):
     categories = GenreSerializer(many=True)
+    is_released = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
@@ -22,9 +23,14 @@ class MovieListSerializer(serializers.ModelSerializer):
             "categories",
         ]
 
+    def get_is_released(self, obj):
+        return obj.is_released_now
+
 
 class MovieDetailSerializer(serializers.ModelSerializer):
     categories = GenreSerializer(many=True)
+    is_released = serializers.SerializerMethodField()
+
     class Meta:
         model = Movie
         fields = [
@@ -36,6 +42,9 @@ class MovieDetailSerializer(serializers.ModelSerializer):
             "is_released",
             "categories",
         ]
+
+    def get_is_released(self, obj):
+        return obj.is_released_now
 
 
 

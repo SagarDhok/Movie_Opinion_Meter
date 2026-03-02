@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from django.utils import timezone
-from datetime import timedelta
+from datetime import date, timedelta
 from movies.models import Cast, Crew, Person
 from movies.models import Movie, MovieReview, AIRequestLog
 from .serializers import (
@@ -33,6 +33,7 @@ class MovieListAPIView(APIView):
         search = request.GET.get("search", "").strip()
         genre = request.GET.get("genre", "").strip()
         status = request.GET.get("status", "").strip()
+        today = date.today()
 
         qs = Movie.objects.prefetch_related("categories")
 
@@ -43,9 +44,9 @@ class MovieListAPIView(APIView):
             qs = qs.filter(categories__id=genre)
 
         if status == "released":
-            qs = qs.filter(is_released=True)
+            qs = qs.filter(release_date__isnull=False, release_date__lte=today)
         elif status == "upcoming":
-            qs = qs.filter(is_released=False)
+            qs = qs.filter(Q(release_date__isnull=True) | Q(release_date__gt=today))
 
         qs = qs.distinct().order_by("-release_date")
 

@@ -38,7 +38,7 @@
           <span class="meta-date">{{ movie.release_date }}</span>
         {% endif %}
 
-        {% if movie.is_released %}
+        {% if movie_is_released %}
           <span class="status-pill released">Released</span>
         {% else %}
           <span class="status-pill upcoming">Upcoming</span>
@@ -67,7 +67,7 @@
   </section>
 
 
-  {% if movie.is_released %}
+  {% if movie_is_released %}
   <!-- AUDIENCE OPINION METER -->
   <section class="meter-section">
     <div class="meter-wrap">
@@ -166,7 +166,7 @@
 
 
   
-  {% if not movie.is_released %}
+  {% if not movie_is_released %}
   <!-- HYPE METER (Upcoming Only) -->
   <section class="meter-section">
     <div class="meter-wrap">
@@ -281,7 +281,7 @@
   {% endif %}
 
 
-  {% if movie.is_released %}
+  {% if movie_is_released %}
   <!-- REVIEW FORM -->
   <section class="review-form" id="review-form">
     <h2>
