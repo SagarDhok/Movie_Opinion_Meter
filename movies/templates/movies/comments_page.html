@@ -43,7 +43,7 @@
             <div class="comment-row">
               <div class="comment-avatar">
                 {% if c.user.profile_image %}
-                  <img src="{{ c.user.profile_image.url }}" alt="Profile">
+                  <img src="{{ c.user.profile_image }}" alt="Profile">
                 {% else %}
                   <div class="comment-avatar-fallback">
                     {{ c.user.first_name|default:"U"|first|upper }}

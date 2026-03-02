@@ -75,7 +75,7 @@ class UsersTestCase(TestCase):
         self.assertNotIn("_auth_user_id", self.client.session)
 
     def test_login_failures_unverified_or_wrong(self):
-        # Unverified
+       
         unverified = User.objects.create_user(email="new@test.com", password="Password123!")
         r1 = self.client.post(reverse("login"), {"email": "new@test.com", "password": "Password123!"})
         self.assertEqual(r1.status_code, 200) 

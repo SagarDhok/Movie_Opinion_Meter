@@ -23,7 +23,7 @@
         <a href="{% url 'public_profile' like.user.id %}" class="like-user-link">
           <div class="like-user">
             {% if like.user.profile_image %}
-              <img src="{{ like.user.profile_image.url }}" class="like-avatar" alt="Profile">
+              <img src="{{ like.user.profile_image }}" class="like-avatar" alt="Profile">
             {% else %}
               <div class="like-avatar fallback">
                 {{ like.user.first_name|first|upper }}
