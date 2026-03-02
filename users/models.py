@@ -17,7 +17,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'  #bydefault django username
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
-    objects = UserManager()   #py manage.py createsuperuser means User.objects.create_superuser(...) internally
+    objects = UserManager()  
 
 
 

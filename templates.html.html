@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Opinion Meter – Interview Questions</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    line-height: 1.7;
+    padding: 20px;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; }
+
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+  }
+
+  /* Table of Contents */
+  .toc {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+  .toc h2 { color: #f59e0b; margin-bottom: 12px; font-size: 1.2rem; }
+  .toc a { color: #60a5fa; text-decoration: none; display: block; padding: 4px 0; font-size: 0.95rem; }
+  .toc a:hover { color: #f59e0b; }
+
+  /* Sections */
+  .section {
+    margin-bottom: 50px;
+  }
+  .section-title {
+    font-size: 1.4rem;
+    color: #f59e0b;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Q&A */
+  .qa {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .qa:hover { border-color: #f59e0b; }
+
+  .q {
+    font-weight: 600;
+    color: #60a5fa;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .q::after { content: '▼'; font-size: 0.7rem; color: #64748b; transition: transform 0.3s; }
+  .qa.open .q::after { transform: rotate(180deg); }
+
+  .a {
+    color: #cbd5e1;
+    font-size: 0.92rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .qa.open .a { max-height: 2000px; }
+
+  .a p { margin-bottom: 8px; }
+  .a code {
+    background: #0f172a;
+    color: #f59e0b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  .a ul { padding-left: 20px; margin-bottom: 8px; }
+  .a li { margin-bottom: 4px; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 8px;
+    font-weight: 500;
+  }
+  .tag-hot { background: #ef4444; color: #fff; }
+  .tag-likely { background: #f59e0b; color: #000; }
+  .tag-deep { background: #8b5cf6; color: #fff; }
+
+  .counter {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-bottom: 30px;
+  }
+
+  pre {
+    background: #0f172a;
+    color: #60a5fa;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    margin: 10px 0;
+    border: 1px solid #334155;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.9rem;
+  }
+  th, td {
+    border: 1px solid #334155;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background: #0f172a;
+    color: #f59e0b;
+  }
+
+  .theory-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 20px;
+  }
+  .theory-card h3 { color: #f59e0b; margin-top: 25px; margin-bottom: 10px; font-size: 1.2rem; }
+  .theory-card h3:first-of-type { margin-top: 0; }
+  .theory-card p { margin-bottom: 15px; color: #cbd5e1; }
+  .theory-card hr { border: 0; border-top: 1px solid #334155; margin: 30px 0; }
+
+  /* Bullet Points Section */
+  .bullets-box {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 50px;
+  }
+  .bullets-box h2 {
+    color: #f59e0b;
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+  .bullets-box .hint {
+    color: #64748b;
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+  }
+  .bullet-item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    font-size: 0.92rem;
+    color: #e2e8f0;
+    line-height: 1.6;
+  }
+  .bullet-item strong { color: #60a5fa; }
+  .copy-btn {
+    display: inline-block;
+    margin-top: 16px;
+    background: #f59e0b;
+    color: #0f172a;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .copy-btn:hover { background: #d97706; }
+  .copy-btn.copied { background: #22c55e; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>🎬 Movie Opinion Meter – Interview Prep</h1>
+<p class="subtitle">Every question that can be asked about this project · Simple language · Ready to speak</p>
+<p class="counter">Total: 90+ Items across 13 Categories</p>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <h2>📋 Table of Contents</h2>
+  <a href="#bullets" style="color:#f59e0b;font-weight:600;">📝 Resume Bullet Points (Copy-Paste Ready)</a>
+  <a href="#sec1">1. Project Overview & Why You Built It</a>
+  <a href="#sec2">2. Database Design & Models</a>
+  <a href="#sec3">3. Query Optimization (N+1, select_related, etc.)</a>
+  <a href="#sec4">4. Voting System & Opinion Aggregation</a>
+  <a href="#sec5">5. Custom User Model & Authentication</a>
+  <a href="#sec6">6. Django REST Framework & API Design</a>
+  <a href="#sec7">7. AI Feature Integration</a>
+  <a href="#sec8">8. Forms, Validation & Security</a>
+  <a href="#sec9">9. External Services (TMDB, Brevo, Supabase)</a>
+  <a href="#sec10">10. Deployment & Production Settings</a>
+  <a href="#sec11">11. Trade-offs & "Why Not X?" Questions</a>
+  <a href="#sec12">12. Scenario / Thinking Questions</a>
+  <a href="#sec13" style="color:#60a5fa;font-weight:600;">13. SQL JOINs & Django Optimization</a>
+</div>
+
+
+<!-- ===================== RESUME BULLETS ===================== -->
+<div class="bullets-box" id="bullets">
+  <h2>📝 Resume Bullet Points</h2>
+  <p class="hint">Click the button below to copy all 5 bullets. Paste directly into your resume.</p>
+
+  <div class="bullet-item">• Designed a constraint-driven PostgreSQL schema with <strong>unique_together</strong> on user+movie across votes, reviews, and watchlist models, and used separate tables for opinion votes (4-category) vs hype votes (binary) to make invalid states unrepresentable at the database level.</div>
+
+  <div class="bullet-item">• Eliminated N+1 query problems using Django ORM's <strong>select_related</strong> for FK joins, <strong>prefetch_related</strong> for M2M/reverse relations, and <strong>Prefetch</strong> objects with filtered querysets to fetch only the current user's review likes in a single pass — reducing detail page queries from 50+ to under 10.</div>
+
+  <div class="bullet-item">• Built a dual-interface backend with Django form-based views for the web frontend and a <strong>Django REST Framework API</strong> with Token authentication, separate list/detail serializers, and <strong>update_or_create</strong> logic — enabling both browser and mobile/API clients from the same codebase.</div>
+
+  <div class="bullet-item">• Integrated Groq LLaMA API with a <strong>primary/fallback model strategy</strong> in a service layer, enforced per-user per-action rate limiting (10 requests/10 minutes) using an <strong>AIRequestLog</strong> audit model, and kept AI fully decoupled so the core voting and review system functions independently.</div>
+
+  <div class="bullet-item">• Implemented <strong>TMDB API data sync</strong> via Django management commands using update_or_create with tmdb_id as the lookup key, normalized person/cast/crew into separate models, and handled transactional email (verification, password reset) through Brevo's HTTP API with secure token-based URL generation.</div>
+
+  <button class="copy-btn" onclick="copyBullets()">📋 Copy All 5 Bullets</button>
+</div>
+
+
+<!-- ===================== SECTION 1 ===================== -->
+<div class="section" id="sec1">
+<h2 class="section-title">1. Project Overview & Why You Built It</h2>
+
+<div class="qa">
+  <div class="q">What is Movie Opinion Meter? Explain in 2 lines. <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <p>It is a web app where users can vote on movies (Masterpiece, Good, Average, Bad), write reviews, and see what percentage of people think what about a movie. For upcoming movies, there is a separate Hype Meter where people vote if they are Excited or Not Excited.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What problem does this project solve? <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <p>Normal movie rating sites give you just one number like 7.2/10 — that tells you nothing. My project separates opinions into categories. You can see "40% people think it's a Masterpiece, 30% Good, 20% Average, 10% Bad". This gives a much better picture of what the audience actually thinks.</p>
+    <p>Also, I separate pre-release hype (will this movie be good?) from post-release opinion (was it actually good?).</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why did you build this project?</div>
+  <div class="a">
+    <p>I wanted to practice real backend concepts — database design with constraints, query optimization, REST API development, and integrating external APIs. Instead of building a simple CRUD app, I picked a problem that forced me to think about data modeling, aggregation logic, and user experience.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Walk me through the tech stack and why you chose each.</div>
+  <div class="a">
+    <ul>
+      <li><strong>Python + Django</strong> — I'm a backend developer, Django gives me ORM, auth, admin, forms, all built-in. Fast to develop.</li>
+      <li><strong>Django REST Framework</strong> — For clean API endpoints. Serializers separate the presentation from models.</li>
+      <li><strong>PostgreSQL</strong> — Needed for production-grade constraints, proper aggregation, and reliability.</li>
+      <li><strong>TMDB API</strong> — Instead of manually entering movies, I sync real movie data from TMDB, so the data is always accurate.</li>
+      <li><strong>Groq AI (LLaMA)</strong> — For AI review rewriting feature. Free, fast, good enough for this use case.</li>
+      <li><strong>Supabase</strong> — For profile image storage. I didn't want to handle file storage on my own server.</li>
+      <li><strong>Brevo</strong> — For sending verification and password reset emails.</li>
+      <li><strong>Render</strong> — For deployment. Simple, free tier available.</li>
+      <li><strong>WhiteNoise</strong> — To serve static files in production without needing Nginx.</li>
+      <li><strong>Gunicorn</strong> — Production WSGI server. Django's dev server is not safe for production.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What are the main features?</div>
+  <div class="a">
+    <ul>
+      <li>Movie browsing with genre/status filters and search</li>
+      <li>Opinion Meter: 4-category voting (Masterpiece/Good/Average/Bad) for released movies</li>
+      <li>Hype Meter: Binary voting (Excited/Not Excited) for upcoming movies</li>
+      <li>Review system with star rating, spoiler flag, likes, comments (1-level threading)</li>
+      <li>AI Review Assistant — rewrite reviews in 7 modes (funny, roast, professional, etc.)</li>
+      <li>Watchlist feature</li>
+      <li>User profiles with Supabase image upload</li>
+      <li>Email verification and password reset via Brevo</li>
+      <li>Full REST API with Token Authentication</li>
+      <li>TMDB data sync via management commands</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 2 ===================== -->
+<div class="section" id="sec2">
+<h2 class="section-title">2. Database Design & Models</h2>
+
+<div class="qa">
+  <div class="q">Explain your data models. What tables do you have? <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <ul>
+      <li><code>User</code> — Custom user model with email login, email verification flag, profile image URL</li>
+      <li><code>Movie</code> — TMDB-synced: title, overview, poster, release date, is_released flag</li>
+      <li><code>Genre</code> — Movie categories (ManyToMany with Movie)</li>
+      <li><code>Person</code>, <code>Cast</code>, <code>Crew</code> — Normalized people data. Cast links person to movie with character name. Crew links person to movie with job title.</li>
+      <li><code>MovieVote</code> — 4-category votes for released movies (unique per user+movie)</li>
+      <li><code>MovieHypeVote</code> — Binary votes for upcoming movies (separate table)</li>
+      <li><code>MovieReview</code> — Star rating + review text + spoiler flag (unique per user+movie)</li>
+      <li><code>ReviewLike</code> — Like on a review (unique per user+review)</li>
+      <li><code>ReviewComment</code> — Comments with self-referential FK for 1-level replies</li>
+      <li><code>Watchlist</code> — User's saved movies (unique per user+movie)</li>
+      <li><code>AIRequestLog</code> — Audit trail for every AI request</li>
+    </ul>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why did you make separate tables for MovieVote and MovieHypeVote instead of one table with a flag? <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <p>Because they have different vote choices. MovieVote has 4 options (masterpiece, good, average, bad). MovieHypeVote has 2 options (excited, not_excited). If I put them in one table with a column like <code>vote_type</code>, nothing stops someone from accidentally creating a "hype vote" with value "masterpiece" — that's an invalid state.</p>
+    <p>With separate tables, the database schema itself prevents invalid data. You literally cannot create an invalid combination. This is called "making invalid states unrepresentable".</p>
+    <p>Also, queries become cleaner: <code>movie.votes</code> always means opinion votes, <code>movie.hype_votes</code> always means hype votes. No filtering needed.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is <code>unique_together</code> and why did you use it?</div>
+  <div class="a">
+    <p><code>unique_together = ("user", "movie")</code> means the combination of user + movie must be unique in the database. So one user can only have one vote per movie, one review per movie, one watchlist entry per movie.</p>
+    <p>This is enforced at the database level — even if my Python code has a bug, the database will reject the duplicate. This is much safer than just checking in Python code.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why do you use <code>on_delete=models.CASCADE</code>? Are there cases where you used something else?</div>
+  <div class="a">
+    <p>CASCADE means: if you delete the parent, delete all children too. For example, if a movie is deleted, all its votes, reviews, comments get deleted too. This makes sense because votes without a movie are useless data.</p>
+    <p>But for <code>AIRequestLog.movie</code>, I used <code>on_delete=models.SET_NULL</code>. Because if a movie is deleted, I still want to keep the AI usage log for auditing. The log is still valid — it shows who used AI, when, what they typed.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is the self-referential foreign key in ReviewComment?</div>
+  <div class="a">
+    <p>The <code>parent</code> field in ReviewComment points back to the same ReviewComment table. If <code>parent</code> is NULL, it's a top-level comment. If <code>parent</code> is set, it's a reply to that comment.</p>
+    <p>I limited it to 1 level of nesting — if someone tries to reply to a reply, my view checks <code>if parent.parent_id is not None</code> and rejects it. This keeps the UI simple and prevents deep threading mess.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why did you use <code>settings.AUTH_USER_MODEL</code> instead of importing User directly in models?</div>
+  <div class="a">
+    <p>Because if I import User directly and later someone changes which model is the auth user, all my FK references break. Using <code>settings.AUTH_USER_MODEL</code> is the Django best practice — it always points to whatever model is configured as the auth user in settings. It's like an indirect reference that stays correct even if the user model changes.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why did you use <code>db_index=True</code> on certain fields?</div>
+  <div class="a">
+    <p>I added indexes on fields that are frequently used in filtering and ordering — like <code>title</code> (search), <code>release_date</code> (ordering), <code>is_released</code> (filtering). An index makes database lookups on these fields much faster, like a book's index page.</p>
+    <p>Note: <code>unique=True</code> automatically creates an index, so I didn't add <code>db_index</code> separately for fields like <code>tmdb_id</code>.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What does the <code>is_released</code> flag control?</div>
+  <div class="a">
+    <p>It controls the entire logic path. If <code>is_released=True</code>, the movie shows Opinion Meter (4-category voting) and allows reviews. If <code>is_released=False</code>, it shows Hype Meter (excited/not excited) and blocks reviews. This one boolean drives which features are available for each movie.</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 3 ===================== -->
+<div class="section" id="sec3">
+<h2 class="section-title">3. Query Optimization</h2>
+
+<div class="qa">
+  <div class="q">What is the N+1 query problem and how did you solve it? <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <p>N+1 means: 1 query to get a list of items, then N extra queries to get related data for each item. For example, if I have 20 movies and each has genres, without optimization Django fires 1 query for movies + 20 queries for genres = 21 queries.</p>
+    <p>I solve it with:</p>
+    <ul>
+      <li><code>select_related("user")</code> — For ForeignKey (one-to-one). It does a SQL JOIN and gets both tables in 1 query.</li>
+      <li><code>prefetch_related("categories")</code> — For ManyToMany or reverse FK. It fires 2 queries total (1 for movies, 1 for all genres), then joins them in Python.</li>
+    </ul>
+    <p>Example: In my movie detail view, I do <code>Movie.objects.prefetch_related("categories", "cast__person", "crew__person")</code> — this gets the movie + all cast + all crew in just a few queries instead of hundreds.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">When do you use <code>select_related</code> vs <code>prefetch_related</code>? <span class="tag tag-likely">LIKELY</span></div>
+  <div class="a">
+    <p><code>select_related</code> = for ForeignKey or OneToOne. It does a SQL JOIN. Works in 1 query. Example: <code>MovieReview.objects.select_related("user")</code> — gets review + user in one query.</p>
+    <p><code>prefetch_related</code> = for ManyToMany or reverse ForeignKey (one-to-many). It does a separate query and joins in Python. Example: <code>Movie.objects.prefetch_related("categories")</code>.</p>
+    <p>Simple rule: If it's a "one" relationship → select_related. If it's a "many" relationship → prefetch_related.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How do you calculate vote percentages? Why not store them?</div>
+  <div class="a">
+    <p>I calculate on every page load using database aggregation: <code>MovieVote.objects.filter(movie=movie).values("vote").annotate(count=Count("id"))</code>. This gives me the count of each vote type in one query. Then I calculate percentages in Python.</p>
+    <p>I don't store percentages because they change every time someone votes. If I stored them, I'd have to update the percentage every time anyone votes — that's extra writes and risk of stale data. Calculating on-read is fast enough for my scale.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is <code>annotate()</code> and how did you use it?</div>
+  <div class="a">
+    <p><code>annotate()</code> adds a computed field to each object in the queryset. For example, <code>annotate(like_count=Count("likes"))</code> counts the number of likes for each review at the database level — much faster than doing a Python loop.</p>
+    <p>I also used it for the trending section: <code>annotate(vote_count=Count("votes")).filter(vote_count__gt=0).order_by("-vote_count")</code> — this gets movies sorted by vote count, all in one query.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Explain the Prefetch object you used in the reviews.</div>
+  <div class="a">
+    <p>Normal <code>prefetch_related("likes")</code> would fetch ALL likes. But I only need to know if the current user liked each review. So I used:</p>
+    <p><code>Prefetch("likes", queryset=ReviewLike.objects.filter(user=request.user), to_attr="user_likes")</code></p>
+    <p>This fetches only the current user's likes and stores them in <code>review.user_likes</code> attribute. Then <code>bool(review.user_likes)</code> tells me if the user liked it or not.</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 4 ===================== -->
+<div class="section" id="sec4">
+<h2 class="section-title">4. Voting System & Opinion Aggregation</h2>
+
+<div class="qa">
+  <div class="q">How does vote switching work? What if a user changes their vote? <span class="tag tag-likely">LIKELY</span></div>
+  <div class="a">
+    <p>I use <code>MovieVote.objects.update_or_create(user=request.user, movie=movie, defaults={"vote": vote})</code>. This does: if a vote exists for this user+movie, update it. If not, create a new one. It's atomic — one database operation handles both cases.</p>
+    <p>Combined with <code>unique_together</code>, this guarantees one vote per user per movie, and vote switching just works without any extra logic.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How does the hype voting work? What prevents hype votes on released movies?</div>
+  <div class="a">
+    <p>In the <code>hype_vote_movie</code> view, I first check <code>if movie.is_released</code> and reject the request with an error message. Also, since hype votes are in a separate table (<code>MovieHypeVote</code>), the data model itself makes the intent clear — hype votes are a separate concept.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How do you handle the trending section on the home page?</div>
+  <div class="a">
+    <p>I filter movies released in the last 120 days, annotate them with <code>vote_count=Count("votes")</code>, filter only those with at least 1 vote, and order by vote count descending. This is all done in one database query. The most voted recent movies appear first.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How does the hype score calculation work in the home page?</div>
+  <div class="a">
+    <p>I used Django's <code>Case/When</code> expression with <code>ExpressionWrapper</code> to calculate the percentage at database level: <code>excited_count * 100.0 / total_hype_votes</code>. If total is 0, I default to 0 to avoid division-by-zero. This is all done in the SQL query, not in Python loops.</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 5 ===================== -->
+<div class="section" id="sec5">
+<h2 class="section-title">5. Custom User Model & Authentication</h2>
+
+<div class="qa">
+  <div class="q">Why did you create a custom User model? <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <p>Django's default user model uses username for login. I wanted email-based login because that's what modern apps use. I extended <code>AbstractBaseUser</code> and <code>PermissionsMixin</code>, set <code>USERNAME_FIELD = 'email'</code>, and created a custom <code>UserManager</code>.</p>
+    <p>Django docs strongly recommend setting up a custom user model at the start of the project — changing it later is very painful because all migrations depend on the user model.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is <code>UserManager</code> and why did you create it?</div>
+  <div class="a">
+    <p>When you use a custom user model, Django's default <code>create_user()</code> and <code>create_superuser()</code> expect a username field. Since I use email instead, I had to write my own manager that handles <code>create_user(email, password)</code> and <code>create_superuser(email, password)</code>.</p>
+    <p>In <code>create_user</code>, I validate email and password, normalize the email (lowercase the domain part), hash the password with <code>set_password()</code>, and save.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How does email verification work? <span class="tag tag-likely">LIKELY</span></div>
+  <div class="a">
+    <p>1. User signs up → I create the user with <code>is_email_verified=False</code></p>
+    <p>2. I generate a UID (base64 encoded user ID) and a token using Django's <code>default_token_generator</code></p>
+    <p>3. I build a verification URL and send it via Brevo email API</p>
+    <p>4. When user clicks the link, I decode the UID, find the user, check the token</p>
+    <p>5. If valid, I set <code>is_email_verified=True</code></p>
+    <p>6. During login, I check this flag — unverified users cannot login</p>
+    <p>The token is derived from the user's password hash and last login time, so it automatically expires if the password changes.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is <code>@login_required</code> and what does it do?</div>
+  <div class="a">
+    <p>It's a Django decorator that checks if <code>request.user.is_authenticated</code>. If not, it redirects to the login page. I also set <code>LOGIN_URL = "login"</code> in settings so Django knows where to redirect.</p>
+    <p>For the movie detail page, I did a manual check instead of using the decorator, because I wanted to add a custom message and append <code>?next=/movie/42/</code> to the login URL so the user is redirected back after logging in.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How does password reset work?</div>
+  <div class="a">
+    <p>Same concept as email verification — generate UID + token, send a link via email. When user clicks, validate the token, show a password reset form, then call <code>user.set_password(new_password)</code> and save.</p>
+    <p>Important security detail: In the forgot password view, I always show the same message "If an account exists, a link has been sent" — this prevents attackers from figuring out which emails are registered (information leakage).</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 6 ===================== -->
+<div class="section" id="sec6">
+<h2 class="section-title">6. Django REST Framework & API Design</h2>
+
+<div class="qa">
+  <div class="q">Why did you use DRF when you already have Django templates? <span class="tag tag-likely">LIKELY</span></div>
+  <div class="a">
+    <p>The Django template views serve the web frontend. The DRF API serves any other client — mobile apps, frontend frameworks like React, third-party integrations. Having both means the same backend can serve any client without rebuilding.</p>
+    <p>Also, DRF gives me clean serializer pattern (separates presentation from models), built-in permission classes, and a browsable API for testing.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Explain your API authentication setup.</div>
+  <div class="a">
+    <p>I use <code>TokenAuthentication</code> from DRF. When a user logs in via the API, I create or fetch a token using <code>Token.objects.get_or_create(user=user)</code> and return it. The client sends this token in the <code>Authorization: Token xxx</code> header for subsequent requests.</p>
+    <p>In settings, I set <code>DEFAULT_PERMISSION_CLASSES = [IsAuthenticated]</code> so all API endpoints require auth by default. Public endpoints explicitly set <code>permission_classes = [AllowAny]</code>.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What are serializers and why did you use separate List and Detail serializers for Movie?</div>
+  <div class="a">
+    <p>Serializers convert model instances to JSON (and validate incoming JSON). I have <code>MovieListSerializer</code> with fewer fields (for listing) and <code>MovieDetailSerializer</code> with more fields like overview (for detail page). This way, the list API doesn't send unnecessary data — keeping responses smaller and faster.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How does <code>update_or_create</code> work in ReviewCreateUpdateAPIView?</div>
+  <div class="a">
+    <p><code>MovieReview.objects.update_or_create(user=request.user, movie_id=movie_id, defaults=serializer.validated_data)</code></p>
+    <p>It looks for an existing review by this user for this movie. If found, it updates the fields in <code>defaults</code>. If not found, it creates a new one. This is one API endpoint that handles both create and update — clean and simple.</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 7 ===================== -->
+<div class="section" id="sec7">
+<h2 class="section-title">7. AI Feature Integration</h2>
+
+<div class="qa">
+  <div class="q">How did you integrate AI into the project? <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <p>I use the Groq API which runs LLaMA models. I built a service layer (<code>ai_service.py</code>) that constructs prompts based on the user's review and the selected mode, calls the Groq API, and returns the result.</p>
+    <p>The AI is assistive — it helps users rewrite their reviews in different styles. The core opinion system works completely without AI. If AI goes down, nothing else breaks.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is the fallback strategy in your AI service?</div>
+  <div class="a">
+    <p>I have two models configured: <code>llama-3.3-70b-versatile</code> (primary) and <code>llama-3.1-8b-instant</code> (fallback). The code first tries the primary model. If it fails for any reason (timeout, rate limit, error), it catches the exception and tries the fallback model. This way the user still gets a response even if the main model is having issues.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How did you implement rate limiting for AI? <span class="tag tag-likely">LIKELY</span></div>
+  <div class="a">
+    <p>Application-level rate limiting. I have an <code>AIRequestLog</code> model that stores every AI request with a timestamp. Before processing a new request, I count how many requests this user made for this action in the last 10 minutes. If it's 10 or more, I return a 429 Too Many Requests error.</p>
+    <p><code>AIRequestLog.objects.filter(user=user, action=action, created_at__gte=since).count()</code></p>
+    <p>This approach also gives me an audit trail — I can see who used AI, what they sent, what they got back, and if it failed.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why do you log every AI request?</div>
+  <div class="a">
+    <p>Three reasons: (1) Rate limiting — I count recent requests to enforce limits. (2) Auditing — I can see usage patterns, catch abuse. (3) Debugging — if something fails, the error message is logged, so I can see exactly what went wrong.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What are the 7 AI rewrite modes?</div>
+  <div class="a">
+    <p>Rewrite (clean polished English), Shorten (under 180 chars), Funny, Roast (humorous, not abusive), Professional (formal tone), Hype (excited tone), and Savage 1-Star (brutal review, no hate speech). Each mode has a different prompt template in the <code>build_prompt()</code> function.</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 8 ===================== -->
+<div class="section" id="sec8">
+<h2 class="section-title">8. Forms, Validation & Security</h2>
+
+<div class="qa">
+  <div class="q">Where does validation happen in your project? <span class="tag tag-likely">LIKELY</span></div>
+  <div class="a">
+    <p>Multiple levels:</p>
+    <ul>
+      <li><strong>Database level</strong> — <code>unique_together</code> prevents duplicate votes/reviews. <code>MaxLengthValidator</code> on review text.</li>
+      <li><strong>Form level</strong> — <code>MovieReviewForm.clean_review_text()</code> checks empty and length. <code>SignupForm.clean_email()</code> checks duplicate.</li>
+      <li><strong>View level</strong> — I check <code>request.method != "POST"</code>, validate vote choices against an allowed set, check text length for comments.</li>
+      <li><strong>Serializer level</strong> — DRF serializers validate on <code>is_valid(raise_exception=True)</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How do you handle CSRF protection?</div>
+  <div class="a">
+    <p>Django's <code>CsrfViewMiddleware</code> is enabled. Every form in the templates uses <code>{% csrf_token %}</code>. For AJAX requests (like the like button), the CSRF token is sent via JavaScript from the cookie. For the DRF API, Token Authentication is used instead of sessions, so CSRF is not needed there.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How do you prevent users from deleting other people's comments?</div>
+  <div class="a">
+    <p>In <code>delete_comment_page</code>, I check two conditions: is the current user the comment owner, OR is the current user the review owner (review owners can moderate comments on their reviews). If neither is true, I return "Not allowed". This is an ownership check at the view level.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is <code>form.save(commit=False)</code> and why did you use it?</div>
+  <div class="a">
+    <p>In <code>submit_review</code>, the form has fields for rating, review_text, spoiler flag. But I also need to set user and movie — which are not form fields. So I do <code>review = form.save(commit=False)</code> to create the object in memory without saving to DB, then I set <code>review.user</code> and <code>review.movie</code> manually, then call <code>review.save()</code>.</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 9 ===================== -->
+<div class="section" id="sec9">
+<h2 class="section-title">9. External Services (TMDB, Brevo, Supabase)</h2>
+
+<div class="qa">
+  <div class="q">Why did you use TMDB API instead of letting users add movies? <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <p>Because TMDB is an authoritative data source — movie titles, posters, release dates, cast, crew are all accurate and consistent. If I let users add movies, there would be duplicates, typos, wrong data. TMDB lets me focus on what my project is actually about — opinion aggregation — instead of building a content management system.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How does TMDB sync work?</div>
+  <div class="a">
+    <p>I built a Django management command (<code>python manage.py sync_tmdb_movies</code>). It calls the TMDB API, gets movie data, and uses <code>update_or_create</code> with <code>tmdb_id</code> as the lookup field. So if a movie already exists, it updates the data; otherwise creates a new entry. Same for Person, Cast, Crew.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How does Supabase profile image upload work?</div>
+  <div class="a">
+    <p>User uploads a file → I validate type (JPG/PNG/WEBP) and size (max 5MB) → Generate a unique filename using <code>uuid4</code> → Read file bytes → Upload to Supabase Storage bucket → Get the public URL → Save URL in user's <code>profile_image</code> field.</p>
+    <p>I use Supabase because I don't want to store files on my server — it's cleaner and the files are served from Supabase's CDN.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why Brevo for emails instead of Django's built-in email?</div>
+  <div class="a">
+    <p>Django's <code>send_mail()</code> needs an SMTP server. Setting up a reliable SMTP that doesn't go to spam is hard. Brevo gives me a simple HTTP API — I just POST the email data and they handle delivery. It's more reliable for transactional emails like verification and password reset.</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 10 ===================== -->
+<div class="section" id="sec10">
+<h2 class="section-title">10. Deployment & Production Settings</h2>
+
+<div class="qa">
+  <div class="q">How is your app deployed? <span class="tag tag-likely">LIKELY</span></div>
+  <div class="a">
+    <p>Deployed on Render. I use Gunicorn as the WSGI server (Django's dev server is single-threaded and has no security features). WhiteNoise serves static files (CSS, JS, images) without needing a separate Nginx server.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How do you manage environment variables?</div>
+  <div class="a">
+    <p>I use <code>python-dotenv</code>. All secrets (SECRET_KEY, database credentials, API keys) are in a <code>.env</code> file which is in <code>.gitignore</code>. In code, I use <code>os.getenv("KEY")</code> to read them. On Render, the same variables are set in the dashboard's environment variables section.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why is <code>DEBUG = False</code> important in production?</div>
+  <div class="a">
+    <p>With <code>DEBUG=True</code>, Django shows detailed error pages with your code, file paths, settings — an attacker can see everything. With <code>DEBUG=False</code>, users see a generic error page. Also, Django collects static files differently in production mode.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is WhiteNoise and why do you need it?</div>
+  <div class="a">
+    <p>In production, Django doesn't serve static files. You normally need Nginx for that. WhiteNoise is a middleware that lets Django serve static files efficiently. It compresses files and adds cache headers. This simplifies deployment — I don't need a separate web server.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is the difference between <code>STATIC_URL</code>, <code>STATICFILES_DIRS</code>, and <code>STATIC_ROOT</code>?</div>
+  <div class="a">
+    <ul>
+      <li><code>STATIC_URL = '/static/'</code> — The URL prefix in the browser. When the template says <code>{% static 'style.css' %}</code>, it becomes <code>/static/style.css</code>.</li>
+      <li><code>STATICFILES_DIRS</code> — Where Django looks for static files during development (your source folders).</li>
+      <li><code>STATIC_ROOT</code> — Where <code>collectstatic</code> copies ALL static files for production. WhiteNoise serves from here.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 11 ===================== -->
+<div class="section" id="sec11">
+<h2 class="section-title">11. Trade-offs & "Why Not X?" Questions</h2>
+
+<div class="qa">
+  <div class="q">Why no Redis/caching? <span class="tag tag-hot">HOT</span></div>
+  <div class="a">
+    <p>Vote percentages change on every vote. If I cache them, I need to invalidate the cache every time someone votes — that's complex cache invalidation logic. PostgreSQL aggregations are fast for my current scale. Adding Redis would be premature optimization — solving a performance problem I don't have yet.</p>
+    <p>If the app grows, I would add caching for things that don't change often, like movie metadata from TMDB.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why no Celery for background tasks?</div>
+  <div class="a">
+    <p>The only async-ish operation is sending emails, and Brevo's API is fast (< 1 second). AI requests are synchronous because the user is waiting for the result on the page. If emails start taking too long or I add features like batch TMDB sync, I would add Celery then.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why no WebSocket for real-time vote updates?</div>
+  <div class="a">
+    <p>Real-time updates are a nice-to-have, not a need. Users vote and see the updated percentages on page reload. Adding WebSocket (Django Channels + Redis) is significant infrastructure complexity for a portfolio project. If this was a live competition voting app, I would add it.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why no pagination in the API?</div>
+  <div class="a">
+    <p>The template views have pagination (Paginator with 24 items per page). The API currently returns all results — this is a known limitation. In production, I would add DRF's <code>PageNumberPagination</code> to limit response size and improve performance.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why function-based views instead of class-based views?</div>
+  <div class="a">
+    <p>For the template views, function-based views are simpler and more readable for the kind of logic I have (multiple conditionals, enriching data, manual permission checks). The API views use class-based views (APIView, RetrieveAPIView) because DRF's class-based pattern fits well there.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Why no admin/moderator roles?</div>
+  <div class="a">
+    <p>There's no user-generated content that needs moderation — movies come from TMDB, reviews and votes are user-owned. Django's built-in admin panel is sufficient for data inspection. Adding roles would be feature bloat for this project's scope.</p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== SECTION 12 ===================== -->
+<div class="section" id="sec12">
+<h2 class="section-title">12. Scenario / Thinking Questions</h2>
+
+<div class="qa">
+  <div class="q">If 1 million users vote on a movie at the same time, what breaks? <span class="tag tag-deep">DEEP</span></div>
+  <div class="a">
+    <p>The main bottleneck would be database writes — every vote is an INSERT or UPDATE. Solutions I would consider:</p>
+    <ul>
+      <li>Database connection pooling (pgbouncer)</li>
+      <li>Pre-computed vote counts that update periodically instead of real-time</li>
+      <li>Caching the vote percentages in Redis with a short TTL, rebuilding every few seconds</li>
+      <li>Horizontal scaling with multiple Gunicorn workers behind a load balancer</li>
+    </ul>
+    <p>But <code>unique_together</code> still protects against duplicate votes — that's database-level, so even under load, data integrity is maintained.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">A user submits a review, but the save fails midway. What happens to the vote? <span class="tag tag-deep">DEEP</span></div>
+  <div class="a">
+    <p>Currently, votes and reviews are independent operations — they happen in separate views. A review failure doesn't affect votes. But if I needed them to be atomic (both succeed or both fail), I would wrap them in <code>from django.db import transaction</code> and use <code>with transaction.atomic():</code>. This makes the database roll back all changes if anything inside fails.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How would you add a "Top Reviewers" leaderboard?</div>
+  <div class="a">
+    <p>I'd query: <code>User.objects.annotate(review_count=Count("moviereview"), total_likes=Count("moviereview__likes")).order_by("-total_likes")[:10]</code></p>
+    <p>This gets users with the most liked reviews. All done in one database query using annotate. If it gets slow, I'd cache the result since the leaderboard doesn't need real-time accuracy.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What if the Groq AI API goes down permanently? <span class="tag tag-deep">DEEP</span></div>
+  <div class="a">
+    <p>The core app still works — voting, reviews, watchlist, everything. AI is assistive, not core. In code, the AI errors are caught and return a 500 to the frontend, which shows "AI failed" — but nothing breaks. I could also swap to another LLM provider (OpenAI, Anthropic, local Ollama) by just changing the <code>groq_chat()</code> function. The rest of the code doesn't care which AI provider is used.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">How would you add unit tests to this project?</div>
+  <div class="a">
+    <p>I would test at multiple levels:</p>
+    <ul>
+      <li><strong>Model tests</strong> — Verify unique_together constraints, test that creating duplicate votes raises IntegrityError</li>
+      <li><strong>View tests</strong> — Use Django's TestClient to test vote submission, review CRUD, auth-required redirects</li>
+      <li><strong>API tests</strong> — Use DRF's APIClient with token auth to test all endpoints</li>
+      <li><strong>Service tests</strong> — Mock the Groq API and test the AI service logic without making real API calls</li>
+    </ul>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">If you had to rebuild this project from scratch, what would you change?</div>
+  <div class="a">
+    <p>A few things:</p>
+    <ul>
+      <li>Add API pagination from the start</li>
+      <li>Use <code>UniqueConstraint</code> instead of deprecated <code>unique_together</code></li>
+      <li>Add Django signals to auto-update denormalized counts if needed</li>
+      <li>Write tests from day one</li>
+      <li>Use environment-specific settings files (dev, staging, prod) instead of one settings.py</li>
+    </ul>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is the difference between <code>get_object_or_404</code> and <code>.filter().first()</code>? When do you use which?</div>
+  <div class="a">
+    <p><code>get_object_or_404</code> returns the object or raises a 404 error. I use it when the object MUST exist — like viewing a movie detail page. If the movie doesn't exist, showing a 404 is correct.</p>
+    <p><code>.filter().first()</code> returns the object or None. I use it when the absence is expected — like checking if a user already voted. No vote is not an error, it just means they haven't voted yet.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Explain the difference between <code>auto_now</code> and <code>auto_now_add</code>.</div>
+  <div class="a">
+    <p><code>auto_now_add=True</code> — Sets the timestamp only when the object is first created. Used for <code>created_at</code>.</p>
+    <p><code>auto_now=True</code> — Updates the timestamp every time the object is saved. Used for <code>updated_at</code>.</p>
+    <p>I used <code>auto_now_add</code> on all my <code>created_at</code> fields and <code>auto_now</code> on the Movie's <code>updated_at</code> field.</p>
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">What is <code>related_name</code> and why is it important?</div>
+  <div class="a">
+    <p><code>related_name</code> is the reverse accessor name. If MovieVote has <code>movie = ForeignKey(Movie, related_name="votes")</code>, then I can do <code>movie.votes.all()</code> to get all votes for that movie. Without it, Django would auto-generate <code>movie.movievote_set.all()</code> which is ugly and less readable.</p>
+  </div>
+</div>
+
+</div>
+
+
+<!-- ===================== SECTION 13 ===================== -->
+<div class="section" id="sec13">
+<h2 class="section-title">13. SQL JOINs & Django Optimization</h2>
+
+<div class="theory-card">
+  <h3>SQL JOIN Basics</h3>
+  <hr>
+
+  <h3>INNER JOIN</h3>
+  <p>INNER JOIN returns only matching rows from both tables.</p>
+  <pre>
+SELECT customers.name, orders.product
+FROM customers
+INNER JOIN orders
+ON customers.id = orders.customer_id;</pre>
+  <p>Result: Only customers who have orders will appear.</p>
+
+  <h3>LEFT JOIN</h3>
+  <p>LEFT JOIN returns all rows from the left table and matching rows from the right table. If no match exists, NULL is returned.</p>
+  <pre>
+SELECT customers.name, orders.product
+FROM customers
+LEFT JOIN orders
+ON customers.id = orders.customer_id;</pre>
+  <p>Result: All customers appear, even those with no orders.</p>
+
+  <h3>RIGHT JOIN</h3>
+  <p>RIGHT JOIN returns all rows from the right table and matching rows from the left table.</p>
+  <pre>
+SELECT customers.name, orders.product
+FROM customers
+RIGHT JOIN orders
+ON customers.id = orders.customer_id;</pre>
+
+  <hr>
+
+  <h3>The N+1 Query Problem</h3>
+  <p>Suppose we fetch all orders and access customer data inside a loop.</p>
+  <pre>
+orders = Order.objects.all()
+
+for order in orders:
+    print(order.customer.name)</pre>
+
+  <p>Database queries:</p>
+  <ul>
+    <li>1 query to fetch all orders</li>
+    <li>N queries to fetch customer for each order</li>
+  </ul>
+  <p>Total = N + 1 queries. This is inefficient.</p>
+
+  <hr>
+
+  <h3>select_related()</h3>
+  <p>Used for ForeignKey and OneToOne relationships. It performs a SQL JOIN and fetches related data in a single query.</p>
+  <pre>orders = Order.objects.select_related("customer")</pre>
+
+  <p>Internally runs:</p>
+  <pre>
+SELECT order.*, customer.*
+FROM order
+INNER JOIN customer
+ON order.customer_id = customer.id;</pre>
+  <p>Only 1 database query is executed.</p>
+
+  <hr>
+
+  <h3>prefetch_related()</h3>
+  <p>Used for Many-to-Many or reverse ForeignKey relationships. It executes separate queries and joins them in Python.</p>
+  <pre>customers = Customer.objects.prefetch_related("order_set")</pre>
+
+  <p>Internally runs:</p>
+  <pre>
+SELECT * FROM customer;
+
+SELECT * FROM order
+WHERE customer_id IN (...);</pre>
+  <p>Django matches results in memory.</p>
+
+  <hr>
+
+  <h3>Quick Comparison</h3>
+  <table>
+    <tr>
+      <th>Feature</th>
+      <th>select_related</th>
+      <th>prefetch_related</th>
+    </tr>
+    <tr>
+      <td>Uses SQL JOIN</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Number of Queries</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>Best For</td>
+      <td>ForeignKey, OneToOne</td>
+      <td>ManyToMany, reverse FK</td>
+    </tr>
+  </table>
+</div>
+
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.qa').forEach(qa => {
+  qa.querySelector('.q').addEventListener('click', () => {
+    qa.classList.toggle('open');
+  });
+});
+
+function copyBullets() {
+  const bullets = [
+    '• Designed a constraint-driven PostgreSQL schema with unique_together on user+movie across votes, reviews, and watchlist models, and used separate tables for opinion votes (4-category) vs hype votes (binary) to make invalid states unrepresentable at the database level.',
+    '• Eliminated N+1 query problems using Django ORM\'s select_related for FK joins, prefetch_related for M2M/reverse relations, and Prefetch objects with filtered querysets to fetch only the current user\'s review likes in a single pass — reducing detail page queries from 50+ to under 10.',
+    '• Built a dual-interface backend with Django form-based views for the web frontend and a Django REST Framework API with Token authentication, separate list/detail serializers, and update_or_create logic — enabling both browser and mobile/API clients from the same codebase.',
+    '• Integrated Groq LLaMA API with a primary/fallback model strategy in a service layer, enforced per-user per-action rate limiting (10 requests/10 minutes) using an AIRequestLog audit model, and kept AI fully decoupled so the core voting and review system functions independently.',
+    '• Implemented TMDB API data sync via Django management commands using update_or_create with tmdb_id as the lookup key, normalized person/cast/crew into separate models, and handled transactional email (verification, password reset) through Brevo\'s HTTP API with secure token-based URL generation.'
+  ];
+
+  const text = bullets.join('\n\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copy All 5 Bullets';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

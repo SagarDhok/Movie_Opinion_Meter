@@ -8,7 +8,6 @@ from datetime import date, timedelta
 from .models import (Movie, Genre, MovieVote, Watchlist, Person, Cast, Crew, MovieReview, ReviewLike, ReviewComment, MovieHypeVote)
 from .forms import MovieReviewForm
 from collections import defaultdict
-from django.http import HttpResponse
 from .utils import attach_hype_score
 from django.http import JsonResponse
 from django.db.models import F, FloatField, ExpressionWrapper, Case, When, Value
