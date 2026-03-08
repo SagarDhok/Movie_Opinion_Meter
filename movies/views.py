@@ -84,14 +84,12 @@ def home(request):
 
     if str(page_number) == "1":
         soon_limit = today + timedelta(days=60)
-        recent_limit = today - timedelta(days=120)
         
-        #trednding section 
+        #trending section (most voted movies overall)
         context["trending_movies"] = (
             Movie.objects.filter(
                 release_date__isnull=False,
-                release_date__lte=today,
-                release_date__gte=recent_limit
+                release_date__lte=today
             )
             .annotate(vote_count=Count("votes"))
             .filter(vote_count__gt=0)
