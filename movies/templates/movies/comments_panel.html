@@ -1,0 +1,40 @@
+<section id="comments-panel" class="comments-panel hidden">
+
+  <div class="comments-layout">
+
+    <!-- LEFT: REVIEW CARD -->
+    <div class="comments-review" id="comments-review">
+      <!-- injected by JS -->
+    </div>
+
+    <!-- RIGHT: COMMENTS -->
+    <div class="comments-box">
+
+      <div class="comments-header">
+        <h3>Comments</h3>
+        <button type="button" class="comments-close">✕</button>
+      </div>
+
+      <div id="comments-list" class="comments-list">
+        <p class="no-comments">No comments yet.</p>
+      </div>
+
+      <form class="comment-form" id="comment-form">
+        {% csrf_token %}
+        <input type="hidden" id="comment-review-id">
+
+        <textarea
+          id="comment-text"
+          placeholder="Write a comment..."
+          maxlength="500"
+          required
+        ></textarea>
+
+        <button type="submit">Post</button>
+      </form>
+
+    </div>
+
+  </div>
+
+</section>

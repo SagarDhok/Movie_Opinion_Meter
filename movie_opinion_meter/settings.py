@@ -54,11 +54,7 @@ INSTALLED_APPS = [
     'movies',
     "django.contrib.humanize",
     'rest_framework',
-     "rest_framework.authtoken"
-
-
-
-]
+     "rest_framework.authtoken"]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
